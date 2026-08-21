@@ -1,0 +1,259 @@
+[
+  {
+    "title": "MDN Web Docs",
+    "url": "https://developer.mozilla.org/",
+    "category": "文档",
+    "description": "Web 平台的权威参考，覆盖 HTML、CSS、JavaScript 与 Web API。"
+  },
+  {
+    "title": "TypeScript Handbook",
+    "url": "https://www.typescriptlang.org/docs/handbook/intro.html",
+    "category": "文档",
+    "description": "TypeScript 官方手册，从基础类型到模块系统。"
+  },
+  {
+    "title": "Vite",
+    "url": "https://vite.dev/",
+    "category": "工具",
+    "description": "原生 ESM 驱动的前端构建工具。"
+  },
+  {
+    "title": "Tailwind CSS",
+    "url": "https://tailwindcss.com/docs",
+    "category": "前端",
+    "description": "实用优先的 CSS 框架，当前项目的样式基础。"
+  },
+  {
+    "title": "daisyUI",
+    "url": "https://daisyui.com/",
+    "category": "前端",
+    "description": "Tailwind CSS 组件类库。"
+  },
+  {
+    "title": "Lucide",
+    "url": "https://lucide.dev/",
+    "category": "设计",
+    "description": "开源线性图标集，笔画一致、可替换。"
+  },
+  {
+    "title": "GitHub",
+    "url": "https://github.com/",
+    "category": "工具",
+    "description": "代码托管与协作。"
+  },
+  {
+    "title": "Can I Use",
+    "url": "https://caniuse.com/",
+    "category": "参考",
+    "description": "浏览器特性支持表。"
+  },
+  {
+    "title": "Playwright",
+    "url": "https://playwright.dev/",
+    "category": "工具",
+    "description": "跨浏览器端到端测试与自动化。"
+  },
+  {
+    "title": "WebAIM Contrast Checker",
+    "url": "https://webaim.org/resources/contrastchecker/",
+    "category": "设计",
+    "description": "检查文本与背景的对比度是否达到 WCAG。"
+  },
+  {
+    "title": "Practical Typography",
+    "url": "https://practicaltypography.com/",
+    "category": "设计",
+    "description": "Butterick 的排印实务，适合做界面文字决定。"
+  },
+  {
+    "title": "RFC Editor",
+    "url": "https://www.rfc-editor.org/",
+    "category": "参考",
+    "description": "互联网标准文稿索引。"
+  },
+  {
+    "title": "OWASP Cheat Sheet Series",
+    "url": "https://cheatsheetseries.owasp.org/",
+    "category": "参考",
+    "description": "常见 Web 安全问题的精简对策。"
+  },
+  {
+    "title": "Unicode Character Name Index",
+    "url": "https://www.unicode.org/charts/charindex.html",
+    "category": "参考",
+    "description": "按名称查找 Unicode 字符。"
+  },
+  {
+    "title": "CSS-Tricks",
+    "url": "https://css-tricks.com/",
+    "category": "博客",
+    "description": "CSS 与前端实务文章。"
+  },
+  {
+    "title": "Jake Archibald's blog",
+    "url": "https://jakearchibald.com/",
+    "category": "博客",
+    "description": "浏览器、性能与 Service Worker 的一手经验。"
+  },
+  {
+    "title": "阮一峰的网络日志",
+    "url": "https://www.ruanyifeng.com/blog/",
+    "category": "博客",
+    "description": "技术周刊与前端、后端、工具的中文笔记。"
+  },
+  {
+    "title": "Martin Fowler",
+    "url": "https://martinfowler.com/",
+    "category": "博客",
+    "description": "软件设计与重构的长期写作。"
+  },
+  {
+    "title": "npm",
+    "url": "https://www.npmjs.com/",
+    "category": "工具",
+    "description": "JavaScript 包注册表。"
+  },
+  {
+    "title": "Cloudflare Docs",
+    "url": "https://developers.cloudflare.com/",
+    "category": "文档",
+    "description": "DNS、CDN 与 Workers 文档。"
+  },
+  {
+    "title": "Vercel Docs",
+    "url": "https://vercel.com/docs",
+    "category": "文档",
+    "description": "当前站点的构建与发布平台文档。"
+  },
+  {
+    "title": "HTML Living Standard",
+    "url": "https://html.spec.whatwg.org/multipage/",
+    "category": "文档",
+    "description": "WHATWG HTML 现行标准。"
+  },
+  {
+    "title": "Regex101",
+    "url": "https://regex101.com/",
+    "category": "工具",
+    "description": "正则表达式调试器，支持解释与测试。"
+  },
+  {
+    "title": "Excalidraw",
+    "url": "https://excalidraw.com/",
+    "category": "工具",
+    "description": "手绘风格白板，适合快速画结构。"
+  },
+  {
+    "title": "jq",
+    "url": "https://jqlang.github.io/jq/",
+    "category": "工具",
+    "description": "命令行 JSON 处理器。"
+  },
+  {
+    "title": "Source Serif 4",
+    "url": "https://github.com/adobe-fonts/source-serif",
+    "category": "设计"
+  },
+  {
+    "title": "Refero",
+    "url": "https://refero.design/",
+    "category": "设计",
+    "description": "真实产品界面资料库。"
+  },
+  {
+    "title": "Web.dev",
+    "url": "https://web.dev/",
+    "category": "文档",
+    "description": "Google 的 Web 质量、性能与基线指南。"
+  },
+  {
+    "title": "Baseline",
+    "url": "https://web-platform-dx.github.io/web-features/",
+    "category": "参考",
+    "description": "Web 平台特性是否已进入 Baseline 的数据。"
+  },
+  {
+    "title": "Internet Archive",
+    "url": "https://archive.org/",
+    "description": "网页、书籍与多媒体的公开存档。"
+  },
+  {
+    "title": "Wikipedia",
+    "url": "https://zh.wikipedia.org/"
+  },
+  {
+    "title": "Wayback Machine",
+    "url": "https://web.archive.org/",
+    "description": "按时间查看已消失的网页。"
+  },
+  {
+    "title": "GitHub Vite 指南源码",
+    "url": "https://github.com/vitejs/vite/blob/main/docs/guide/index.md?plain=1&utm_source=webdirectory-maintainer-catalog&ref=personal-bookmark-portal-long-url-fixture",
+    "category": "前端",
+    "description": "用来检查长地址在卡片里如何折行。"
+  },
+  {
+    "title": "Node.js 文档",
+    "url": "https://nodejs.org/docs/latest/api/",
+    "category": "文档",
+    "description": "Node.js API 手册。"
+  },
+  {
+    "title": "Rust std",
+    "url": "https://doc.rust-lang.org/std/",
+    "category": "文档",
+    "description": "Rust 标准库文档。"
+  },
+  {
+    "title": "Go Documentation",
+    "url": "https://go.dev/doc/",
+    "category": "文档"
+  },
+  {
+    "title": "Python 文档",
+    "url": "https://docs.python.org/zh-cn/3/",
+    "category": "文档",
+    "description": "Python 官方中文文档。"
+  },
+  {
+    "title": "A List Apart",
+    "url": "https://alistapart.com/",
+    "category": "博客",
+    "description": "内容结构、可访问性与设计写作。"
+  },
+  {
+    "title": "NN/g",
+    "url": "https://www.nngroup.com/articles/",
+    "category": "设计",
+    "description": "可用性研究与界面启发式。"
+  },
+  {
+    "title": "WCAG 2.2",
+    "url": "https://www.w3.org/TR/WCAG22/",
+    "category": "参考",
+    "description": "Web 内容无障碍指南。"
+  },
+  {
+    "title": "Fontsource",
+    "url": "https://fontsource.org/",
+    "category": "设计",
+    "description": "可自托管的开源字体包。"
+  },
+  {
+    "title": "MDN HTTP 概述",
+    "url": "https://developer.mozilla.org/zh-CN/docs/Web/HTTP",
+    "category": "文档",
+    "description": "HTTP 协议中文概述。"
+  },
+  {
+    "title": "JSON Schema",
+    "url": "https://json-schema.org/",
+    "category": "参考"
+  },
+  {
+    "title": "esbuild",
+    "url": "https://esbuild.github.io/",
+    "category": "工具",
+    "description": "极快的 JS 打包器，常被其他工具内嵌。"
+  }
+]

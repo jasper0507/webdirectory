@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+*.local
+.DS_Store
+.impeccable/review
+.impeccable/questions/*.state.json
+.playwright-cli/page-*.yml
+.playwright-cli/console-*.log
+.playwright-cli/session*
+test-results
+playwright-report
+.env
+.env.*

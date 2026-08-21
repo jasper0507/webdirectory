@@ -1,0 +1,174 @@
+{
+  "title": "首页方向 · 重掷第 1 轮",
+  "question": "新一组方向仍固定采用 Code-first、搜索与分类同等重要、点击 Logo 切换克制与大胆主题。请选择一个总体方向。",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "路网索引",
+      "kicker": "THE ROLL",
+      "lineage": "交通导视图与施工改道标牌",
+      "thesis": "分类是资源线路，书签是站点，搜索是任意目的地入口；克制主题像精密导视图，大胆主题像新野兽派改道标牌。",
+      "palette": ["#f8f8f6", "#171717", "#d97757", "#ff006e", "#ccff00"],
+      "materials": ["暖白导视纸", "细路线", "硬边施工标牌"],
+      "viewport": "Logo 与搜索形成顶部总站，左侧线路图承担分类浏览，右侧站点表承担书签结果，两条路径从首屏直接汇合。",
+      "risk": "路线隐喻如果画得太具体，会让多分类扩展显得拥挤。",
+      "raised": [
+        {"from": "变形披风", "raise": "布局在窄屏只收拢而不换规则，主题切换也不改变信息位置。"},
+        {"from": "定向越野图", "raise": "分类层与搜索结果层彼此独立，筛选状态始终可以撤销。"},
+        {"from": "Game Boy 目录", "raise": "所有断点采用离散密度档位，避免两千条数据被随意缩放。"}
+      ],
+      "comp": ".impeccable/mocks/decision/reroll-route-index.png",
+      "wireframe": {"cols": 12, "rows": 10, "regions": [
+        {"label": "Logo / 搜索总站", "x": 0, "y": 0, "w": 12, "h": 2, "accent": true},
+        {"label": "分类线路图", "x": 0, "y": 2, "w": 5, "h": 8, "accent": true},
+        {"label": "书签站点表", "x": 5, "y": 2, "w": 7, "h": 8}
+      ]}
+    },
+    {
+      "id": "model-pick",
+      "label": "浏览器指挥台",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "浏览器地址栏、标签页与命令面板",
+      "thesis": "把最熟悉的浏览器操作浓缩成个人资源指挥台：搜索像地址栏，分类像固定标签，结果像可直接跳转的历史记录。",
+      "palette": ["#f7f5ef", "#181716", "#c96f52", "#fff200", "#0066ff"],
+      "materials": ["安静浏览器镶边", "键盘焦点线", "粗黑调试覆盖层"],
+      "viewport": "宽大的命令搜索条占据顶部，分类快捷区与结果历史并排，Logo 是唯一主题开关。",
+      "risk": "浏览器语法非常熟悉，但若细节不够专属会接近通用命令面板。",
+      "comp": ".impeccable/mocks/decision/reroll-command-desk.png",
+      "wireframe": {"cols": 12, "rows": 10, "regions": [
+        {"label": "命令搜索条", "x": 1, "y": 0, "w": 10, "h": 2, "accent": true},
+        {"label": "分类快捷区", "x": 1, "y": 2, "w": 4, "h": 8, "accent": true},
+        {"label": "结果历史", "x": 5, "y": 2, "w": 6, "h": 8}
+      ]}
+    },
+    {
+      "id": "challenger-split-flap",
+      "label": "翻牌总站",
+      "verdict": "competitive",
+      "lineage": "火车站分瓣式信息牌",
+      "thesis": "每条书签是一行稳定翻牌，搜索更新字符，分类决定站台列。",
+      "palette": ["#0b0b0d", "#f2f2f2", "#ffb000", "#b00020"],
+      "materials": ["哑黑翻牌", "拉丝钢框", "琥珀状态灯"],
+      "viewport": "上方搜索牌与分类站台并列，下方高密度结果表按固定列显示名称、URL、描述和分类。",
+      "case": "对两千条目的扫描与更新节奏极清楚，但暗色机械世界无法自然承载指定的克制主题。",
+      "risk": "翻牌动效容易压过书签内容，必须只在查询提交时出现一次。",
+      "comp": ".impeccable/mocks/decision/reroll-split-flap.png",
+      "wireframe": {"cols": 12, "rows": 10, "regions": [
+        {"label": "搜索翻牌", "x": 0, "y": 0, "w": 8, "h": 2, "accent": true},
+        {"label": "分类站台", "x": 8, "y": 0, "w": 4, "h": 2, "accent": true},
+        {"label": "固定列结果表", "x": 0, "y": 2, "w": 12, "h": 8}
+      ]},
+      "hero": ".impeccable/mocks/quality/split-flap-hero.webp",
+      "board": ".impeccable/mocks/quality/split-flap.webp"
+    },
+    {
+      "id": "challenger-datamatics",
+      "label": "数据场",
+      "verdict": "competitive",
+      "lineage": "黑白条码列与正弦数据格",
+      "thesis": "两千个书签成为可扫描的数据列，选中的分类与查询像一条穿过密度场的清晰轨迹。",
+      "palette": ["#000000", "#ffffff"],
+      "materials": ["像素级条码", "细线数据列", "全屏反相"],
+      "viewport": "左侧查询与分类保持语义列表，右侧结果密度场和聚焦条目共享同一列网格。",
+      "case": "高度匹配技术资源站的个人认同感，但纯黑白数据艺术降低 URL 与描述的日常可读性。",
+      "risk": "视觉密度稍失控就会从工具退化为装置艺术。",
+      "comp": ".impeccable/mocks/decision/reroll-datamatics.png",
+      "wireframe": {"cols": 12, "rows": 10, "regions": [
+        {"label": "查询与分类", "x": 0, "y": 0, "w": 4, "h": 10, "accent": true},
+        {"label": "结果密度场", "x": 4, "y": 0, "w": 8, "h": 7},
+        {"label": "聚焦条目", "x": 4, "y": 7, "w": 8, "h": 3, "accent": true}
+      ]},
+      "hero": ".impeccable/mocks/quality/datamatics-hero.webp",
+      "board": ".impeccable/mocks/quality/datamatics.webp"
+    },
+    {
+      "id": "challenger-cape",
+      "label": "抽绳索引",
+      "verdict": "declined",
+      "lineage": "抽绳变形披风",
+      "thesis": "搜索与分类像两条抽绳，把平铺书签收拢为相关结果。",
+      "palette": ["#111111", "#d4af37", "#444851"],
+      "materials": ["哑黑织物", "金色抽绳", "缝合通道"],
+      "viewport": "中央结果面随筛选收拢，控制点沿边缘通道排列。",
+      "case": "变形逻辑有趣，但二维目录不需要模拟布料结构。",
+      "kept": "响应式布局应通过收拢已有区域完成，而不是重建另一套页面。",
+      "risk": "形变会损害稳定扫描。",
+      "wireframe": {"cols": 12, "rows": 10, "regions": [
+        {"label": "控制通道", "x": 0, "y": 0, "w": 12, "h": 2, "accent": true},
+        {"label": "收拢结果面", "x": 2, "y": 2, "w": 8, "h": 8}
+      ]}
+    },
+    {
+      "id": "challenger-cyclorama",
+      "label": "天幕检索",
+      "verdict": "declined",
+      "lineage": "剧场无缝天幕与灯光提示",
+      "thesis": "搜索状态沿地平线从夜到昼变化，分类成为不同灯光提示段。",
+      "palette": ["#050505", "#2346b8", "#e78198", "#ffffff"],
+      "materials": ["无缝天幕", "水平光带", "提示编号"],
+      "viewport": "搜索居中于地平线，分类和结果沿上下光带展开。",
+      "case": "主题切换有戏剧性，但颜色成为主要信息载体，不适合可访问的高频工具。",
+      "kept": "克制与大胆主题都必须有明确命名状态，不能只靠颜色区分。",
+      "risk": "氛围大于检索效率。",
+      "wireframe": {"cols": 12, "rows": 10, "regions": [
+        {"label": "搜索地平线", "x": 0, "y": 3, "w": 12, "h": 2, "accent": true},
+        {"label": "分类光带", "x": 0, "y": 0, "w": 12, "h": 3},
+        {"label": "结果光带", "x": 0, "y": 5, "w": 12, "h": 5}
+      ]}
+    },
+    {
+      "id": "challenger-orienteering",
+      "label": "定向资源图",
+      "verdict": "declined",
+      "lineage": "定向越野地图与图例",
+      "thesis": "分类像固定地形，搜索结果像覆盖其上的紫色路线。",
+      "palette": ["#ffffff", "#657f45", "#d7b24a", "#6f2dbd"],
+      "materials": ["等高线", "标准图例", "路线覆盖层"],
+      "viewport": "分类图例固定在侧栏，查询路线穿过书签结果图。",
+      "case": "层级关系清楚，但空间路线不能帮助用户读取名称与 URL。",
+      "kept": "分类筛选层与搜索结果层应独立叠加，任一层都可单独清除。",
+      "risk": "地图隐喻会掩盖真实列表。",
+      "wireframe": {"cols": 12, "rows": 10, "regions": [
+        {"label": "分类图例", "x": 0, "y": 0, "w": 3, "h": 10, "accent": true},
+        {"label": "结果路线", "x": 3, "y": 0, "w": 9, "h": 10}
+      ]}
+    },
+    {
+      "id": "challenger-gameboy",
+      "label": "四阶像素目录",
+      "verdict": "declined",
+      "lineage": "四级橄榄绿掌机界面",
+      "thesis": "书签目录被压进严格整数像素网格，分类和搜索通过反相行操作。",
+      "palette": ["#9bbc0f", "#8bac0f", "#306230", "#0f380f"],
+      "materials": ["8×8 像素格", "抖色网点", "反相菜单"],
+      "viewport": "固定搜索框位于顶部，分类菜单与单列结果在像素框内切换。",
+      "case": "交互规则完整，但风格与指定两主题均冲突。",
+      "kept": "移动端与桌面端应使用可验证的离散密度档位。",
+      "risk": "字符密度无法承载中文描述和长 URL。",
+      "wireframe": {"cols": 12, "rows": 10, "regions": [
+        {"label": "搜索像素框", "x": 1, "y": 0, "w": 10, "h": 2, "accent": true},
+        {"label": "分类菜单", "x": 1, "y": 2, "w": 3, "h": 8},
+        {"label": "单列结果", "x": 4, "y": 2, "w": 7, "h": 8}
+      ]}
+    }
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "buildPath": {"value": "code", "toggle": true},
+  "canon": true,
+  "canonCard": {
+    "label": "标准书签目录",
+    "thesis": "顶部搜索、分类筛选与响应式卡片网格，以高完成度直接呈现。",
+    "palette": ["#ffffff", "#111827", "#2563eb", "#e5e7eb"],
+    "materials": ["干净白底", "轻边框卡片", "标准图标"],
+    "viewport": "顶部导航和搜索，下方分类筛选与三列书签卡片。",
+    "risk": "易用但与其他导航站难以区分。",
+    "comp": ".impeccable/mocks/decision/reroll-canon.png",
+    "wireframe": {"cols": 12, "rows": 10, "regions": [
+      {"label": "顶部导航", "x": 0, "y": 0, "w": 12, "h": 1},
+      {"label": "搜索", "x": 2, "y": 1, "w": 8, "h": 2, "accent": true},
+      {"label": "分类筛选", "x": 1, "y": 3, "w": 10, "h": 1, "accent": true},
+      {"label": "卡片网格", "x": 1, "y": 4, "w": 10, "h": 6}
+    ]}
+  },
+  "steer": true
+}

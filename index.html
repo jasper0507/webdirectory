@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="restrained">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <title>目录</title>
+    <meta name="description" content="维护者的公开书签目录，用于快速查找并打开收藏的资源站。" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script>
+      try {
+        var storedTheme = localStorage.getItem('portal-theme')
+        document.documentElement.dataset.theme =
+          storedTheme === 'bold' || storedTheme === 'restrained' ? storedTheme : 'restrained'
+      } catch (error) {
+        document.documentElement.dataset.theme = 'restrained'
+      }
+    </script>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <!--
+      THESIS: 这是一张立刻能检索的个人资源目录，拒绝导航站的彩条、标签堆和随机传送。
+      OWN-WORLD: 同一套 DOM 切换两套纸面。克制是骨纸、碳墨、陶土点，圆角与发丝边。大胆是直角、纯黑粗框、硬阴影、品红与柠绿。
+      STORY: 访客看清规模，搜索或点分类，打开目标站。Logo 是唯一主题开关。
+      FIRST VIEWPORT: 左 Logo 字标、右站点/分类计数；其下全宽搜索；再下横向分类芯片；再下结果句；再下四列卡片。卡片固定名称与 URL，描述和分类有则显示。点击 Logo，主题立刻切换而位置不变。
+      FORM: 标准书签目录（canon standing exit），seed 80f28cbe。
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+    -->
+    <a class="skip-link" href="#results">跳到书签结果</a>
+    <div class="page">
+      <header class="masthead">
+        <button type="button" id="theme-toggle" class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <span class="mark-body"></span>
+            <span class="mark-dot"></span>
+          </span>
+          <span class="brand-copy">
+            <span class="wordmark">目录</span>
+            <span class="tagline">维护者的资源站书签</span>
+          </span>
+        </button>
+        <p class="stats">
+          <span><strong id="stat-entries">0</strong> 站点</span>
+          <span><strong id="stat-categories">0</strong> 分类</span>
+        </p>
+      </header>
+
+      <form class="search-form" role="search" action="#" method="get">
+        <label class="search-shell">
+          <span class="sr-only">搜索书签</span>
+          <i data-lucide="search" class="search-icon"></i>
+          <input
+            id="catalog-search"
+            class="input search-input"
+            type="search"
+            name="q"
+            placeholder="搜索名称、地址、描述或分类"
+            autocomplete="off"
+            spellcheck="false"
+            enterkeyhint="search"
+          />
+        </label>
+      </form>
+
+      <div
+        id="categories"
+        class="categories"
+        role="radiogroup"
+        aria-label="按分类筛选"
+      ></div>
+
+      <p id="result-status" class="result-status" aria-live="polite">正在读取书签源</p>
+
+      <main id="results" class="results" aria-live="polite" aria-busy="true"></main>
+    </div>
+
+    <div id="theme-note" class="sr-only" aria-live="polite"></div>
+
+    <template id="card-template">
+      <a class="bookmark-card" target="_blank" rel="noopener noreferrer">
+        <h2 class="card-title"></h2>
+        <p class="card-desc" hidden></p>
+        <p class="card-url"></p>
+        <p class="card-category" hidden></p>
+      </a>
+    </template>
+
+    <template id="state-load-error">
+      <div class="state-panel" role="alert">
+        <i data-lucide="circle-alert"></i>
+        <h2>无法加载书签源</h2>
+        <p data-error-detail>书签目录读不到配置文件。</p>
+        <button type="button" class="btn action-button" data-retry>重新加载</button>
+      </div>
+    </template>
+
+    <template id="state-empty-catalog">
+      <div class="state-panel">
+        <i data-lucide="bookmark"></i>
+        <h2>书签源还是空的</h2>
+        <p>维护者替换书签源并发布后，这里会出现可搜索的资源站。</p>
+      </div>
+    </template>
+
+    <template id="state-empty-filter">
+      <div class="state-panel">
+        <i data-lucide="search-x"></i>
+        <h2>没有匹配的书签</h2>
+        <p>试试更短的词，或同时清除搜索和分类。</p>
+        <button type="button" class="btn action-button" data-clear-filters>清除筛选</button>
+      </div>
+    </template>
+  </body>
+</html>

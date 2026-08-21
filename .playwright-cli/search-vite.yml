@@ -1,0 +1,70 @@
+- generic [ref=f2e1]:
+  - link "跳到书签结果" [ref=f2e2] [cursor=pointer]:
+    - /url: "#results"
+  - generic [ref=f2e3]:
+    - banner [ref=f2e4]:
+      - button "当前为克制主题，点击切换到大胆主题" [ref=f2e5] [cursor=pointer]:
+        - generic [ref=f2e8]:
+          - generic [ref=f2e9]: 目录
+          - generic [ref=f2e10]: 维护者的资源站书签
+      - paragraph [ref=f2e11]:
+        - generic [ref=f2e12]:
+          - strong [ref=f2e13]: "44"
+          - text: 站点
+        - generic [ref=f2e14]:
+          - strong [ref=f2e15]: "6"
+          - text: 分类
+    - search [ref=f2e16]:
+      - generic [ref=f2e17]:
+        - generic [ref=f2e18]: 搜索书签
+        - searchbox "搜索书签" [active] [ref=f2e19]: vite
+    - radiogroup "按分类筛选" [ref=f2e20]:
+      - generic [ref=f2e21] [cursor=pointer]:
+        - radio "全部 44" [checked] [ref=f2e22]
+        - generic [ref=f2e23]:
+          - generic [ref=f2e24]: 全部
+          - generic [ref=f2e25]: "44"
+      - generic [ref=f2e26] [cursor=pointer]:
+        - radio "文档 11" [ref=f2e27]
+        - generic [ref=f2e28]:
+          - generic [ref=f2e29]: 文档
+          - generic [ref=f2e30]: "11"
+      - generic [ref=f2e31] [cursor=pointer]:
+        - radio "工具 8" [ref=f2e32]
+        - generic [ref=f2e33]:
+          - generic [ref=f2e34]: 工具
+          - generic [ref=f2e35]: "8"
+      - generic [ref=f2e36] [cursor=pointer]:
+        - radio "前端 3" [ref=f2e37]
+        - generic [ref=f2e38]:
+          - generic [ref=f2e39]: 前端
+          - generic [ref=f2e40]: "3"
+      - generic [ref=f2e41] [cursor=pointer]:
+        - radio "设计 7" [ref=f2e42]
+        - generic [ref=f2e43]:
+          - generic [ref=f2e44]: 设计
+          - generic [ref=f2e45]: "7"
+      - generic [ref=f2e46] [cursor=pointer]:
+        - radio "参考 7" [ref=f2e47]
+        - generic [ref=f2e48]:
+          - generic [ref=f2e49]: 参考
+          - generic [ref=f2e50]: "7"
+      - generic [ref=f2e51] [cursor=pointer]:
+        - radio "博客 5" [ref=f2e52]
+        - generic [ref=f2e53]:
+          - generic [ref=f2e54]: 博客
+          - generic [ref=f2e55]: "5"
+    - paragraph [ref=f2e56]: 找到 2 个站点
+    - main [ref=f2e57]:
+      - link "打开 Vite" [ref=f2e272] [cursor=pointer]:
+        - /url: https://vite.dev/
+        - heading "Vite" [level=2] [ref=f2e273]
+        - paragraph [ref=f2e274]: 原生 ESM 驱动的前端构建工具。
+        - paragraph [ref=f2e275]: vite.dev
+        - paragraph [ref=f2e276]: 工具
+      - link "打开 GitHub Vite 指南源码" [ref=f2e277] [cursor=pointer]:
+        - /url: https://github.com/vitejs/vite/blob/main/docs/guide/index.md?plain=1&utm_source=webdirectory-maintainer-catalog&ref=personal-bookmark-portal-long-url-fixture
+        - heading "GitHub Vite 指南源码" [level=2] [ref=f2e278]
+        - paragraph [ref=f2e279]: 用来检查长地址在卡片里如何折行。
+        - paragraph [ref=f2e280]: github.com/vitejs/vite/blob/main/docs/guide/index.md?plain=1&utm_source=webdirectory-maintainer-catalog&ref=personal-bookmark-portal-long-url-fixture
+        - paragraph [ref=f2e281]: 前端
