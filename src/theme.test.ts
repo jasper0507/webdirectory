@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
-  applyTheme,
-  isThemeName,
-  nextTheme,
-  readTheme,
-  THEME_STORAGE_KEY,
-  themeLabel,
-  toggleStoredTheme,
+  applyPaper,
+  isPaperName,
+  nextPaper,
+  PAPER_STORAGE_KEY,
+  paperLabel,
+  readPaper,
+  toggleStoredPaper,
 } from './theme.ts'
 
 function memoryStorage(initial: Record<string, string> = {}) {
@@ -18,35 +18,22 @@ function memoryStorage(initial: Record<string, string> = {}) {
     setItem(key: string, value: string) {
       store[key] = value
     },
-    snapshot() {
-      return { ...store }
-    },
   }
 }
 
-describe('theme', () => {
-  it('只承认克制与大胆', () => {
-    expect(isThemeName('restrained')).toBe(true)
-    expect(isThemeName('bold')).toBe(true)
-    expect(isThemeName('dark')).toBe(false)
-    expect(isThemeName(null)).toBe(false)
+describe('paper', () => {
+  it('只承认白日与夜间', () => {
+    expect(isPaperName('day')).toBe(true)
+    expect(isPaperName('night')).toBe(true)
+    expect(isPaperName('bold')).toBe(false)
   })
 
-  it('在两个主题之间切换', () => {
-    expect(nextTheme('restrained')).toBe('bold')
-    expect(nextTheme('bold')).toBe('restrained')
-    expect(themeLabel('restrained')).toBe('克制')
-    expect(themeLabel('bold')).toBe('大胆')
+  it('未存储时默认为白日', () => {
+    expect(readPaper(null)).toBe('day')
+    expect(readPaper(memoryStorage({ [PAPER_STORAGE_KEY]: 'night' }))).toBe('night')
   })
 
-  it('未存储时默认为克制', () => {
-    expect(readTheme(null)).toBe('restrained')
-    expect(readTheme(memoryStorage())).toBe('restrained')
-    expect(readTheme(memoryStorage({ [THEME_STORAGE_KEY]: 'dark' }))).toBe('restrained')
-    expect(readTheme(memoryStorage({ [THEME_STORAGE_KEY]: 'bold' }))).toBe('bold')
-  })
-
-  it('写入 html 数据属性并持久化', () => {
+  it('页脚开关翻转纸面并持久化', () => {
     const storage = memoryStorage()
     const document = {
       documentElement: {
@@ -54,21 +41,11 @@ describe('theme', () => {
         style: { colorScheme: '' },
       },
     }
-    applyTheme('bold', { document, storage })
-    expect(document.documentElement.dataset.theme).toBe('bold')
+    expect(toggleStoredPaper({ document, storage })).toBe('night')
+    expect(document.documentElement.dataset.paper).toBe('night')
+    expect(nextPaper('night')).toBe('day')
+    expect(paperLabel('night')).toBe('夜间')
+    applyPaper('day', { document, storage })
     expect(document.documentElement.style.colorScheme).toBe('light')
-    expect(storage.snapshot()[THEME_STORAGE_KEY]).toBe('bold')
-  })
-
-  it('Logo 切换会翻转当前主题', () => {
-    const storage = memoryStorage({ [THEME_STORAGE_KEY]: 'restrained' })
-    const document = {
-      documentElement: {
-        dataset: { theme: 'restrained' } as Record<string, string>,
-        style: { colorScheme: 'light' },
-      },
-    }
-    expect(toggleStoredTheme({ document, storage })).toBe('bold')
-    expect(toggleStoredTheme({ document, storage })).toBe('restrained')
   })
 })

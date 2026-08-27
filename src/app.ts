@@ -1,42 +1,58 @@
-import { createIcons, Bookmark, CircleAlert, Search, SearchX } from 'lucide'
 import {
-  filterEntries,
-  loadBookmarkSource,
-  type BookmarkEntry,
+  cooccurringTags,
+  hallSuggestions,
+  loadPortalSource,
+  parseShelfQuery,
+  queryIsEmpty,
+  searchEntries,
+  sevenWords,
   type Catalog,
 } from './catalog.ts'
+import { flattenHallRows, type HallRow } from './ui.ts'
+import { hallPath, parseRoute, shelfPath, type AppRoute } from './routes.ts'
 import {
-  applyTheme,
-  readTheme,
-  themeLabel,
-  toggleStoredTheme,
-  type ThemeName,
+  applyPaper,
+  paperLabel,
+  readPaper,
+  toggleStoredPaper,
+  type PaperName,
 } from './theme.ts'
+import {
+  fillIdentity,
+  renderCards,
+  renderCooccur,
+  renderConstraints,
+  renderHallList,
+  renderSevenWords,
+  showPanel,
+} from './ui.ts'
 
-const SOURCE_URL = '/bookmarks.json'
-const BATCH_SIZE = 48
-const FILTER_DELAY_MS = 80
-const LUCIDE_ICONS = { Bookmark, CircleAlert, Search, SearchX }
+const SOURCE_URL = '/portal.json'
 
 type AppUi = {
-  themeToggle: HTMLButtonElement
-  themeNote: HTMLElement
+  hall: HTMLElement
+  shelf: HTMLElement
+  searchForm: HTMLFormElement
   search: HTMLInputElement
-  categories: HTMLElement
-  status: HTMLElement
+  hallList: HTMLElement
+  sevenWords: HTMLElement
+  shelfForm: HTMLFormElement
+  shelfSearch: HTMLInputElement
+  constraints: HTMLElement
+  cooccur: HTMLElement
+  shelfCount: HTMLElement
+  shelfStatus: HTMLElement
   results: HTMLElement
-  statEntries: HTMLElement
-  statCategories: HTMLElement
   cardTemplate: HTMLTemplateElement
   loadErrorTemplate: HTMLTemplateElement
   emptyCatalogTemplate: HTMLTemplateElement
   emptyFilterTemplate: HTMLTemplateElement
+  liveNote: HTMLElement
 }
 
-let catalog: Catalog = { entries: [], categories: [] }
-let selectedCategory: string | null = null
-let renderGeneration = 0
-let filterTimer = 0
+let catalog: Catalog | null = null
+let hallRows: HallRow[] = []
+let selectedHallIndex = -1
 
 function must<T extends Element>(root: ParentNode, selector: string): T {
   const node = root.querySelector(selector)
@@ -46,18 +62,24 @@ function must<T extends Element>(root: ParentNode, selector: string): T {
 
 function queryUi(): AppUi {
   return {
-    themeToggle: must(document, '#theme-toggle'),
-    themeNote: must(document, '#theme-note'),
-    search: must(document, '#catalog-search'),
-    categories: must(document, '#categories'),
-    status: must(document, '#result-status'),
-    results: must(document, '#results'),
-    statEntries: must(document, '#stat-entries'),
-    statCategories: must(document, '#stat-categories'),
+    hall: must(document, '#view-hall'),
+    shelf: must(document, '#view-shelf'),
+    searchForm: must(document, '#search-form'),
+    search: must(document, '#q'),
+    hallList: must(document, '#hall-list'),
+    sevenWords: must(document, '#seven-words'),
+    shelfForm: must(document, '#shelf-form'),
+    shelfSearch: must(document, '#shelf-q'),
+    constraints: must(document, '#constraints'),
+    cooccur: must(document, '#cooccur'),
+    shelfCount: must(document, '#shelf-count'),
+    shelfStatus: must(document, '#shelf-status'),
+    results: must(document, '#shelf-results'),
     cardTemplate: must(document, '#card-template'),
     loadErrorTemplate: must(document, '#state-load-error'),
     emptyCatalogTemplate: must(document, '#state-empty-catalog'),
     emptyFilterTemplate: must(document, '#state-empty-filter'),
+    liveNote: must(document, '#live-note'),
   }
 }
 
@@ -69,261 +91,239 @@ function storage(): Storage | null {
   }
 }
 
-function paintIcons(root: ParentNode = document): void {
-  createIcons({
-    icons: LUCIDE_ICONS,
-    root: root instanceof HTMLElement ? root : document.body,
-    attrs: { 'stroke-width': 1.75, 'aria-hidden': 'true' },
+function themeColor(paper: PaperName): string {
+  return paper === 'night' ? '#1c1e22' : '#eef0f2'
+}
+
+function setPaperChrome(paper: PaperName, announce: boolean): void {
+  document.querySelectorAll<HTMLButtonElement>('[data-paper-toggle]').forEach((button) => {
+    const next = paper === 'day' ? '夜间' : '白日'
+    button.textContent = next
+    button.setAttribute('aria-label', `切换到${next}纸`)
+    button.title = `切换到${next}纸`
   })
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColor(paper))
+  document.documentElement.style.colorScheme = paper === 'night' ? 'dark' : 'light'
+  if (announce) document.querySelector('#live-note')!.textContent = `已切换到${paperLabel(paper)}纸`
 }
 
-function setThemeChrome(ui: AppUi, theme: ThemeName, announce: boolean): void {
-  const current = themeLabel(theme)
-  const next = themeLabel(theme === 'restrained' ? 'bold' : 'restrained')
-  ui.themeToggle.setAttribute('aria-label', `当前为${current}主题，点击切换到${next}主题`)
-  ui.themeToggle.setAttribute('title', `切换到${next}主题`)
-  if (announce) ui.themeNote.textContent = `已切换到${current}主题`
-}
-
-function wireTheme(ui: AppUi): ThemeName {
-  const initial = readTheme(storage())
-  applyTheme(initial, { document, storage: storage() })
-  setThemeChrome(ui, initial, false)
-  ui.themeToggle.addEventListener('click', () => {
-    const next = toggleStoredTheme({ document, storage: storage() })
-    setThemeChrome(ui, next, true)
-  })
-  return initial
-}
-
-function setStats(ui: AppUi, entries: number, categories: number): void {
-  ui.statEntries.textContent = String(entries)
-  ui.statCategories.textContent = String(categories)
-}
-
-function setStatus(ui: AppUi, text: string): void {
-  ui.status.textContent = text
-}
-
-function cloneTemplate(template: HTMLTemplateElement): HTMLElement {
-  const node = template.content.firstElementChild
-  if (!node) throw new Error('状态模板为空')
-  return node.cloneNode(true) as HTMLElement
-}
-
-function showPanel(ui: AppUi, template: HTMLTemplateElement): HTMLElement {
-  const panel = cloneTemplate(template)
-  ui.results.replaceChildren(panel)
-  paintIcons(panel)
-  return panel
-}
-
-function cardNode(ui: AppUi, entry: BookmarkEntry): HTMLAnchorElement {
-  const node = cloneTemplate(ui.cardTemplate) as HTMLAnchorElement
-  node.href = entry.url
-  node.setAttribute('aria-label', `打开 ${entry.title}`)
-  must(node, '.card-title').textContent = entry.title
-  const url = must<HTMLElement>(node, '.card-url')
-  url.textContent = entry.displayUrl
-  url.title = entry.url
-  const description = must<HTMLElement>(node, '.card-desc')
-  if (entry.description) {
-    description.textContent = entry.description
-    description.hidden = false
-  } else {
-    description.remove()
+function paintStars(): void {
+  const root = document.getElementById('stars')
+  if (!root || root.childElementCount > 0) return
+  for (let i = 0; i < 32; i += 1) {
+    const star = document.createElement('span')
+    star.className = 'star'
+    star.style.left = `${String(Math.random() * 100)}%`
+    star.style.top = `${String(Math.random() * 100)}%`
+    star.style.setProperty('--dx', `${String((Math.random() * 80 - 20).toFixed(0))}px`)
+    star.style.setProperty('--dy', `${String((-40 - Math.random() * 80).toFixed(0))}px`)
+    star.style.setProperty('--dur', `${String((8 + Math.random() * 10).toFixed(1))}s`)
+    star.style.setProperty('--delay', `${String((-Math.random() * 12).toFixed(1))}s`)
+    root.append(star)
   }
-  const category = must<HTMLElement>(node, '.card-category')
-  if (entry.category) {
-    category.textContent = entry.category
-    category.hidden = false
-  } else {
-    category.remove()
+}
+
+function go(path: string): void {
+  if (`${location.pathname}${location.search}` === path) {
+    renderRoute(parseRoute(new URL(path, location.origin)))
+    return
   }
-  return node
+  history.pushState({}, '', path)
+  renderRoute(parseRoute(new URL(path, location.origin)))
 }
 
-function renderCards(ui: AppUi, entries: BookmarkEntry[]): void {
-  const generation = ++renderGeneration
-  ui.results.replaceChildren()
-  ui.results.setAttribute('aria-busy', 'true')
-  let index = 0
-
-  const pump = (): void => {
-    if (generation !== renderGeneration) return
-    const fragment = document.createDocumentFragment()
-    const end = Math.min(index + BATCH_SIZE, entries.length)
-    for (; index < end; index += 1) {
-      const entry = entries[index]
-      if (entry) fragment.append(cardNode(ui, entry))
-    }
-    ui.results.append(fragment)
-    if (index < entries.length) {
-      requestAnimationFrame(pump)
-      return
-    }
-    ui.results.setAttribute('aria-busy', 'false')
-  }
-
-  pump()
+function openEntry(url: string): void {
+  window.open(url, '_blank', 'noopener,noreferrer')
 }
 
-function selectedCategoryFromUi(ui: AppUi): string | null {
-  const checked = ui.categories.querySelector<HTMLInputElement>('input[type="radio"]:checked')
-  const value = checked?.value ?? ''
-  return value === '' ? null : value
+function updateHallList(ui: AppUi): void {
+  if (!catalog) return
+  const suggestions = hallSuggestions(catalog.entries, catalog.tags, ui.search.value)
+  hallRows = flattenHallRows(suggestions.tags, suggestions.titles)
+  if (selectedHallIndex >= hallRows.length) selectedHallIndex = hallRows.length - 1
+  renderHallList(
+    ui.hallList,
+    suggestions.tags,
+    suggestions.titles,
+    selectedHallIndex,
+    (tag) => go(shelfPath('', [tag])),
+    (entry) => openEntry(entry.url),
+  )
 }
 
-function syncCategoryOverflow(ui: AppUi): void {
-  const scroller = ui.categories
-  const overflowing = scroller.scrollWidth - scroller.clientWidth > 2
-  const atEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 2
-  scroller.classList.toggle('is-overflowing', overflowing)
-  scroller.classList.toggle('is-at-end', atEnd)
+function setSkip(href: string): void {
+  const skip = document.querySelector<HTMLAnchorElement>('.skip-link')
+  if (skip) skip.setAttribute('href', href)
 }
 
-function wireCategoryOverflow(ui: AppUi): void {
-  const sync = () => syncCategoryOverflow(ui)
-  ui.categories.addEventListener('scroll', sync, { passive: true })
-  window.addEventListener('resize', sync)
+function renderHall(ui: AppUi): void {
+  ui.hall.hidden = false
+  ui.shelf.hidden = true
+  setSkip('#q')
+  document.getElementById('stars')?.removeAttribute('hidden')
+  if (!catalog) return
+  fillIdentity(document, catalog.identity)
+  document.title = catalog.identity.wordmark
+  ui.search.placeholder = catalog.identity.placeholder
+  renderSevenWords(ui.sevenWords, sevenWords(catalog.tags), (tag) => go(shelfPath('', [tag])))
+  selectedHallIndex = -1
+  updateHallList(ui)
+  ui.search.focus()
 }
 
-function renderCategories(ui: AppUi): void {
-  const previously = selectedCategory
-  const fragment = document.createDocumentFragment()
+function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>): void {
+  ui.hall.hidden = true
+  ui.shelf.hidden = false
+  setSkip('#shelf-q')
+  document.getElementById('stars')?.setAttribute('hidden', '')
+  if (!catalog) return
+  fillIdentity(document, catalog.identity)
+  document.title = `${catalog.identity.wordmark} · 货架`
+  ui.shelfSearch.value = route.query
+  ui.shelfSearch.placeholder = catalog.identity.placeholder
 
-  const appendChip = (label: string, value: string, count: number, checked: boolean): void => {
-    const chip = document.createElement('label')
-    chip.className = 'chip'
-    const input = document.createElement('input')
-    input.type = 'radio'
-    input.name = 'category-filter'
-    input.value = value
-    input.checked = checked
-    const face = document.createElement('span')
-    face.className = 'chip-face'
-    const name = document.createElement('span')
-    name.className = 'chip-name'
-    name.textContent = label
-    const tally = document.createElement('span')
-    tally.className = 'chip-count'
-    tally.textContent = String(count)
-    face.append(name, tally)
-    chip.append(input, face)
-    fragment.append(chip)
-  }
+  const query = parseShelfQuery(route.query, route.tags)
+  const entries = searchEntries(catalog.entries, query)
+  ui.shelfCount.textContent = `${String(catalog.entries.length)} 站点`
 
-  const stillExists = previously !== null && catalog.categories.some((item) => item.name === previously)
-  selectedCategory = stillExists ? previously : null
-
-  appendChip('全部', '', catalog.entries.length, selectedCategory === null)
-  for (const item of catalog.categories) {
-    appendChip(item.name, item.name, item.count, item.name === selectedCategory)
-  }
-
-  ui.categories.replaceChildren(fragment)
-  syncCategoryOverflow(ui)
-}
-
-function currentEntries(ui: AppUi): BookmarkEntry[] {
-  return filterEntries(catalog.entries, {
-    query: ui.search.value,
-    category: selectedCategory,
-  })
-}
-
-function renderFiltered(ui: AppUi): void {
-  const entries = currentEntries(ui)
+  renderConstraints(
+    ui.constraints,
+    route.query,
+    query.tags,
+    () => go(shelfPath('', query.tags)),
+    (tag) => go(shelfPath(route.query, query.tags.filter((item) => item !== tag))),
+  )
+  renderCooccur(
+    ui.cooccur,
+    queryIsEmpty(query) ? [] : cooccurringTags(entries, query.tags),
+    (tag) => go(shelfPath(route.query, [...query.tags, tag])),
+  )
 
   if (catalog.entries.length === 0) {
-    setStatus(ui, '书签目录为空')
-    showPanel(ui, ui.emptyCatalogTemplate)
+    ui.shelfStatus.textContent = '书签目录为空'
+    showPanel(ui.results, ui.emptyCatalogTemplate)
     return
   }
 
   if (entries.length === 0) {
-    const label = selectedCategory ? ` · ${selectedCategory}` : ''
-    setStatus(ui, `找到 0 个站点${label}`)
-    const panel = showPanel(ui, ui.emptyFilterTemplate)
-    panel.querySelector('[data-clear-filters]')?.addEventListener('click', () => {
-      ui.search.value = ''
-      selectedCategory = null
-      renderCategories(ui)
-      renderFiltered(ui)
-      ui.search.focus()
-    })
+    ui.shelfStatus.textContent = '找到 0 个站点'
+    const panel = showPanel(ui.results, ui.emptyFilterTemplate)
+    panel.querySelector('[data-clear-filters]')?.addEventListener('click', () => go(shelfPath()))
     return
   }
 
-  const label = selectedCategory ? ` · ${selectedCategory}` : ''
-  setStatus(ui, `找到 ${String(entries.length)} 个站点${label}`)
-  renderCards(ui, entries)
-}
-
-function scheduleFilter(ui: AppUi): void {
-  window.clearTimeout(filterTimer)
-  filterTimer = window.setTimeout(() => {
-    selectedCategory = selectedCategoryFromUi(ui)
-    renderFiltered(ui)
-  }, FILTER_DELAY_MS)
-}
-
-function wireFilters(ui: AppUi): void {
-  ui.search.form?.addEventListener('submit', (event) => {
-    event.preventDefault()
-    selectedCategory = selectedCategoryFromUi(ui)
-    renderFiltered(ui)
-  })
-  ui.search.addEventListener('input', () => {
-    scheduleFilter(ui)
-  })
-  ui.categories.addEventListener('change', () => {
-    selectedCategory = selectedCategoryFromUi(ui)
-    renderFiltered(ui)
+  const label = queryIsEmpty(query) ? '全部站点' : `找到 ${String(entries.length)} 个站点`
+  ui.shelfStatus.textContent = label
+  renderCards(ui.results, ui.cardTemplate, entries, (tag) => {
+    if (query.tags.includes(tag)) return
+    go(shelfPath(route.query, [...query.tags, tag]))
   })
 }
 
-function showSkeletons(ui: AppUi): void {
-  const fragment = document.createDocumentFragment()
-  for (let i = 0; i < 8; i += 1) {
-    const skeleton = document.createElement('div')
-    skeleton.className = 'bookmark-card skeleton-card'
-    skeleton.setAttribute('aria-hidden', 'true')
-    fragment.append(skeleton)
-  }
-  ui.results.replaceChildren(fragment)
+function renderRoute(route: AppRoute): void {
+  const ui = queryUi()
+  if (route.name === 'hall') renderHall(ui)
+  else renderShelfView(ui, route)
+}
+
+function showLoadError(ui: AppUi, message: string): void {
+  ui.hall.hidden = true
+  ui.shelf.hidden = false
+  ui.shelfStatus.textContent = message
+  const panel = showPanel(ui.results, ui.loadErrorTemplate)
+  const detail = panel.querySelector('[data-error-detail]')
+  if (detail) detail.textContent = message
+  panel.querySelector('[data-retry]')?.addEventListener('click', () => {
+    void hydrate(ui)
+  })
 }
 
 async function hydrate(ui: AppUi): Promise<void> {
-  ui.results.setAttribute('aria-busy', 'true')
-  setStatus(ui, '正在读取书签源')
-  showSkeletons(ui)
-  const result = await loadBookmarkSource(SOURCE_URL)
+  const result = await loadPortalSource(SOURCE_URL)
   if (result.status !== 'ok') {
-    catalog = { entries: [], categories: [] }
-    setStats(ui, 0, 0)
-    setStatus(ui, result.message)
-    const panel = showPanel(ui, ui.loadErrorTemplate)
-    const detail = panel.querySelector('[data-error-detail]')
-    if (detail) detail.textContent = result.message
-    panel.querySelector('[data-retry]')?.addEventListener('click', () => {
-      void hydrate(ui)
-    })
-    ui.results.setAttribute('aria-busy', 'false')
+    catalog = null
+    showLoadError(ui, result.message)
     return
   }
-
   catalog = result.catalog
-  setStats(ui, catalog.entries.length, catalog.categories.length)
-  renderCategories(ui)
-  renderFiltered(ui)
+  renderRoute(parseRoute(new URL(location.href)))
+}
+
+function wire(ui: AppUi): void {
+  const initialPaper = readPaper(storage())
+  applyPaper(initialPaper, { document, storage: storage() })
+  setPaperChrome(initialPaper, false)
+
+  document.querySelectorAll('[data-paper-toggle]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const next = toggleStoredPaper({ document, storage: storage() })
+      setPaperChrome(next, true)
+    })
+  })
+
+  document.querySelectorAll('[data-home]').forEach((button) => {
+    button.addEventListener('click', () => go(hallPath()))
+  })
+
+  ui.searchForm.addEventListener('submit', (event) => {
+    event.preventDefault()
+    const selected = selectedHallIndex >= 0 ? hallRows[selectedHallIndex] : undefined
+    if (selected?.kind === 'tag') {
+      go(shelfPath('', [selected.tag.name]))
+      return
+    }
+    if (selected?.kind === 'title') {
+      openEntry(selected.entry.url)
+      return
+    }
+    go(shelfPath(ui.search.value))
+  })
+
+  ui.search.addEventListener('input', () => {
+    selectedHallIndex = -1
+    updateHallList(ui)
+  })
+
+  ui.search.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown' && hallRows.length > 0) {
+      event.preventDefault()
+      selectedHallIndex = Math.min(hallRows.length - 1, selectedHallIndex + 1)
+      updateHallList(ui)
+    }
+    if (event.key === 'ArrowUp' && hallRows.length > 0) {
+      event.preventDefault()
+      selectedHallIndex = Math.max(0, selectedHallIndex - 1)
+      updateHallList(ui)
+    }
+  })
+
+  ui.shelfForm.addEventListener('submit', (event) => {
+    event.preventDefault()
+    const route = parseRoute(new URL(location.href))
+    const tags = route.name === 'shelf' ? route.tags : []
+    go(shelfPath(ui.shelfSearch.value, tags))
+  })
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return
+    const target = event.target
+    const tag = target instanceof HTMLElement ? target.tagName : ''
+    const editable = tag === 'INPUT' || tag === 'TEXTAREA' || (target instanceof HTMLElement && target.isContentEditable)
+    if (editable) return
+    event.preventDefault()
+    const route = parseRoute(new URL(location.href))
+    if (route.name === 'hall') ui.search.focus()
+    else ui.shelfSearch.focus()
+  })
+
+  window.addEventListener('popstate', () => {
+    renderRoute(parseRoute(new URL(location.href)))
+  })
 }
 
 export async function startApp(): Promise<void> {
   const ui = queryUi()
-  wireTheme(ui)
-  wireFilters(ui)
-  wireCategoryOverflow(ui)
-  paintIcons()
+  paintStars()
+  wire(ui)
   await hydrate(ui)
 }

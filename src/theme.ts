@@ -1,61 +1,60 @@
-export const THEME_STORAGE_KEY = 'portal-theme'
+export const PAPER_STORAGE_KEY = 'portal-paper'
 
-export const THEMES = ['restrained', 'bold'] as const
+export const PAPERS = ['day', 'night'] as const
 
-export type ThemeName = (typeof THEMES)[number]
+export type PaperName = (typeof PAPERS)[number]
 
-export function isThemeName(value: string | null | undefined): value is ThemeName {
-  return value === 'restrained' || value === 'bold'
+export function isPaperName(value: string | null | undefined): value is PaperName {
+  return value === 'day' || value === 'night'
 }
 
-export function readTheme(storage: Pick<Storage, 'getItem'> | null): ThemeName {
-  if (!storage) return 'restrained'
+export function readPaper(storage: Pick<Storage, 'getItem'> | null): PaperName {
+  if (!storage) return 'day'
   try {
-    const stored = storage.getItem(THEME_STORAGE_KEY)
-    return isThemeName(stored) ? stored : 'restrained'
+    const stored = storage.getItem(PAPER_STORAGE_KEY)
+    return isPaperName(stored) ? stored : 'day'
   } catch {
-    return 'restrained'
+    return 'day'
   }
 }
 
-export function nextTheme(theme: ThemeName): ThemeName {
-  return theme === 'restrained' ? 'bold' : 'restrained'
+export function nextPaper(paper: PaperName): PaperName {
+  return paper === 'day' ? 'night' : 'day'
 }
 
-export function themeLabel(theme: ThemeName): string {
-  return theme === 'restrained' ? '克制' : '大胆'
+export function paperLabel(paper: PaperName): string {
+  return paper === 'day' ? '白日' : '夜间'
 }
 
-type ThemeDocument = {
+type PaperDocument = {
   documentElement: {
     dataset: DOMStringMap | Record<string, string>
     style: { colorScheme: string }
   }
 }
 
-export function applyTheme(
-  theme: ThemeName,
+export function applyPaper(
+  paper: PaperName,
   options: {
-    document: ThemeDocument
+    document: PaperDocument
     storage?: Pick<Storage, 'setItem'> | null
   },
 ): void {
-  options.document.documentElement.dataset.theme = theme
-  options.document.documentElement.style.colorScheme = 'light'
+  options.document.documentElement.dataset.paper = paper
+  options.document.documentElement.style.colorScheme = paper === 'night' ? 'dark' : 'light'
   if (!options.storage) return
   try {
-    options.storage.setItem(THEME_STORAGE_KEY, theme)
+    options.storage.setItem(PAPER_STORAGE_KEY, paper)
   } catch {
-    // Persistence is best-effort; a blocked store still applies the theme for this visit.
+    // Persistence is best-effort.
   }
 }
 
-export function toggleStoredTheme(options: {
-  document: ThemeDocument
+export function toggleStoredPaper(options: {
+  document: PaperDocument
   storage: Pick<Storage, 'getItem' | 'setItem'> | null
-}): ThemeName {
-  const current = readTheme(options.storage)
-  const next = nextTheme(current)
-  applyTheme(next, options)
+}): PaperName {
+  const next = nextPaper(readPaper(options.storage))
+  applyPaper(next, options)
   return next
 }

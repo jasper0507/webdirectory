@@ -15,3 +15,7 @@ Issue 与规格通过 GitHub Issues 管理。详见 `docs/agents/issue-tracker.m
 ### Domain docs
 
 这是单上下文仓库。详见 `docs/agents/domain.md`。
+
+### Portal source
+
+改书签或厅面文案只编辑 `public/portal.json`。详见 `docs/agents/portal-source.md`。搜索厅与货架的零件在 `src/ui.ts`，不要另起一套 class。
