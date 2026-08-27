@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#eef0f2" />
     <title>七卷拾光</title>
     <meta name="description" content="维护者的公开书签目录。键入一个名字，让收藏顺流而下。" />
@@ -53,11 +53,17 @@
 
         <form class="search-block" id="search-form" action="/shelf" method="get" autocomplete="off">
           <div class="search-row">
+            <label class="sr-only" for="q">键入书签或站点</label>
             <input
               class="search-input"
               id="q"
               type="text"
               name="q"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-controls="hall-list"
+              aria-expanded="false"
+              aria-haspopup="listbox"
               placeholder="键入书签或站点..."
               autocomplete="off"
               spellcheck="false"
@@ -74,7 +80,7 @@
             <span><kbd>/</kbd>聚焦检索</span>
             <span><kbd>↵</kbd>打开选中，或进入货架</span>
           </div>
-          <div id="hall-list" class="hall-list" hidden></div>
+          <div id="hall-list" class="hall-list" role="listbox" aria-label="题名索引" hidden></div>
         </form>
 
         <div id="seven-words" class="chips" role="list"></div>
@@ -124,8 +130,8 @@
 
       <div id="constraints" class="constraints"></div>
       <div id="cooccur" class="cooccur"></div>
-      <p id="shelf-status" class="result-status" aria-live="polite"></p>
-      <main id="shelf-results" class="results" aria-live="polite"></main>
+      <p id="shelf-status" class="result-status" aria-live="polite" aria-atomic="true"></p>
+      <main id="shelf-results" class="results"></main>
 
       <footer class="site-footer">
         <div class="hairline"></div>

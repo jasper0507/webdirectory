@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   cooccurringTags,
   fold,
+  groupEntriesByPrimaryTag,
   hallSuggestions,
   loadPortalSource,
   normalizeTag,
@@ -128,6 +129,34 @@ describe('sevenWords', () => {
 
   it('不足七个则全数返回', () => {
     expect(sevenWords([{ name: '文档', count: 2 }])).toEqual([{ name: '文档', count: 2 }])
+  })
+})
+
+describe('groupEntriesByPrimaryTag', () => {
+  it('按首个标签分块，大块在前，块内保持目录顺序', () => {
+    const entries: BookmarkEntry[] = [
+      { title: 'A', url: 'https://a.example/', displayUrl: 'a.example', tags: ['设计'] },
+      { title: 'B', url: 'https://b.example/', displayUrl: 'b.example', tags: ['文档', '工具'] },
+      { title: 'C', url: 'https://c.example/', displayUrl: 'c.example', tags: ['文档'] },
+      { title: 'D', url: 'https://d.example/', displayUrl: 'd.example', tags: ['工具'] },
+    ]
+    const chunks = groupEntriesByPrimaryTag(entries)
+    expect(chunks.map((chunk) => chunk.name)).toEqual(['文档', '设计', '工具'])
+    expect(chunks[0]?.entries.map((entry) => entry.title)).toEqual(['B', 'C'])
+    expect(chunks[1]?.entries.map((entry) => entry.title)).toEqual(['A'])
+    expect(chunks[2]?.entries.map((entry) => entry.title)).toEqual(['D'])
+  })
+
+  it('多标签条目只出现在首个标签的块里', () => {
+    const chunks = groupEntriesByPrimaryTag([
+      { title: 'A', url: 'https://a.example/', displayUrl: 'a.example', tags: ['文档', '工具'] },
+    ])
+    expect(chunks).toHaveLength(1)
+    expect(chunks[0]?.name).toBe('文档')
+  })
+
+  it('空目录得到空分块', () => {
+    expect(groupEntriesByPrimaryTag([])).toEqual([])
   })
 })
 

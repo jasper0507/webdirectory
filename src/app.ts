@@ -1,5 +1,6 @@
 import {
   cooccurringTags,
+  groupEntriesByPrimaryTag,
   hallSuggestions,
   loadPortalSource,
   parseShelfQuery,
@@ -8,7 +9,6 @@ import {
   sevenWords,
   type Catalog,
 } from './catalog.ts'
-import { flattenHallRows, type HallRow } from './ui.ts'
 import { hallPath, parseRoute, shelfPath, type AppRoute } from './routes.ts'
 import {
   applyPaper,
@@ -19,12 +19,16 @@ import {
 } from './theme.ts'
 import {
   fillIdentity,
+  flattenHallRows,
+  hallOptionId,
   renderCards,
   renderCooccur,
   renderConstraints,
+  renderGroupedCards,
   renderHallList,
   renderSevenWords,
   showPanel,
+  type HallRow,
 } from './ui.ts'
 
 const SOURCE_URL = '/portal.json'
@@ -151,6 +155,13 @@ function updateHallList(ui: AppUi): void {
     (tag) => go(shelfPath('', [tag])),
     (entry) => openEntry(entry.url),
   )
+  const listOpen = hallRows.length > 0
+  ui.search.setAttribute('aria-expanded', listOpen ? 'true' : 'false')
+  if (listOpen && selectedHallIndex >= 0) {
+    ui.search.setAttribute('aria-activedescendant', hallOptionId(selectedHallIndex))
+  } else {
+    ui.search.removeAttribute('aria-activedescendant')
+  }
 }
 
 function setSkip(href: string): void {
@@ -216,10 +227,15 @@ function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>)
 
   const label = queryIsEmpty(query) ? '全部站点' : `找到 ${String(entries.length)} 个站点`
   ui.shelfStatus.textContent = label
-  renderCards(ui.results, ui.cardTemplate, entries, (tag) => {
+  const onTag = (tag: string) => {
     if (query.tags.includes(tag)) return
     go(shelfPath(route.query, [...query.tags, tag]))
-  })
+  }
+  if (queryIsEmpty(query)) {
+    renderGroupedCards(ui.results, ui.cardTemplate, groupEntriesByPrimaryTag(entries), onTag)
+  } else {
+    renderCards(ui.results, ui.cardTemplate, entries, onTag)
+  }
 }
 
 function renderRoute(route: AppRoute): void {

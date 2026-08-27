@@ -1,8 +1,13 @@
 import {
   type BookmarkEntry,
   type SiteIdentity,
+  type TagChunk,
   type TagSummary,
 } from './catalog.ts'
+
+export function hallOptionId(index: number): string {
+  return `hall-option-${String(index)}`
+}
 
 export function fillIdentity(root: ParentNode, identity: SiteIdentity): void {
   root.querySelectorAll('[data-wordmark]').forEach((node) => {
@@ -81,29 +86,35 @@ export function renderHallList(
 
   const fragment = document.createDocumentFragment()
   if (tags.length > 0) {
-    const label = document.createElement('p')
-    label.className = 'hall-group-label'
-    label.textContent = '标签'
-    fragment.append(label)
-    tags.forEach((tag, index) => {
-      fragment.append(hallButton('tag', index, selectedIndex, tag.name, String(tag.count), () => onTag(tag.name)))
-    })
+    fragment.append(hallGroup('标签', () =>
+      tags.map((tag, index) =>
+        hallButton('tag', index, selectedIndex, tag.name, String(tag.count), () => onTag(tag.name)),
+      ),
+    ))
   }
   if (titles.length > 0) {
-    const label = document.createElement('p')
-    label.className = 'hall-group-label'
-    label.textContent = '题名'
-    fragment.append(label)
-    titles.forEach((entry, index) => {
-      const absolute = tags.length + index
-      fragment.append(
-        hallButton('title', absolute, selectedIndex, entry.title, entry.displayUrl, () => onTitle(entry)),
-      )
-    })
+    fragment.append(hallGroup('题名', () =>
+      titles.map((entry, index) => {
+        const absolute = tags.length + index
+        return hallButton('title', absolute, selectedIndex, entry.title, entry.displayUrl, () => onTitle(entry))
+      }),
+    ))
   }
   container.replaceChildren(fragment)
   container.hidden = false
   return rows
+}
+
+function hallGroup(label: string, options: () => HTMLButtonElement[]): HTMLDivElement {
+  const group = document.createElement('div')
+  group.role = 'group'
+  group.setAttribute('aria-label', label)
+  const caption = document.createElement('p')
+  caption.className = 'hall-group-label'
+  caption.textContent = label
+  caption.setAttribute('aria-hidden', 'true')
+  group.append(caption, ...options())
+  return group
 }
 
 function hallButton(
@@ -116,6 +127,10 @@ function hallButton(
 ): HTMLButtonElement {
   const button = document.createElement('button')
   button.type = 'button'
+  button.id = hallOptionId(index)
+  button.role = 'option'
+  button.tabIndex = -1
+  button.setAttribute('aria-selected', index === selectedIndex ? 'true' : 'false')
   button.className = index === selectedIndex ? 'hall-item is-active' : 'hall-item'
   button.dataset.kind = kind
   button.dataset.index = String(index)
@@ -145,8 +160,9 @@ export function renderConstraints(
   for (const tag of tags) {
     fragment.append(constraintChip(tag, () => onRemoveTag(tag)))
   }
+  const empty = fragment.childNodes.length === 0
   container.replaceChildren(fragment)
-  container.hidden = fragment.childNodes.length === 0
+  container.hidden = empty
 }
 
 function constraintChip(label: string, onRemove: () => void): HTMLButtonElement {
@@ -180,6 +196,50 @@ export function renderCooccur(
   container.hidden = tags.length === 0
 }
 
+function bookmarkCard(
+  template: HTMLTemplateElement,
+  entry: BookmarkEntry,
+  onTag: (tag: string) => void,
+): HTMLElement | null {
+  const node = template.content.firstElementChild
+  if (!node) return null
+  const card = node.cloneNode(true) as HTMLElement
+  const link = card.querySelector<HTMLAnchorElement>('.card-main')
+  if (link) {
+    link.href = entry.url
+    link.setAttribute('aria-label', `打开 ${entry.title}`)
+  }
+  const title = card.querySelector('.card-title')
+  if (title) title.textContent = entry.title
+  const url = card.querySelector<HTMLElement>('.card-url')
+  if (url) {
+    url.textContent = entry.displayUrl
+    url.title = entry.url
+  }
+  const description = card.querySelector<HTMLElement>('.card-desc')
+  if (description) {
+    if (entry.description) {
+      description.textContent = entry.description
+      description.hidden = false
+    } else {
+      description.remove()
+    }
+  }
+  const tags = card.querySelector('.card-tags')
+  if (tags) {
+    tags.replaceChildren()
+    for (const tag of entry.tags) {
+      const chip = document.createElement('button')
+      chip.type = 'button'
+      chip.className = 'card-tag'
+      chip.textContent = tag
+      chip.addEventListener('click', () => onTag(tag))
+      tags.append(chip)
+    }
+  }
+  return card
+}
+
 export function renderCards(
   container: HTMLElement,
   template: HTMLTemplateElement,
@@ -188,43 +248,28 @@ export function renderCards(
 ): void {
   const fragment = document.createDocumentFragment()
   for (const entry of entries) {
-    const node = template.content.firstElementChild
-    if (!node) continue
-    const card = node.cloneNode(true) as HTMLElement
-    const link = card.querySelector<HTMLAnchorElement>('.card-main')
-    if (link) {
-      link.href = entry.url
-      link.setAttribute('aria-label', `打开 ${entry.title}`)
+    const card = bookmarkCard(template, entry, onTag)
+    if (card) fragment.append(card)
+  }
+  container.replaceChildren(fragment)
+}
+
+export function renderGroupedCards(
+  container: HTMLElement,
+  template: HTMLTemplateElement,
+  chunks: TagChunk[],
+  onTag: (tag: string) => void,
+): void {
+  const fragment = document.createDocumentFragment()
+  for (const chunk of chunks) {
+    const label = document.createElement('p')
+    label.className = 'hall-group-label'
+    label.textContent = `${chunk.name} · ${String(chunk.entries.length)}`
+    fragment.append(label)
+    for (const entry of chunk.entries) {
+      const card = bookmarkCard(template, entry, onTag)
+      if (card) fragment.append(card)
     }
-    const title = card.querySelector('.card-title')
-    if (title) title.textContent = entry.title
-    const url = card.querySelector<HTMLElement>('.card-url')
-    if (url) {
-      url.textContent = entry.displayUrl
-      url.title = entry.url
-    }
-    const description = card.querySelector<HTMLElement>('.card-desc')
-    if (description) {
-      if (entry.description) {
-        description.textContent = entry.description
-        description.hidden = false
-      } else {
-        description.remove()
-      }
-    }
-    const tags = card.querySelector('.card-tags')
-    if (tags) {
-      tags.replaceChildren()
-      for (const tag of entry.tags) {
-        const chip = document.createElement('button')
-        chip.type = 'button'
-        chip.className = 'card-tag'
-        chip.textContent = tag
-        chip.addEventListener('click', () => onTag(tag))
-        tags.append(chip)
-      }
-    }
-    fragment.append(card)
   }
   container.replaceChildren(fragment)
 }

@@ -199,6 +199,33 @@ export function sevenWords(tags: TagSummary[]): TagSummary[] {
     .slice(0, SEVEN_WORDS_LIMIT)
 }
 
+export type TagChunk = {
+  name: string
+  entries: BookmarkEntry[]
+}
+
+export function groupEntriesByPrimaryTag(entries: BookmarkEntry[]): TagChunk[] {
+  const order: string[] = []
+  const grouped = new Map<string, BookmarkEntry[]>()
+  for (const entry of entries) {
+    const primary = entry.tags[0]
+    if (!primary) continue
+    const bucket = grouped.get(primary)
+    if (bucket) {
+      bucket.push(entry)
+    } else {
+      order.push(primary)
+      grouped.set(primary, [entry])
+    }
+  }
+  return order
+    .map((name) => {
+      const chunk = grouped.get(name) ?? []
+      return { name, entries: chunk }
+    })
+    .sort((a, b) => b.entries.length - a.entries.length || order.indexOf(a.name) - order.indexOf(b.name))
+}
+
 function readPair(value: unknown, fallback: [string, string]): [string, string] {
   if (!Array.isArray(value) || value.length < 2) return fallback
   const first = typeof value[0] === 'string' ? value[0].trim() : ''

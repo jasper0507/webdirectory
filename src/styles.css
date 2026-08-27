@@ -21,6 +21,7 @@
 
 :root,
 [data-paper="day"] {
+  color-scheme: light;
   --font-sans: "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", "Archive Sans Fallback", "Noto Sans CJK SC", -apple-system, sans-serif;
   --font-serif: "Songti SC", "STSong", "SimSun", "Noto Serif SC", "Archive Serif Fallback", Georgia, "Times New Roman", serif;
   --color-ink: #eef0f2;
@@ -38,6 +39,7 @@
 }
 
 [data-paper="night"] {
+  color-scheme: dark;
   --color-ink: #1c1e22;
   --color-ink-3: #24262b;
   --color-cream: #eef0f2;
@@ -511,6 +513,11 @@ kbd {
   gap: 0.15rem;
 }
 
+.hall-list [role="group"] {
+  display: grid;
+  gap: 0.15rem;
+}
+
 .hall-group-label {
   font-size: 10px;
   letter-spacing: 0.2em;
@@ -713,6 +720,15 @@ kbd {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
+}
+
+.results > .hall-group-label {
+  grid-column: 1 / -1;
+  padding-top: 1.25rem;
+}
+
+.results > .hall-group-label:first-child {
+  padding-top: 0.15rem;
 }
 
 @media (min-width: 768px) {

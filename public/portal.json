@@ -47,7 +47,7 @@
       "tags": [
         "前端"
       ],
-      "description": "实用优先的 CSS 框架，当前项目的样式基础。"
+      "description": "实用优先的 CSS 框架。"
     },
     {
       "title": "daisyUI",
@@ -252,7 +252,7 @@
       "title": "Internet Archive",
       "url": "https://archive.org/",
       "tags": [
-        "未分类"
+        "存档"
       ],
       "description": "网页、书籍与多媒体的公开存档。"
     },
@@ -260,14 +260,14 @@
       "title": "Wikipedia",
       "url": "https://zh.wikipedia.org/",
       "tags": [
-        "未分类"
+        "参考"
       ]
     },
     {
       "title": "Wayback Machine",
       "url": "https://web.archive.org/",
       "tags": [
-        "未分类"
+        "存档"
       ],
       "description": "按时间查看已消失的网页。"
     },
