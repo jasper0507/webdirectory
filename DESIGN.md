@@ -1,3 +1,102 @@
+---
+name: 七卷拾光
+description: Archive Paper 的书签厅。
+colors:
+  paper: "#eef0f2"
+  paper-night: "#1c1e22"
+  paper-soft: "#f6f7f9"
+  paper-soft-night: "#24262b"
+  cream: "#1f2328"
+  cream-night: "#eef0f2"
+  ash: "#5d646d"
+  ash-night: "#9aa0a8"
+  ash-deep: "#646b74"
+  ash-deep-night: "#8a9099"
+  gold: "#a87b3f"
+  gold-soft: "#c99a5b"
+  gold-dim: "#b08a52"
+  sheet: "#f6f7f9"
+  sheet-night: "#24262b"
+  card-line: "#d8dbe0"
+  card-line-night: "#3a3d44"
+typography:
+  display:
+    fontFamily: "Songti SC, STSong, SimSun, Noto Serif SC, Archive Serif Fallback, Georgia, Times New Roman, serif"
+    fontSize: "7.5rem"
+    fontWeight: 400
+    lineHeight: 0.95
+    letterSpacing: "normal"
+  title:
+    fontFamily: "Songti SC, STSong, SimSun, Noto Serif SC, Archive Serif Fallback, Georgia, Times New Roman, serif"
+    fontSize: "1.12rem"
+    fontWeight: 400
+    lineHeight: 1.25
+  body:
+    fontFamily: "PingFang SC, Hiragino Sans GB, Helvetica Neue, Archive Sans Fallback, Noto Sans CJK SC, -apple-system, sans-serif"
+    fontSize: "16px"
+    fontWeight: 400
+    lineHeight: 1.5
+  label:
+    fontFamily: "PingFang SC, Hiragino Sans GB, Helvetica Neue, Archive Sans Fallback, Noto Sans CJK SC, -apple-system, sans-serif"
+    fontSize: "10px"
+    fontWeight: 400
+    letterSpacing: "0.25em"
+rounded:
+  none: "0px"
+  hairline: "2px"
+  kbd: "4px"
+  pill: "999px"
+  circle: "50%"
+spacing:
+  xs: "0.35rem"
+  sm: "0.75rem"
+  md: "1.25rem"
+  lg: "2.5rem"
+components:
+  brand:
+    backgroundColor: "transparent"
+    textColor: "{colors.cream}"
+    typography: "{typography.title}"
+    rounded: "{rounded.circle}"
+    padding: "0"
+  input-search:
+    backgroundColor: "transparent"
+    textColor: "{colors.cream}"
+    typography: "{typography.title}"
+    rounded: "{rounded.none}"
+    padding: "0 0 8px"
+  chip:
+    backgroundColor: "transparent"
+    textColor: "{colors.ash}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    padding: "4px 14px"
+  constraint-chip:
+    backgroundColor: "transparent"
+    textColor: "{colors.cream}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    padding: "4px 14px"
+  hall-item:
+    backgroundColor: "transparent"
+    textColor: "{colors.ash}"
+    padding: "0.35rem 0"
+  card:
+    backgroundColor: "{colors.sheet}"
+    textColor: "{colors.cream}"
+    rounded: "{rounded.hairline}"
+    padding: "1.1rem 1.15rem"
+  paper-toggle:
+    backgroundColor: "transparent"
+    textColor: "{colors.gold-dim}"
+    typography: "{typography.label}"
+    padding: "0"
+  text-action:
+    backgroundColor: "transparent"
+    textColor: "{colors.gold}"
+    padding: "0"
+---
+
 # Design System: 七卷拾光
 
 Archive Paper 的书签厅。搜索厅是一屏题签；货架是二级厅，允许安静的卡片。第一版只有克制纸，含夜间色板。
@@ -7,6 +106,14 @@ Archive Paper 的书签厅。搜索厅是一屏题签；货架是二级厅，允
 **Creative North Star: "浅档案纸 + 一座两字碑 + 一根金线提问。"**
 
 默认界面是搜索厅。货架共用纸、墨、金，但不复制碑。Logo 回到搜索厅。夜间是同一张纸翻到夜里，不是另一套布局。
+
+**Key Characteristics:**
+
+- 搜索厅是一屏题签；卡片只出现在货架。
+- 白日与夜间是同一张纸；`data-paper` 换色板，不换 DOM。
+- 金是唯一强调，不许改金，也不许把金改成漆。
+- 衬线只给字标、碑题、提问线和卡片标题。
+- Logo 回厅；夜间开关只在页脚。
 
 ## Colors
 
@@ -18,18 +125,36 @@ Archive Paper 的书签厅。搜索厅是一屏题签；货架是二级厅，允
 | paper-soft | `#f6f7f9` | `#24262b` |
 | cream / 墨 | `#1f2328` | `#eef0f2` |
 | ash | `#5d646d` | `#9aa0a8` |
-| ash-deep | `#9aa0a8` | `#7d838c` |
+| ash-deep | `#646b74` | `#8a9099` |
 | gold | `#a87b3f` | `#a87b3f` |
 | gold-soft | `#c99a5b` | `#c99a5b` |
 | gold-dim | `#b08a52` | `#b08a52` |
 
-夜间禁止纯黑、禁止霓虹、禁止把金改成漆。选区仍是金尘底。`theme-color` 跟随纸色。
+夜间禁止纯黑、禁止霓虹、禁止把金改成漆。选区仍是金尘底。`theme-color` 跟随纸色。货架卡片用 `--color-sheet` 落在纸上，发丝边 `--card-line`。
+
+**The Gold is Law Rule.** 金是唯一强调色。产品可以换文案，不能换纸，也不能改金。
+
+**The Same-Paper Rule.** 用 `data-paper="day|night"` 换色板，不换 DOM。夜间仍是这张纸，不是另一套主题。
 
 ## Typography
+
+**Display Font:** Songti SC（Linux 兜底 `Archive Serif Fallback`，不要把 Songti SC 指到 Noto）
+**Body Font:** PingFang SC（兜底 `Archive Sans Fallback`）
+
+**Character:** 碑是薄衬线，不是粗黑标题。正文与元数据走无衬线，让碑和提问线成为唯一的笔触。
 
 - 衬线只给字标、碑题、提问框、货架卡片标题。
 - 其余 sans。碑题字重 400，禁止 bold。
 - Linux 兜底字体家族名为 `Archive Serif Fallback` / `Archive Sans Fallback`，不要把 `Songti SC` 指到 Noto。
+
+### Hierarchy
+
+- **Display** (400, 移动 13vw / 桌面 7.5rem, 行高 0.95)：两字碑。
+- **Title** (400, 1.12rem, 行高 1.25)：货架卡片标题；字标 1rem、字距 0.35em。
+- **Body** (400, 16px)：页面默认；耳语 13px、字距 0.18em。
+- **Label** (400, 9–11px, 字距 0.15–0.5em)：印戳、七词、键位、页脚、结果句。
+
+**The Sparse Serif Rule.** 衬线是碑、提问和题名的笔，不是整页装饰。碑题禁止 bold。
 
 ## Search hall
 
@@ -45,7 +170,8 @@ Archive Paper 的书签厅。搜索厅是一屏题签；货架是二级厅，允
 
 同一套货架。无约束 = 全部目录；有提问词或标签约束 = 命中集合。
 
-- 顶栏：Logo 回厅、约束条（提问词与已选标签可叉）、条数。
+- 顶栏：Logo 回厅、约束条（提问词与已选标签可叉）、当前命中条数。
+- 提问行与厅共用通栏底边和圆钮，聚焦时底边改金；不使用生长金线。
 - 共现标签：只统计当前命中，不含已选，按次数排序。
 - 卡片：白纸面落在档案纸上。名称与 URL 必显；空描述不占位。点卡片打开外链。点卡片上的标签 = 追加精确约束。
 - 网格：移动 1 列，`768px` 起 2 列，`1024px` 起 3 列。卡片圆角不超过 2px，发丝边，无硬偏移阴影、无彩条。
@@ -54,16 +180,68 @@ Archive Paper 的书签厅。搜索厅是一屏题签；货架是二级厅，允
 
 `--ease-royal: cubic-bezier(.22, 1, .36, 1)`。碑题 `revealUp` 1.1s。禁止 bounce。`prefers-reduced-motion` 时停掉星尘、轨道和揭示。
 
-## Do
+## Layout
 
-- 用 `data-paper="day|night"` 换色板，不换 DOM。
-- 把 Logo 当回厅，夜间开关放页脚。
-- 卡片只出现在货架。
+厅是一列居中的题签：页头 sticky，主列把碑送到视口中部（移动上内边距 5.5rem，`48rem` 起 14.3125rem）。厅内不为卡片网格纵滚。货架容器 `min(72rem, calc(100% - 2rem))`；网格移动 1 列，`768px` 起 2 列，`1024px` 起 3 列，间隙 1rem。页头/货架顶栏水平内边距 1.25rem，`48rem` 起 3.5rem。节奏只用少数档：控件间隙 0.35–0.75rem，区块 1.25–2.5rem。
 
-## Don't
+## Elevation & Depth
 
-- 不要在搜索厅放货架、胶囊、阴影搜索盒。
-- 不要做大胆/柠绿主题（第一版）。
-- 不要用 Logo 切换主题。
-- 不要把系统黑体当碑题。
-- 不要为凑满七个快捷词编造标签。
+深度靠纸面分层，不靠投影。档案纸是场地；卡片是落在纸上的一张更白（夜间更深）的 sheet，发丝边勾边。品牌圆印用 1px 金环，不是投影。搜索提交钮悬停时才出现金尘光晕，不推广到卡片或厅面列表。
+
+**The Hairline-Not-Shadow Rule.** 卡片禁止硬偏移阴影。轮廓用发丝边；悬停改边为金，不抬起。
+
+## Shapes
+
+直角是默认。卡片圆角不超过 2px。提问是一条底边，半径 0。提交钮与品牌印是正圆。七词和约束看起来像胶囊热区，但没有填充和描边。
+
+## Components
+
+零件都是纸上的墨，不是套件里的控件。没有填充主按钮，没有带阴影的输入盒。
+
+### Brand
+
+圆印 + 衬线字标。点击回到搜索厅，不切换主题。印 1.75rem，金环描边。悬停印放大到 1.05。
+
+### Search line
+
+底边 1px 发丝，serif 18px / 28px。厅内聚焦时 2px 金线从左生长（0.6s ease-royal）。货架同一行、通栏，聚焦只把底边改金。提交钮是 2.75rem 金描边圆。
+
+### Seven-word chips
+
+无填充、无描边。11px，字距 0.15em。悬停变金，底边金线从左生长。
+
+### Hall index
+
+输入后出现。匹配标签最多 3 条，题名补齐到共约 7 行。无卡片、无阴影。悬停或选中变金。
+
+### Constraint chips
+
+提问词与已选标签，金色叉可移除。共现标签样式与七词相同，只统计当前命中且不含已选。
+
+### Bookmark cards
+
+`--color-sheet` 落在档案纸上。圆角 2px，发丝边。悬停边改金。名称 serif；空描述不占位。卡片上的标签追加精确约束。
+
+### Paper toggle
+
+页脚文字钮，9px，字距 0.2em，金暗色。不放在 Logo 上。
+
+### Text action
+
+加载失败重试与清除约束：无底无边，12px 金色字。
+
+## Do's and Don'ts
+
+### Do:
+
+- **Do** 用 `data-paper="day|night"` 换色板，不换 DOM。
+- **Do** 把 Logo 当回厅，夜间开关放页脚。
+- **Do** 让卡片只出现在货架。
+
+### Don't:
+
+- **Don't** 在搜索厅放货架、胶囊、阴影搜索盒。
+- **Don't** 做大胆/柠绿主题（第一版）。
+- **Don't** 用 Logo 切换主题。
+- **Don't** 把系统黑体当碑题。
+- **Don't** 为凑满七个快捷词编造标签。

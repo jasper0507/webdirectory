@@ -27,7 +27,7 @@
   --color-ink-3: #f6f7f9;
   --color-cream: #1f2328;
   --color-ash: #5d646d;
-  --color-ash-deep: #9aa0a8;
+  --color-ash-deep: #646b74;
   --color-gold: #a87b3f;
   --color-gold-soft: #c99a5b;
   --color-gold-dim: #b08a52;
@@ -42,7 +42,7 @@
   --color-ink-3: #24262b;
   --color-cream: #eef0f2;
   --color-ash: #9aa0a8;
-  --color-ash-deep: #7d838c;
+  --color-ash-deep: #8a9099;
   --color-sheet: #24262b;
   --card-line: #3a3d44;
   --theme-color: #1c1e22;
@@ -97,6 +97,7 @@ button,
 [role="button"],
 a[href] {
   cursor: pointer;
+  font: inherit;
 }
 
 input {
@@ -120,13 +121,15 @@ kbd {
 
 .skip-link {
   position: absolute;
-  left: 1rem;
-  top: 0.75rem;
-  z-index: 40;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 50;
   transform: translateY(-160%);
   background: var(--color-sheet);
   color: var(--color-cream);
-  padding: 0.4rem 0.75rem;
+  padding: 0.55rem 1rem;
+  text-align: center;
 }
 
 .skip-link:focus {
@@ -177,6 +180,10 @@ kbd {
   flex-direction: column;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .page[hidden] {
   display: none !important;
 }
@@ -195,6 +202,12 @@ kbd {
   border-radius: 50%;
   pointer-events: none;
   animation: spinSlow 90s linear infinite;
+}
+
+@media (max-width: 47.99rem) {
+  .orbit {
+    display: none;
+  }
 }
 
 @keyframes spinSlow {
@@ -264,9 +277,9 @@ kbd {
   align-items: center;
   gap: 0.75rem;
   white-space: nowrap;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.25em;
-  color: var(--color-ash-deep);
+  color: var(--color-ash);
 }
 
 .gold-dot {
@@ -314,9 +327,9 @@ kbd {
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.5em;
-  color: #a87b3fcc;
+  color: var(--color-ash);
   text-transform: uppercase;
 }
 
@@ -383,7 +396,7 @@ kbd {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  height: 2.5rem;
+  min-height: 2.75rem;
 }
 
 .search-row::after {
@@ -393,7 +406,14 @@ kbd {
   right: 0;
   bottom: 0;
   height: 1px;
-  background: #9aa0a880;
+  background: var(--color-ash-deep);
+  opacity: 0.45;
+  transition: background-color 0.3s var(--ease-royal), opacity 0.3s var(--ease-royal);
+}
+
+.search-row:focus-within::after {
+  background: var(--color-gold);
+  opacity: 1;
 }
 
 .search-row .grow-line {
@@ -429,7 +449,7 @@ kbd {
 }
 
 .search-input::placeholder {
-  color: #9aa0a8cc;
+  color: var(--color-ash);
 }
 
 .search-input:focus,
@@ -439,8 +459,8 @@ kbd {
 
 .search-btn {
   flex-shrink: 0;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: 50%;
   border: 1px solid var(--color-gold);
   background: transparent;
@@ -467,7 +487,7 @@ kbd {
   align-items: center;
   gap: 1.5rem;
   font-size: 11px;
-  color: var(--color-ash-deep);
+  color: var(--color-ash);
   letter-spacing: 0.06em;
 }
 
@@ -475,8 +495,14 @@ kbd {
   display: inline-block;
   padding: 1px 6px;
   margin-right: 0.35rem;
-  border: 1px solid #00000014;
+  border: 1px solid var(--card-line);
   border-radius: 4px;
+}
+
+@media (pointer: coarse), (max-width: 47.99rem) {
+  .hints {
+    display: none;
+  }
 }
 
 .hall-list {
@@ -495,6 +521,7 @@ kbd {
 .hall-item {
   display: flex;
   width: 100%;
+  min-width: 0;
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
@@ -506,12 +533,25 @@ kbd {
   padding: 0.35rem 0;
 }
 
+.hall-item-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .hall-item.is-active,
 .hall-item:hover {
-  color: var(--color-gold);
+  color: var(--color-cream);
 }
 
 .hall-item-meta {
+  flex: 0 1 12rem;
+  max-width: 42%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 11px;
   letter-spacing: 0.08em;
   color: var(--color-ash-deep);
@@ -533,7 +573,7 @@ kbd {
   position: relative;
   background: none;
   border: 0;
-  padding: 4px 14px;
+  padding: 0.7rem 14px;
   border-radius: 999px;
   font-size: 11px;
   letter-spacing: 0.15em;
@@ -557,7 +597,7 @@ kbd {
 
 .chip:hover,
 .cooccur-chip:hover {
-  color: var(--color-gold);
+  color: var(--color-cream);
 }
 
 .chip:hover::after,
@@ -586,9 +626,9 @@ kbd {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.3em;
-  color: var(--color-ash-deep);
+  color: var(--color-ash);
 }
 
 .footer-right {
@@ -611,10 +651,15 @@ kbd {
 .paper-toggle {
   border: 0;
   background: none;
-  color: var(--color-gold-dim);
+  color: var(--color-ash);
   letter-spacing: 0.2em;
-  font-size: 9px;
-  padding: 0;
+  font-size: 11px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .paper-toggle:hover {
@@ -624,27 +669,20 @@ kbd {
 .shelf {
   width: min(72rem, calc(100% - 2rem));
   margin-inline: auto;
-  padding-bottom: 3rem;
 }
 
 .shelf-search {
-  position: relative;
+  width: 100%;
+  max-width: none;
   margin: 0 0 1rem;
 }
 
-.shelf-field {
-  display: block;
-  position: relative;
+.shelf .results {
+  flex: 1 1 auto;
 }
 
-.shelf-field::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background: #9aa0a880;
+.shelf .site-footer {
+  margin-top: auto;
 }
 
 .constraints,
@@ -697,13 +735,22 @@ kbd {
   padding: 1.1rem 1.15rem;
   background: var(--color-sheet);
   color: inherit;
-  text-decoration: none;
   border: 1px solid var(--card-line);
   border-radius: 2px;
 }
 
-.bookmark-card:hover {
+.bookmark-card:hover,
+.bookmark-card:focus-within {
   border-color: var(--color-gold);
+}
+
+.card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
 }
 
 .card-title {
@@ -741,11 +788,12 @@ kbd {
   color: var(--color-ash);
   font-size: 11px;
   letter-spacing: 0.08em;
-  padding: 0;
+  min-height: 44px;
+  padding: 0.5rem 0.15rem;
 }
 
 .card-tag:hover {
-  color: var(--color-gold);
+  color: var(--color-cream);
 }
 
 .state-panel {
@@ -771,9 +819,15 @@ kbd {
   margin-top: 0.3rem;
   border: 0;
   background: none;
-  color: var(--color-gold);
+  color: var(--color-cream);
   letter-spacing: 0.12em;
   font-size: 12px;
+  min-height: 44px;
+  padding-inline: 0.15rem;
+}
+
+.text-action:hover {
+  color: var(--color-gold);
 }
 
 :focus-visible {

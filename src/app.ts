@@ -138,6 +138,8 @@ function openEntry(url: string): void {
 
 function updateHallList(ui: AppUi): void {
   if (!catalog) return
+  const asking = ui.search.value.trim() !== ''
+  ui.sevenWords.hidden = asking
   const suggestions = hallSuggestions(catalog.entries, catalog.tags, ui.search.value)
   hallRows = flattenHallRows(suggestions.tags, suggestions.titles)
   if (selectedHallIndex >= hallRows.length) selectedHallIndex = hallRows.length - 1
@@ -184,7 +186,7 @@ function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>)
 
   const query = parseShelfQuery(route.query, route.tags)
   const entries = searchEntries(catalog.entries, query)
-  ui.shelfCount.textContent = `${String(catalog.entries.length)} 站点`
+  ui.shelfCount.textContent = `${String(entries.length)} 个站点`
 
   renderConstraints(
     ui.constraints,
@@ -267,15 +269,6 @@ function wire(ui: AppUi): void {
 
   ui.searchForm.addEventListener('submit', (event) => {
     event.preventDefault()
-    const selected = selectedHallIndex >= 0 ? hallRows[selectedHallIndex] : undefined
-    if (selected?.kind === 'tag') {
-      go(shelfPath('', [selected.tag.name]))
-      return
-    }
-    if (selected?.kind === 'title') {
-      openEntry(selected.entry.url)
-      return
-    }
     go(shelfPath(ui.search.value))
   })
 
@@ -285,6 +278,19 @@ function wire(ui: AppUi): void {
   })
 
   ui.search.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      selectedHallIndex = -1
+      updateHallList(ui)
+      return
+    }
+    if (event.key === 'Enter' && selectedHallIndex >= 0) {
+      event.preventDefault()
+      const selected = hallRows[selectedHallIndex]
+      if (selected?.kind === 'tag') go(shelfPath('', [selected.tag.name]))
+      else if (selected?.kind === 'title') openEntry(selected.entry.url)
+      return
+    }
     if (event.key === 'ArrowDown' && hallRows.length > 0) {
       event.preventDefault()
       selectedHallIndex = Math.min(hallRows.length - 1, selectedHallIndex + 1)

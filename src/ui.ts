@@ -120,6 +120,7 @@ function hallButton(
   button.dataset.kind = kind
   button.dataset.index = String(index)
   const name = document.createElement('span')
+  name.className = 'hall-item-title'
   name.textContent = title
   const aside = document.createElement('span')
   aside.className = 'hall-item-meta'
@@ -189,9 +190,12 @@ export function renderCards(
   for (const entry of entries) {
     const node = template.content.firstElementChild
     if (!node) continue
-    const card = node.cloneNode(true) as HTMLAnchorElement
-    card.href = entry.url
-    card.setAttribute('aria-label', `打开 ${entry.title}`)
+    const card = node.cloneNode(true) as HTMLElement
+    const link = card.querySelector<HTMLAnchorElement>('.card-main')
+    if (link) {
+      link.href = entry.url
+      link.setAttribute('aria-label', `打开 ${entry.title}`)
+    }
     const title = card.querySelector('.card-title')
     if (title) title.textContent = entry.title
     const url = card.querySelector<HTMLElement>('.card-url')
@@ -216,11 +220,7 @@ export function renderCards(
         chip.type = 'button'
         chip.className = 'card-tag'
         chip.textContent = tag
-        chip.addEventListener('click', (event) => {
-          event.preventDefault()
-          event.stopPropagation()
-          onTag(tag)
-        })
+        chip.addEventListener('click', () => onTag(tag))
         tags.append(chip)
       }
     }
