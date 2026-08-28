@@ -27,6 +27,7 @@ import {
   renderGroupedCards,
   renderHallList,
   renderSevenWords,
+  resolveHallSubmit,
   showPanel,
   type HallRow,
 } from './ui.ts'
@@ -293,7 +294,10 @@ function wire(ui: AppUi): void {
 
   ui.searchForm.addEventListener('submit', (event) => {
     event.preventDefault()
-    go(shelfPath(ui.search.value))
+    const action = resolveHallSubmit(hallRows, selectedHallIndex, ui.search.value)
+    if (action.kind === 'open') openEntry(action.url)
+    else if (action.kind === 'tag') go(shelfPath('', [action.tag]))
+    else go(shelfPath(action.query))
   })
 
   ui.search.addEventListener('input', () => {
@@ -306,13 +310,6 @@ function wire(ui: AppUi): void {
       event.preventDefault()
       selectedHallIndex = -1
       updateHallList(ui)
-      return
-    }
-    if (event.key === 'Enter' && selectedHallIndex >= 0) {
-      event.preventDefault()
-      const selected = hallRows[selectedHallIndex]
-      if (selected?.kind === 'tag') go(shelfPath('', [selected.tag.name]))
-      else if (selected?.kind === 'title') openEntry(selected.entry.url)
       return
     }
     if (event.key === 'ArrowDown' && hallRows.length > 0) {

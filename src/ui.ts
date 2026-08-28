@@ -63,11 +63,31 @@ export type HallRow =
   | { kind: 'tag'; tag: TagSummary }
   | { kind: 'title'; entry: BookmarkEntry }
 
+export type HallSubmitAction =
+  | { kind: 'open'; url: string }
+  | { kind: 'shelf'; query: string }
+  | { kind: 'tag'; tag: string }
+
 export function flattenHallRows(tags: TagSummary[], titles: BookmarkEntry[]): HallRow[] {
   return [
     ...tags.map((tag) => ({ kind: 'tag' as const, tag })),
     ...titles.map((entry) => ({ kind: 'title' as const, entry })),
   ]
+}
+
+export function resolveHallSubmit(
+  rows: HallRow[],
+  selectedIndex: number,
+  query: string,
+): HallSubmitAction {
+  const selected = selectedIndex >= 0 ? rows[selectedIndex] : undefined
+  if (selected?.kind === 'tag') return { kind: 'tag', tag: selected.tag.name }
+  if (selected?.kind === 'title') return { kind: 'open', url: selected.entry.url }
+
+  const titles = rows.filter((row): row is Extract<HallRow, { kind: 'title' }> => row.kind === 'title')
+  const soleTitle = titles.length === 1 ? titles[0] : undefined
+  if (soleTitle) return { kind: 'open', url: soleTitle.entry.url }
+  return { kind: 'shelf', query }
 }
 
 export function renderHallList(
