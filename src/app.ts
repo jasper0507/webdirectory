@@ -178,14 +178,18 @@ function renderHall(ui: AppUi): void {
   ui.shelf.hidden = true
   setSkip('#q')
   document.getElementById('stars')?.removeAttribute('hidden')
-  if (!catalog) return
+  ui.search.value = ''
+  selectedHallIndex = -1
+  ui.search.blur()
+  if (!catalog) {
+    updateHallList(ui)
+    return
+  }
   fillIdentity(document, catalog.identity)
   document.title = catalog.identity.wordmark
   ui.search.placeholder = catalog.identity.placeholder
   renderSevenWords(ui.sevenWords, sevenWords(catalog.tags), (tag) => go(shelfPath('', [tag])))
-  selectedHallIndex = -1
   updateHallList(ui)
-  ui.search.focus()
 }
 
 function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>): void {
