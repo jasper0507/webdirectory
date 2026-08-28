@@ -23,7 +23,7 @@
 [data-paper="day"] {
   color-scheme: light;
   --font-sans: "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", "Archive Sans Fallback", "Noto Sans CJK SC", -apple-system, sans-serif;
-  --font-serif: "Songti SC", "STSong", "SimSun", "Noto Serif SC", "Archive Serif Fallback", Georgia, "Times New Roman", serif;
+  --font-serif: "Songti SC", "STSong", "SimSun", "Archive Serif Fallback", Georgia, "Times New Roman", serif;
   --color-ink: #eef0f2;
   --color-ink-3: #f6f7f9;
   --color-cream: #1f2328;
@@ -60,6 +60,9 @@
 
 html {
   font-size: 16px;
+  scroll-padding-top: 4.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gold-dim) transparent;
 }
 
 html,
@@ -92,7 +95,8 @@ body::before {
 }
 
 [data-paper="night"] ::selection {
-  color: #1c1e22;
+  color: #eef0f2;
+  background: #a87b3f55;
 }
 
 button,
@@ -106,6 +110,7 @@ input {
   cursor: text;
   font: inherit;
   color: inherit;
+  caret-color: var(--color-gold);
   background: transparent;
   border: 0;
   border-radius: 0;
@@ -136,6 +141,13 @@ kbd {
 
 .skip-link:focus {
   transform: none;
+}
+
+.truncate {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sr-only {
@@ -431,8 +443,7 @@ kbd {
   z-index: 1;
 }
 
-.search-block:focus-within .grow-line,
-.shelf-search:focus-within .grow-line {
+.hall .search-block:focus-within .grow-line {
   transform: scaleX(1);
 }
 
@@ -691,8 +702,7 @@ kbd {
 }
 
 .chip:hover,
-.cooccur-chip:hover,
-.constraint-chip:hover {
+.cooccur-chip:hover {
   color: var(--color-cream);
 }
 
@@ -749,9 +759,9 @@ kbd {
 .paper-toggle {
   border: 0;
   background: none;
-  color: var(--color-ash);
+  color: var(--color-gold-dim);
   letter-spacing: 0.2em;
-  font-size: 11px;
+  font-size: 9px;
   min-width: 44px;
   min-height: 44px;
   padding: 0 0.35rem;
@@ -951,15 +961,16 @@ kbd {
   margin-top: 0.3rem;
   border: 0;
   background: none;
-  color: var(--color-cream);
+  color: var(--color-gold);
   letter-spacing: 0.12em;
   font-size: 12px;
   min-height: 44px;
   padding-inline: 0.15rem;
 }
 
-.text-action:hover {
-  color: var(--color-gold);
+.text-action:hover,
+.text-action:focus-visible {
+  color: var(--color-gold-soft);
 }
 
 :focus-visible {

@@ -52,6 +52,7 @@ export function renderSevenWords(
     button.className = 'chip'
     button.role = 'listitem'
     button.textContent = tag.name
+    button.setAttribute('aria-label', `按标签 ${tag.name} 进入货架`)
     button.addEventListener('click', () => onPick(tag.name))
     fragment.append(button)
   }
