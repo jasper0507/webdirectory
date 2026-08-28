@@ -2,7 +2,7 @@
 <html lang="zh-CN" data-paper="day">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#eef0f2" />
     <title>七卷拾光</title>
@@ -77,14 +77,15 @@
             <span class="grow-line"></span>
           </div>
           <div class="hints">
-            <span><kbd>/</kbd>聚焦检索</span>
-            <span><kbd>↵</kbd>打开题名，或进入货架</span>
+            <span class="hints-keys"><kbd>/</kbd>聚焦检索</span>
+            <span class="hints-keys"><kbd>↵</kbd>打开题名，或进入货架</span>
+            <span class="hints-touch">空提交看全部货架。点标签或键入名字。</span>
           </div>
           <div id="hall-list" class="hall-list" role="listbox" aria-label="题名索引" hidden></div>
-          <p id="hall-empty" class="result-status" hidden aria-live="polite">厅内无题名。回车到货架上看。</p>
+          <p id="hall-empty" class="result-status" hidden aria-live="polite">没有这道题。回车看全部货架。</p>
         </form>
 
-        <div id="seven-words" class="chips" role="list"></div>
+        <div id="seven-words" class="chips" role="group" aria-label="常用标签"></div>
       </main>
 
       <footer class="site-footer">
@@ -100,36 +101,39 @@
     </div>
 
     <div id="view-shelf" class="page shelf" hidden>
-      <header class="shelf-header">
-        <button class="brand" type="button" data-home aria-label="回到拾光">
-          <img src="/favicon.svg" alt="" width="28" height="28" />
-          <span class="brand-name" data-wordmark>七卷拾光</span>
-        </button>
-        <p class="shelf-count" id="shelf-count">0 个站点</p>
-      </header>
-
-      <form class="search-block shelf-search" id="shelf-form" action="/shelf" method="get" role="search" autocomplete="off">
-        <div class="search-row">
-          <label class="sr-only" for="shelf-q">在货架上继续提问</label>
-          <input
-            id="shelf-q"
-            class="search-input"
-            type="text"
-            name="q"
-            placeholder="键入书签或站点..."
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <button class="search-btn" type="submit" aria-label="检索书签">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.3-4.3"></path>
-            </svg>
+      <div class="shelf-top">
+        <h1 class="sr-only">货架</h1>
+        <header class="shelf-header">
+          <button class="brand" type="button" data-home aria-label="回到拾光">
+            <img src="/favicon.svg" alt="" width="28" height="28" />
+            <span class="brand-name" data-wordmark>七卷拾光</span>
           </button>
-        </div>
-      </form>
+          <p class="shelf-count" id="shelf-count">0 个站点</p>
+        </header>
 
-      <div id="constraints" class="constraints"></div>
+        <form class="search-block shelf-search" id="shelf-form" action="/shelf" method="get" role="search" autocomplete="off">
+          <div class="search-row">
+            <label class="sr-only" for="shelf-q">在货架上继续提问</label>
+            <input
+              id="shelf-q"
+              class="search-input"
+              type="text"
+              name="q"
+              placeholder="键入书签或站点..."
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button class="search-btn" type="submit" aria-label="检索书签">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+              </svg>
+            </button>
+          </div>
+        </form>
+
+        <div id="constraints" class="constraints"></div>
+      </div>
       <p id="shelf-status" class="result-status sr-only" aria-live="polite" aria-atomic="true"></p>
       <main id="shelf-results" class="results"></main>
 
@@ -176,7 +180,7 @@
     <template id="state-empty-filter">
       <div class="state-panel">
         <h2>没有匹配的书签</h2>
-        <p>试试更短的词，或去掉标签约束。</p>
+        <p>试试更短的词，或清除约束。</p>
         <button type="button" class="text-action" data-clear-filters>清除约束</button>
       </div>
     </template>

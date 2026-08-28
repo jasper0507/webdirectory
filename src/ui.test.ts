@@ -45,6 +45,10 @@ describe('resolveHallSubmit', () => {
     expect(resolveHallSubmit([], -1, '')).toEqual({ kind: 'shelf', query: '' })
   })
 
+  it('厅内无匹配时进入全部货架，不把死查询带去空货架', () => {
+    expect(resolveHallSubmit([], -1, 'qqqqnomatch')).toEqual({ kind: 'shelf', query: '' })
+  })
+
   it('多条题名未选中时进入货架', () => {
     const rows = [
       titleRow('Vite', 'https://vite.dev/'),

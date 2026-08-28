@@ -50,7 +50,6 @@ export function renderSevenWords(
     const button = document.createElement('button')
     button.type = 'button'
     button.className = 'chip'
-    button.role = 'listitem'
     button.textContent = tag.name
     button.setAttribute('aria-label', `按标签 ${tag.name} 进入货架`)
     button.addEventListener('click', () => onPick(tag.name))
@@ -87,6 +86,7 @@ export function resolveHallSubmit(
   const titles = rows.filter((row): row is Extract<HallRow, { kind: 'title' }> => row.kind === 'title')
   const soleTitle = titles.length === 1 ? titles[0] : undefined
   if (soleTitle) return { kind: 'open', url: soleTitle.entry.url }
+  if (rows.length === 0) return { kind: 'shelf', query: '' }
   return { kind: 'shelf', query }
 }
 
@@ -226,6 +226,7 @@ function bookmarkCard(
   template: HTMLTemplateElement,
   entry: BookmarkEntry,
   onTag: (tag: string) => void,
+  boundTags: string[],
 ): HTMLElement | null {
   const node = template.content.firstElementChild
   if (!node) return null
@@ -233,7 +234,7 @@ function bookmarkCard(
   const link = card.querySelector<HTMLAnchorElement>('.card-main')
   if (link) {
     link.href = entry.url
-    link.setAttribute('aria-label', `打开 ${entry.title}`)
+    link.setAttribute('aria-label', `打开 ${entry.title}（新标签页）`)
   }
   const title = card.querySelector('.card-title')
   if (title) title.textContent = entry.title
@@ -257,10 +258,13 @@ function bookmarkCard(
     for (const tag of entry.tags) {
       const chip = document.createElement('button')
       chip.type = 'button'
-      chip.className = 'card-tag'
+      const bound = boundTags.includes(tag)
+      chip.className = bound ? 'card-tag is-bound' : 'card-tag'
       chip.textContent = tag
-      chip.setAttribute('aria-label', `用标签 ${tag} 约束货架`)
-      chip.addEventListener('click', () => onTag(tag))
+      chip.setAttribute('aria-pressed', bound ? 'true' : 'false')
+      chip.setAttribute('aria-label', bound ? `已用标签 ${tag} 约束货架` : `用标签 ${tag} 约束货架`)
+      if (bound) chip.disabled = true
+      else chip.addEventListener('click', () => onTag(tag))
       tags.append(chip)
     }
   }
@@ -272,10 +276,11 @@ export function renderCards(
   template: HTMLTemplateElement,
   entries: BookmarkEntry[],
   onTag: (tag: string) => void,
+  boundTags: string[] = [],
 ): void {
   const fragment = document.createDocumentFragment()
   for (const entry of entries) {
-    const card = bookmarkCard(template, entry, onTag)
+    const card = bookmarkCard(template, entry, onTag, boundTags)
     if (card) fragment.append(card)
   }
   container.replaceChildren(fragment)
@@ -286,6 +291,7 @@ export function renderGroupedCards(
   template: HTMLTemplateElement,
   chunks: TagChunk[],
   onTag: (tag: string) => void,
+  boundTags: string[] = [],
 ): void {
   const fragment = document.createDocumentFragment()
   for (const chunk of chunks) {
@@ -294,7 +300,7 @@ export function renderGroupedCards(
     label.textContent = `${chunk.name} · ${String(chunk.entries.length)}`
     fragment.append(label)
     for (const entry of chunk.entries) {
-      const card = bookmarkCard(template, entry, onTag)
+      const card = bookmarkCard(template, entry, onTag, boundTags)
       if (card) fragment.append(card)
     }
   }

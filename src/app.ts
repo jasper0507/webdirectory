@@ -141,6 +141,7 @@ function openEntry(url: string): void {
 
 function updateHallList(ui: AppUi): void {
   const asking = ui.search.value.trim() !== ''
+  ui.hall.classList.toggle('is-asking', asking)
   ui.sevenWords.hidden = asking
   if (!catalog) return
   const suggestions = hallSuggestions(catalog.entries, catalog.tags, ui.search.value)
@@ -231,9 +232,9 @@ function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>)
     go(shelfPath(route.query, [...query.tags, tag]))
   }
   if (queryIsEmpty(query)) {
-    renderGroupedCards(ui.results, ui.cardTemplate, groupEntriesByPrimaryTag(entries), onTag)
+    renderGroupedCards(ui.results, ui.cardTemplate, groupEntriesByPrimaryTag(entries), onTag, query.tags)
   } else {
-    renderCards(ui.results, ui.cardTemplate, entries, onTag)
+    renderCards(ui.results, ui.cardTemplate, entries, onTag, query.tags)
   }
 }
 
@@ -298,8 +299,15 @@ function wire(ui: AppUi): void {
   ui.search.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       event.preventDefault()
-      selectedHallIndex = -1
-      updateHallList(ui)
+      if (selectedHallIndex >= 0) {
+        selectedHallIndex = -1
+        updateHallList(ui)
+        return
+      }
+      if (ui.search.value) {
+        ui.search.value = ''
+        updateHallList(ui)
+      }
       return
     }
     if (event.key === 'ArrowDown' && hallRows.length > 0) {
