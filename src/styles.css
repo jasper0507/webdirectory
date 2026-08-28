@@ -191,7 +191,7 @@ kbd {
 }
 
 .hall {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .orbit {
@@ -576,6 +576,86 @@ kbd {
 
 .chips.is-dimmed {
   opacity: 0.45;
+}
+
+.hall.is-asking {
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.hall.is-asking .site-header,
+.hall.is-asking .site-footer {
+  flex-shrink: 0;
+}
+
+.hall.is-asking .orbit {
+  display: none;
+}
+
+.hall.is-asking .hero {
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  margin: 0;
+}
+
+.hall.is-asking .site-main {
+  padding-top: 1.25rem;
+  min-height: 0;
+}
+
+@media (min-width: 48rem) {
+  .hall.is-asking .site-main {
+    padding-top: 2.5rem;
+  }
+}
+
+.hall.is-asking .search-block {
+  margin-top: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: min(36rem, 100%);
+}
+
+.hall.is-asking .search-row,
+.hall.is-asking .hints {
+  flex-shrink: 0;
+}
+
+.hall.is-asking .hints {
+  display: none;
+}
+
+.hall.is-asking .hall-list:not([hidden]),
+.hall.is-asking #hall-empty:not([hidden]) {
+  flex: 0 1 auto;
+  min-height: 0;
+  margin-top: 0.75rem;
+  align-content: start;
+}
+
+.hall.is-asking .hall-list:not([hidden]) {
+  overflow-y: auto;
+}
+
+.hall.is-asking .hall-list [role="group"] {
+  align-content: start;
+}
+
+.hall.is-asking #hall-empty:not([hidden]) {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+}
+
+.hall.is-asking .chips {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding-top: 1.25rem;
 }
 
 .chip,

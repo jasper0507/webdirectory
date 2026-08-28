@@ -143,9 +143,10 @@ function openEntry(url: string): void {
 }
 
 function updateHallList(ui: AppUi): void {
-  if (!catalog) return
   const asking = ui.search.value.trim() !== ''
+  ui.hall.classList.toggle('is-asking', asking)
   ui.sevenWords.classList.toggle('is-dimmed', asking)
+  if (!catalog) return
   const suggestions = hallSuggestions(catalog.entries, catalog.tags, ui.search.value)
   hallRows = flattenHallRows(suggestions.tags, suggestions.titles)
   if (selectedHallIndex >= hallRows.length) selectedHallIndex = hallRows.length - 1
