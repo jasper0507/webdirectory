@@ -662,8 +662,11 @@ kbd {
 .cooccur-chip,
 .constraint-chip {
   position: relative;
+  display: inline-flex;
+  align-items: center;
   background: none;
   border: 0;
+  min-height: 44px;
   padding: 0.7rem 14px;
   border-radius: 999px;
   font-size: 11px;
@@ -673,7 +676,8 @@ kbd {
 }
 
 .chip::after,
-.cooccur-chip::after {
+.cooccur-chip::after,
+.card-tag::after {
   content: "";
   position: absolute;
   left: 0;
@@ -687,12 +691,15 @@ kbd {
 }
 
 .chip:hover,
-.cooccur-chip:hover {
+.cooccur-chip:hover,
+.constraint-chip:hover {
   color: var(--color-cream);
 }
 
 .chip:hover::after,
-.cooccur-chip:hover::after {
+.cooccur-chip:hover::after,
+.card-tag:hover::after,
+.card-tag:focus-visible::after {
   transform: scaleX(1);
 }
 
@@ -776,18 +783,38 @@ kbd {
 .cooccur {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.35rem;
   margin-bottom: 0.75rem;
+}
+
+.constraints .hall-group-label,
+.cooccur .hall-group-label {
+  flex: 1 0 100%;
+  padding: 0;
 }
 
 .constraint-chip {
   border: 0;
   color: var(--color-cream);
+  padding-inline-end: 0.35rem;
 }
 
-.constraint-chip span {
+.constraint-chip:hover,
+.constraint-chip:focus-visible {
   color: var(--color-gold);
-  margin-left: 0.35rem;
+}
+
+.constraint-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-inline-start: 0.15rem;
+  color: var(--color-gold);
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .result-status {
@@ -885,16 +912,19 @@ kbd {
 }
 
 .card-tag {
+  position: relative;
   border: 0;
   background: none;
   color: var(--color-ash);
   font-size: 11px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.15em;
   min-height: 44px;
-  padding: 0.5rem 0.15rem;
+  padding: 0.5rem 14px;
+  cursor: pointer;
 }
 
-.card-tag:hover {
+.card-tag:hover,
+.card-tag:focus-visible {
   color: var(--color-cream);
 }
 

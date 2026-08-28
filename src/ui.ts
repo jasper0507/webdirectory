@@ -155,25 +155,48 @@ export function renderConstraints(
   const fragment = document.createDocumentFragment()
   const trimmed = query.trim()
   if (trimmed) {
-    fragment.append(constraintChip(`提问 · ${trimmed}`, onRemoveQuery))
+    fragment.append(constraintChip('query', trimmed, onRemoveQuery))
   }
   for (const tag of tags) {
-    fragment.append(constraintChip(tag, () => onRemoveTag(tag)))
+    fragment.append(constraintChip('tag', tag, () => onRemoveTag(tag)))
   }
   const empty = fragment.childNodes.length === 0
-  container.replaceChildren(fragment)
-  container.hidden = empty
+  if (empty) {
+    container.replaceChildren()
+    container.hidden = true
+    container.removeAttribute('aria-label')
+    return
+  }
+  container.replaceChildren(shelfCaption('已约束'), fragment)
+  container.hidden = false
+  container.setAttribute('role', 'group')
+  container.setAttribute('aria-label', '已约束')
 }
 
-function constraintChip(label: string, onRemove: () => void): HTMLButtonElement {
+function shelfCaption(label: string): HTMLParagraphElement {
+  const caption = document.createElement('p')
+  caption.className = 'hall-group-label'
+  caption.textContent = label
+  caption.setAttribute('aria-hidden', 'true')
+  return caption
+}
+
+function constraintChip(
+  kind: 'query' | 'tag',
+  value: string,
+  onRemove: () => void,
+): HTMLButtonElement {
   const button = document.createElement('button')
   button.type = 'button'
   button.className = 'constraint-chip'
-  button.append(document.createTextNode(label))
+  button.setAttribute('aria-label', kind === 'query' ? `移除提问 ${value}` : `移除标签 ${value}`)
+  const text = document.createElement('span')
+  text.textContent = kind === 'query' ? `提问 · ${value}` : value
   const mark = document.createElement('span')
+  mark.className = 'constraint-remove'
   mark.textContent = '×'
   mark.ariaHidden = 'true'
-  button.append(mark)
+  button.append(text, mark)
   button.addEventListener('click', onRemove)
   return button
 }
@@ -189,11 +212,20 @@ export function renderCooccur(
     button.type = 'button'
     button.className = 'cooccur-chip'
     button.textContent = tag.name
+    button.setAttribute('aria-label', `加上标签 ${tag.name}`)
     button.addEventListener('click', () => onPick(tag.name))
     fragment.append(button)
   }
-  container.replaceChildren(fragment)
-  container.hidden = tags.length === 0
+  if (tags.length === 0) {
+    container.replaceChildren()
+    container.hidden = true
+    container.removeAttribute('aria-label')
+    return
+  }
+  container.replaceChildren(shelfCaption('还可加上'), fragment)
+  container.hidden = false
+  container.setAttribute('role', 'group')
+  container.setAttribute('aria-label', '还可加上')
 }
 
 function bookmarkCard(
@@ -233,6 +265,7 @@ function bookmarkCard(
       chip.type = 'button'
       chip.className = 'card-tag'
       chip.textContent = tag
+      chip.setAttribute('aria-label', `用标签 ${tag} 约束货架`)
       chip.addEventListener('click', () => onTag(tag))
       tags.append(chip)
     }
