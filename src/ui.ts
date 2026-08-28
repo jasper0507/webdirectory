@@ -222,33 +222,6 @@ function constraintChip(
   return button
 }
 
-export function renderCooccur(
-  container: HTMLElement,
-  tags: TagSummary[],
-  onPick: (tag: string) => void,
-): void {
-  const fragment = document.createDocumentFragment()
-  for (const tag of tags) {
-    const button = document.createElement('button')
-    button.type = 'button'
-    button.className = 'cooccur-chip'
-    button.textContent = tag.name
-    button.setAttribute('aria-label', `加上标签 ${tag.name}`)
-    button.addEventListener('click', () => onPick(tag.name))
-    fragment.append(button)
-  }
-  if (tags.length === 0) {
-    container.replaceChildren()
-    container.hidden = true
-    container.removeAttribute('aria-label')
-    return
-  }
-  container.replaceChildren(shelfCaption('还可加上'), fragment)
-  container.hidden = false
-  container.setAttribute('role', 'group')
-  container.setAttribute('aria-label', '还可加上')
-}
-
 function bookmarkCard(
   template: HTMLTemplateElement,
   entry: BookmarkEntry,

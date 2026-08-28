@@ -1,5 +1,4 @@
 import {
-  cooccurringTags,
   groupEntriesByPrimaryTag,
   hallSuggestions,
   loadPortalSource,
@@ -22,7 +21,6 @@ import {
   flattenHallRows,
   hallOptionId,
   renderCards,
-  renderCooccur,
   renderConstraints,
   renderGroupedCards,
   renderHallList,
@@ -45,7 +43,6 @@ type AppUi = {
   shelfForm: HTMLFormElement
   shelfSearch: HTMLInputElement
   constraints: HTMLElement
-  cooccur: HTMLElement
   shelfCount: HTMLElement
   shelfStatus: HTMLElement
   results: HTMLElement
@@ -78,7 +75,6 @@ function queryUi(): AppUi {
     shelfForm: must(document, '#shelf-form'),
     shelfSearch: must(document, '#shelf-q'),
     constraints: must(document, '#constraints'),
-    cooccur: must(document, '#cooccur'),
     shelfCount: must(document, '#shelf-count'),
     shelfStatus: must(document, '#shelf-status'),
     results: must(document, '#shelf-results'),
@@ -145,8 +141,7 @@ function openEntry(url: string): void {
 
 function updateHallList(ui: AppUi): void {
   const asking = ui.search.value.trim() !== ''
-  ui.hall.classList.toggle('is-asking', asking)
-  ui.sevenWords.classList.toggle('is-dimmed', asking)
+  ui.sevenWords.hidden = asking
   if (!catalog) return
   const suggestions = hallSuggestions(catalog.entries, catalog.tags, ui.search.value)
   hallRows = flattenHallRows(suggestions.tags, suggestions.titles)
@@ -214,11 +209,6 @@ function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>)
     query.tags,
     () => go(shelfPath('', query.tags)),
     (tag) => go(shelfPath(route.query, query.tags.filter((item) => item !== tag))),
-  )
-  renderCooccur(
-    ui.cooccur,
-    queryIsEmpty(query) ? [] : cooccurringTags(entries, query.tags),
-    (tag) => go(shelfPath(route.query, [...query.tags, tag])),
   )
 
   if (catalog.entries.length === 0) {

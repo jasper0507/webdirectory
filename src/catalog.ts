@@ -1,3 +1,5 @@
+import Fuse from 'fuse.js/basic'
+
 export type BookmarkEntry = {
   title: string
   url: string
@@ -282,11 +284,11 @@ export function parsePortalSource(raw: unknown): ParseResult {
   }
 }
 
-function haystack(entry: BookmarkEntry): string {
-  return [entry.title, entry.url, entry.displayUrl, entry.description, ...entry.tags]
-    .join('\n')
-    .normalize(TITLE_COMPARISON)
-    .toLowerCase()
+const SEARCH_FUSE_OPTIONS = {
+  keys: ['title', 'description', 'tags'] as Array<'title' | 'description' | 'tags'>,
+  threshold: 0.4,
+  includeScore: true,
+  minMatchCharLength: 1,
 }
 
 export function parseShelfQuery(raw: string, tagConstraints: string[] = []): ShelfQuery {
@@ -302,26 +304,20 @@ export function queryIsEmpty(query: ShelfQuery): boolean {
   return query.terms.length === 0 && query.tags.length === 0
 }
 
-function matches(entry: BookmarkEntry, query: ShelfQuery): boolean {
-  if (query.tags.some((tag) => !entry.tags.includes(tag))) return false
-  if (query.terms.length === 0) return true
-  const text = haystack(entry)
-  return query.terms.every((term) => text.includes(term))
-}
-
-function rankScore(entry: BookmarkEntry, query: ShelfQuery): number {
-  const titleFolded = fold(entry.title)
-  const rawFolded = fold(query.raw)
-  if (rawFolded && titleFolded === rawFolded) return 4
-  if (rawFolded && titleFolded.startsWith(rawFolded)) return 3
-  if (query.terms.some((term) => entry.tags.some((tag) => fold(tag) === term))) return 2
-  return 1
-}
-
 export function searchEntries(entries: BookmarkEntry[], query: ShelfQuery): BookmarkEntry[] {
-  const matched = entries.filter((entry) => matches(entry, query))
-  if (query.terms.length === 0) return matched
-  return [...matched].sort((a, b) => rankScore(b, query) - rankScore(a, query))
+  const tagged =
+    query.tags.length === 0
+      ? entries
+      : entries.filter((entry) => query.tags.every((tag) => entry.tags.includes(tag)))
+  if (!query.raw) return tagged
+
+  const fuse = new Fuse(entries, SEARCH_FUSE_OPTIONS)
+  const scoreByUrl = new Map(
+    fuse.search(query.raw).map((result) => [result.item.url, result.score ?? 1]),
+  )
+  return tagged
+    .filter((entry) => scoreByUrl.has(entry.url))
+    .sort((a, b) => (scoreByUrl.get(a.url) ?? 1) - (scoreByUrl.get(b.url) ?? 1))
 }
 
 export function matchingTags(tags: TagSummary[], input: string): TagSummary[] {
@@ -344,12 +340,6 @@ export function hallSuggestions(
     tags: tagsFound,
     titles,
   }
-}
-
-export function cooccurringTags(entries: BookmarkEntry[], selected: string[]): TagSummary[] {
-  const blocked = new Set(uniqueTags(selected))
-  const scoped = entries.filter((entry) => selected.every((tag) => entry.tags.includes(tag)))
-  return summarizeTags(scoped).filter((tag) => !blocked.has(tag.name))
 }
 
 export async function loadPortalSource(

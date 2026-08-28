@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
-  cooccurringTags,
   fold,
   groupEntriesByPrimaryTag,
   hallSuggestions,
@@ -161,14 +160,31 @@ describe('groupEntriesByPrimaryTag', () => {
 })
 
 describe('searchEntries', () => {
-  it('提问词 AND 子串，标签约束精确', () => {
+  it('在名称、描述、标签上匹配，标签约束仍精确', () => {
     expect(searchEntries(sample, parseShelfQuery('gorm 文档')).map((e) => e.title)).toEqual([
       'GORM 文档',
     ])
+    expect(searchEntries(sample, parseShelfQuery('前端构建')).map((e) => e.title)).toEqual(['Vite'])
+    expect(searchEntries(sample, parseShelfQuery('工具')).map((e) => e.title)).toEqual(['Vite'])
     expect(searchEntries(sample, parseShelfQuery('', ['go'])).map((e) => e.title)).toEqual([
       'GORM 文档',
     ])
     expect(searchEntries(sample, parseShelfQuery('vite', ['go']))).toEqual([])
+  })
+
+  it('不搜索 URL', () => {
+    const extra: BookmarkEntry = {
+      title: 'Hidden',
+      url: 'https://github.com/example',
+      displayUrl: 'github.com/example',
+      tags: ['其它'],
+      description: '无关键字',
+    }
+    expect(searchEntries([...sample, extra], parseShelfQuery('github'))).toEqual([])
+  })
+
+  it('整句提问，不是词与词 AND', () => {
+    expect(searchEntries(sample, parseShelfQuery('Vite 构建'))).toEqual([])
   })
 
   it('标签精确约束不因子串误伤', () => {
@@ -184,7 +200,7 @@ describe('searchEntries', () => {
     )
   })
 
-  it('标题精确优先于标签命中', () => {
+  it('标题精确优先于较弱命中', () => {
     const found = searchEntries(sample, parseShelfQuery('Vite'))
     expect(found[0]?.title).toBe('Vite')
   })
@@ -199,13 +215,6 @@ describe('hallSuggestions', () => {
     const suggestions = hallSuggestions(sample, summarizeTags(sample), 'go')
     expect(suggestions.tags.map((tag) => tag.name)).toEqual(['go', 'gorm'])
     expect(suggestions.titles[0]?.title).toBe('GORM 文档')
-  })
-})
-
-describe('cooccurringTags', () => {
-  it('只统计当前命中上尚未选中的标签', () => {
-    const found = cooccurringTags(sample, ['go'])
-    expect(found.map((tag) => tag.name)).toEqual(['gorm', 'orm'])
   })
 })
 
