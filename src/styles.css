@@ -549,7 +549,7 @@ kbd {
 
 .hall-item.is-active,
 .hall-item:hover {
-  color: var(--color-cream);
+  color: var(--color-gold);
 }
 
 .hall-item-meta {
@@ -572,6 +572,10 @@ kbd {
   align-items: center;
   gap: 0.375rem;
   width: 100%;
+}
+
+.chips.is-dimmed {
+  opacity: 0.45;
 }
 
 .chip,
@@ -684,10 +688,6 @@ kbd {
   margin: 0 0 1rem;
 }
 
-.shelf .results {
-  flex: 1 1 auto;
-}
-
 .shelf .site-footer {
   margin-top: auto;
 }
@@ -716,10 +716,16 @@ kbd {
   font-size: 0.88rem;
 }
 
+.search-block > .result-status {
+  margin-top: 1rem;
+}
+
 .results {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
+  align-items: start;
+  align-content: start;
 }
 
 .results > .hall-group-label {

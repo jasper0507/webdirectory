@@ -39,6 +39,7 @@ type AppUi = {
   searchForm: HTMLFormElement
   search: HTMLInputElement
   hallList: HTMLElement
+  hallEmpty: HTMLElement
   sevenWords: HTMLElement
   shelfForm: HTMLFormElement
   shelfSearch: HTMLInputElement
@@ -71,6 +72,7 @@ function queryUi(): AppUi {
     searchForm: must(document, '#search-form'),
     search: must(document, '#q'),
     hallList: must(document, '#hall-list'),
+    hallEmpty: must(document, '#hall-empty'),
     sevenWords: must(document, '#seven-words'),
     shelfForm: must(document, '#shelf-form'),
     shelfSearch: must(document, '#shelf-q'),
@@ -143,7 +145,7 @@ function openEntry(url: string): void {
 function updateHallList(ui: AppUi): void {
   if (!catalog) return
   const asking = ui.search.value.trim() !== ''
-  ui.sevenWords.hidden = asking
+  ui.sevenWords.classList.toggle('is-dimmed', asking)
   const suggestions = hallSuggestions(catalog.entries, catalog.tags, ui.search.value)
   hallRows = flattenHallRows(suggestions.tags, suggestions.titles)
   if (selectedHallIndex >= hallRows.length) selectedHallIndex = hallRows.length - 1
@@ -155,6 +157,7 @@ function updateHallList(ui: AppUi): void {
     (tag) => go(shelfPath('', [tag])),
     (entry) => openEntry(entry.url),
   )
+  ui.hallEmpty.hidden = !(asking && hallRows.length === 0)
   const listOpen = hallRows.length > 0
   ui.search.setAttribute('aria-expanded', listOpen ? 'true' : 'false')
   if (listOpen && selectedHallIndex >= 0) {
