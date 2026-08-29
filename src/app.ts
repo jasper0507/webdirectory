@@ -41,6 +41,8 @@ type AppUi = {
   sevenWords: HTMLElement
   shelfForm: HTMLFormElement
   shelfSearch: HTMLInputElement
+  shelfList: HTMLElement
+  shelfEmpty: HTMLElement
   shelfCount: HTMLElement
   shelfStatus: HTMLElement
   results: HTMLElement
@@ -52,8 +54,8 @@ type AppUi = {
 }
 
 let catalog: Catalog | null = null
-let hallRows: HallRow[] = []
-let selectedHallIndex = -1
+let suggestRows: HallRow[] = []
+let selectedSuggest = -1
 
 function must<T extends Element>(root: ParentNode, selector: string): T {
   const node = root.querySelector(selector)
@@ -72,6 +74,8 @@ function queryUi(): AppUi {
     sevenWords: must(document, '#seven-words'),
     shelfForm: must(document, '#shelf-form'),
     shelfSearch: must(document, '#shelf-q'),
+    shelfList: must(document, '#shelf-list'),
+    shelfEmpty: must(document, '#shelf-empty'),
     shelfCount: must(document, '#shelf-count'),
     shelfStatus: must(document, '#shelf-status'),
     results: must(document, '#shelf-results'),
@@ -138,29 +142,102 @@ function openEntry(url: string): void {
   window.open(url, '_blank', 'noopener,noreferrer')
 }
 
+function applySubmit(action: ReturnType<typeof resolveHallSubmit>): void {
+  if (action.kind === 'open') openEntry(action.url)
+  else if (action.kind === 'tag') go(shelfPath('', [action.tag]))
+  else go(shelfPath(action.query))
+}
+
+function setCombobox(input: HTMLInputElement, optionPrefix: string): void {
+  const listOpen = suggestRows.length > 0
+  input.setAttribute('aria-expanded', listOpen ? 'true' : 'false')
+  if (listOpen && selectedSuggest >= 0) {
+    input.setAttribute('aria-activedescendant', hallOptionId(selectedSuggest, optionPrefix))
+  } else {
+    input.removeAttribute('aria-activedescendant')
+  }
+}
+
+function hideSuggest(list: HTMLElement, empty: HTMLElement, input: HTMLInputElement): void {
+  suggestRows = []
+  selectedSuggest = -1
+  renderHallList(list, [], [], -1, () => undefined, () => undefined)
+  empty.hidden = true
+  input.setAttribute('aria-expanded', 'false')
+  input.removeAttribute('aria-activedescendant')
+}
+
+function paintSuggest(
+  input: HTMLInputElement,
+  list: HTMLElement,
+  empty: HTMLElement,
+  optionPrefix: string,
+): void {
+  if (!catalog) {
+    hideSuggest(list, empty, input)
+    return
+  }
+  const asking = input.value.trim() !== ''
+  const suggestions = asking
+    ? hallSuggestions(catalog.entries, catalog.tags, input.value)
+    : { tags: [], titles: [] }
+  suggestRows = flattenHallRows(suggestions.tags, suggestions.titles)
+  if (selectedSuggest >= suggestRows.length) selectedSuggest = suggestRows.length - 1
+  renderHallList(
+    list,
+    suggestions.tags,
+    suggestions.titles,
+    selectedSuggest,
+    (tag) => applySubmit({ kind: 'tag', tag }),
+    (entry) => applySubmit({ kind: 'open', url: entry.url }),
+    optionPrefix,
+  )
+  empty.hidden = !(asking && suggestRows.length === 0)
+  setCombobox(input, optionPrefix)
+}
+
 function updateHallList(ui: AppUi): void {
   const asking = ui.search.value.trim() !== ''
   ui.hall.classList.toggle('is-asking', asking)
   ui.sevenWords.hidden = asking
-  if (!catalog) return
-  const suggestions = hallSuggestions(catalog.entries, catalog.tags, ui.search.value)
-  hallRows = flattenHallRows(suggestions.tags, suggestions.titles)
-  if (selectedHallIndex >= hallRows.length) selectedHallIndex = hallRows.length - 1
-  renderHallList(
-    ui.hallList,
-    suggestions.tags,
-    suggestions.titles,
-    selectedHallIndex,
-    (tag) => go(shelfPath('', [tag])),
-    (entry) => openEntry(entry.url),
-  )
-  ui.hallEmpty.hidden = !(asking && hallRows.length === 0)
-  const listOpen = hallRows.length > 0
-  ui.search.setAttribute('aria-expanded', listOpen ? 'true' : 'false')
-  if (listOpen && selectedHallIndex >= 0) {
-    ui.search.setAttribute('aria-activedescendant', hallOptionId(selectedHallIndex))
-  } else {
-    ui.search.removeAttribute('aria-activedescendant')
+  paintSuggest(ui.search, ui.hallList, ui.hallEmpty, 'hall-option')
+}
+
+function updateShelfList(ui: AppUi): void {
+  paintSuggest(ui.shelfSearch, ui.shelfList, ui.shelfEmpty, 'shelf-option')
+}
+
+function handleSearchKeys(
+  event: KeyboardEvent,
+  input: HTMLInputElement,
+  refresh: () => void,
+): void {
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    if (selectedSuggest >= 0) {
+      selectedSuggest = -1
+      refresh()
+      return
+    }
+    if (input.value) {
+      input.value = ''
+      refresh()
+    }
+    return
+  }
+  if (event.key === 'ArrowDown' && suggestRows.length > 0) {
+    event.preventDefault()
+    selectedSuggest = Math.min(suggestRows.length - 1, selectedSuggest + 1)
+    refresh()
+  }
+  if (event.key === 'ArrowUp' && suggestRows.length > 0) {
+    event.preventDefault()
+    selectedSuggest = Math.max(0, selectedSuggest - 1)
+    refresh()
+  }
+  if (event.key === 'Enter' && selectedSuggest >= 0) {
+    event.preventDefault()
+    applySubmit(resolveHallSubmit(suggestRows, selectedSuggest, input.value))
   }
 }
 
@@ -183,8 +260,9 @@ function renderHall(ui: AppUi): void {
   setSkip('#q')
   document.getElementById('stars')?.removeAttribute('hidden')
   ui.search.value = ''
-  selectedHallIndex = -1
+  selectedSuggest = -1
   ui.search.blur()
+  hideSuggest(ui.shelfList, ui.shelfEmpty, ui.shelfSearch)
   if (!catalog) {
     updateHallList(ui)
     return
@@ -192,7 +270,7 @@ function renderHall(ui: AppUi): void {
   fillIdentity(document, catalog.identity)
   document.title = catalog.identity.wordmark
   ui.search.placeholder = catalog.identity.placeholder
-  renderSevenWords(ui.sevenWords, sevenWords(catalog.tags), (tag) => go(shelfPath('', [tag])))
+  renderSevenWords(ui.sevenWords, sevenWords(catalog.tags), (tag) => applySubmit({ kind: 'tag', tag }))
   updateHallList(ui)
 }
 
@@ -210,10 +288,13 @@ function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>)
   document.title = `${catalog.identity.wordmark} · 货架`
   ui.shelfSearch.value = route.query
   ui.shelfSearch.placeholder = catalog.identity.placeholder
+  hideSuggest(ui.hallList, ui.hallEmpty, ui.search)
+  hideSuggest(ui.shelfList, ui.shelfEmpty, ui.shelfSearch)
 
   const query = parseShelfQuery(route.query, route.tags)
   const entries = searchEntries(catalog.entries, query)
   ui.shelfCount.textContent = `${String(entries.length)} 个站点`
+  const onTag = (tag: string) => applySubmit({ kind: 'tag', tag })
 
   if (catalog.entries.length === 0) {
     ui.shelfStatus.textContent = '书签目录为空'
@@ -230,12 +311,6 @@ function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>)
 
   const label = queryIsEmpty(query) ? '全部站点' : `找到 ${String(entries.length)} 个站点`
   ui.shelfStatus.textContent = label
-  const onTag = (tag: string) => {
-    const next = query.tags.includes(tag)
-      ? query.tags.filter((item) => item !== tag)
-      : [...query.tags, tag]
-    go(shelfPath(route.query, next))
-  }
   const ordered = queryIsEmpty(query)
     ? groupEntriesByPrimaryTag(entries).flatMap((chunk) => chunk.entries)
     : entries
@@ -298,48 +373,30 @@ function wire(ui: AppUi): void {
 
   ui.searchForm.addEventListener('submit', (event) => {
     event.preventDefault()
-    const action = resolveHallSubmit(hallRows, selectedHallIndex, ui.search.value)
-    if (action.kind === 'open') openEntry(action.url)
-    else if (action.kind === 'tag') go(shelfPath('', [action.tag]))
-    else go(shelfPath(action.query))
+    applySubmit(resolveHallSubmit(suggestRows, -1, ui.search.value))
   })
 
   ui.search.addEventListener('input', () => {
-    selectedHallIndex = -1
+    selectedSuggest = -1
     updateHallList(ui)
   })
 
   ui.search.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      event.preventDefault()
-      if (selectedHallIndex >= 0) {
-        selectedHallIndex = -1
-        updateHallList(ui)
-        return
-      }
-      if (ui.search.value) {
-        ui.search.value = ''
-        updateHallList(ui)
-      }
-      return
-    }
-    if (event.key === 'ArrowDown' && hallRows.length > 0) {
-      event.preventDefault()
-      selectedHallIndex = Math.min(hallRows.length - 1, selectedHallIndex + 1)
-      updateHallList(ui)
-    }
-    if (event.key === 'ArrowUp' && hallRows.length > 0) {
-      event.preventDefault()
-      selectedHallIndex = Math.max(0, selectedHallIndex - 1)
-      updateHallList(ui)
-    }
+    handleSearchKeys(event, ui.search, () => updateHallList(ui))
   })
 
   ui.shelfForm.addEventListener('submit', (event) => {
     event.preventDefault()
-    const route = parseRoute(new URL(location.href))
-    const tags = route.name === 'shelf' ? route.tags : []
-    go(shelfPath(ui.shelfSearch.value, tags))
+    applySubmit(resolveHallSubmit(suggestRows, -1, ui.shelfSearch.value))
+  })
+
+  ui.shelfSearch.addEventListener('input', () => {
+    selectedSuggest = -1
+    updateShelfList(ui)
+  })
+
+  ui.shelfSearch.addEventListener('keydown', (event) => {
+    handleSearchKeys(event, ui.shelfSearch, () => updateShelfList(ui))
   })
 
   document.addEventListener('keydown', (event) => {

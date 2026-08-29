@@ -970,6 +970,11 @@ kbd {
   margin: 0 0 0.75rem;
 }
 
+.shelf-search .hall-list {
+  max-height: min(22rem, 50vh);
+  overflow: auto;
+}
+
 .shelf .site-footer {
   margin-top: auto;
 }
@@ -1035,11 +1040,11 @@ kbd {
   transform: translate(-50%, -50%);
 }
 
-.result-tags .chip[aria-pressed="true"] {
+.result-tags .chip.is-bound {
   color: var(--color-cream);
 }
 
-.result-tags .chip[aria-pressed="true"]::after {
+.result-tags .chip.is-bound::after {
   transform: scaleX(1);
   opacity: 1;
 }
@@ -1177,8 +1182,11 @@ kbd {
 .card-tag.is-bound,
 .card-tag:disabled {
   color: var(--color-cream);
-  cursor: default;
   opacity: 1;
+}
+
+.card-tag:disabled {
+  cursor: default;
 }
 
 .card-tag.is-bound::after {

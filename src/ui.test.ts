@@ -17,18 +17,7 @@ function tagRow(name: string): HallRow {
 }
 
 describe('resolveHallSubmit', () => {
-  it('无选中且唯一题名时打开该书签', () => {
-    expect(
-      resolveHallSubmit([titleRow('Vite', 'https://vite.dev/')], -1, 'Vite'),
-    ).toEqual({ kind: 'open', url: 'https://vite.dev/' })
-  })
-
-  it('无选中且唯一题名旁有标签行时仍打开该书签', () => {
-    const rows = [tagRow('工具'), titleRow('Vite', 'https://vite.dev/')]
-    expect(resolveHallSubmit(rows, -1, 'Vite')).toEqual({ kind: 'open', url: 'https://vite.dev/' })
-  })
-
-  it('选中标签行进入该标签货架', () => {
+  it('选中标签行进入该类', () => {
     const rows = [tagRow('工具'), titleRow('Vite', 'https://vite.dev/')]
     expect(resolveHallSubmit(rows, 0, 'Vite')).toEqual({ kind: 'tag', tag: '工具' })
   })
@@ -41,31 +30,33 @@ describe('resolveHallSubmit', () => {
     expect(resolveHallSubmit(rows, 1, 'vit')).toEqual({ kind: 'open', url: 'https://vitess.io/' })
   })
 
-  it('空提交进入货架', () => {
+  it('未选中时一律按提问词进货架，唯一题名也不打开', () => {
+    expect(
+      resolveHallSubmit([titleRow('Vite', 'https://vite.dev/')], -1, 'Vite'),
+    ).toEqual({ kind: 'shelf', query: 'Vite' })
+  })
+
+  it('未选中时提问与标签同名仍当提问词，不进该类', () => {
+    const rows = [tagRow('文档'), titleRow('MDN Web Docs', 'https://developer.mozilla.org/')]
+    expect(resolveHallSubmit(rows, -1, '文档')).toEqual({ kind: 'shelf', query: '文档' })
+  })
+
+  it('空提交进入全部货架', () => {
     expect(resolveHallSubmit([], -1, '')).toEqual({ kind: 'shelf', query: '' })
   })
 
-  it('厅内无匹配时进入全部货架，不把死查询带去空货架', () => {
-    expect(resolveHallSubmit([], -1, 'qqqqnomatch')).toEqual({ kind: 'shelf', query: '' })
+  it('无匹配仍把提问带到货架，不换成全部目录', () => {
+    expect(resolveHallSubmit([], -1, 'qqqqnomatch')).toEqual({
+      kind: 'shelf',
+      query: 'qqqqnomatch',
+    })
   })
 
-  it('多条题名未选中时进入货架', () => {
+  it('多条题名未选中时进入货架搜索', () => {
     const rows = [
       titleRow('Vite', 'https://vite.dev/'),
       titleRow('Vitess', 'https://vitess.io/'),
     ]
-    expect(resolveHallSubmit(rows, -1, 'vit')).toEqual({ kind: 'shelf', query: 'vit' })
-  })
-
-  it('提问与标签名相同时进入该标签货架，不当成模糊词', () => {
-    expect(resolveHallSubmit([tagRow('文档')], -1, '文档')).toEqual({
-      kind: 'tag',
-      tag: '文档',
-    })
-  })
-
-  it('提问与标签名相同且旁有题名时仍进该标签货架', () => {
-    const rows = [tagRow('文档'), titleRow('MDN Web Docs', 'https://developer.mozilla.org/')]
-    expect(resolveHallSubmit(rows, -1, '文档')).toEqual({ kind: 'tag', tag: '文档' })
+    expect(resolveHallSubmit(rows, -1, '  vit  ')).toEqual({ kind: 'shelf', query: 'vit' })
   })
 })

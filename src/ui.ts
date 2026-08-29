@@ -1,13 +1,12 @@
 import {
-  fold,
   summarizeEntryTags,
   type BookmarkEntry,
   type SiteIdentity,
   type TagSummary,
 } from './catalog.ts'
 
-export function hallOptionId(index: number): string {
-  return `hall-option-${String(index)}`
+export function hallOptionId(index: number, prefix = 'hall-option'): string {
+  return `${prefix}-${String(index)}`
 }
 
 export function fillIdentity(root: ParentNode, identity: SiteIdentity): void {
@@ -52,7 +51,7 @@ export function renderSevenWords(
     button.type = 'button'
     button.className = 'chip'
     button.textContent = tag.name
-    button.setAttribute('aria-label', `按标签 ${tag.name} 进入货架`)
+    button.setAttribute('aria-label', `进入标签 ${tag.name}`)
     button.addEventListener('click', () => onPick(tag.name))
     fragment.append(button)
   }
@@ -83,18 +82,7 @@ export function resolveHallSubmit(
   const selected = selectedIndex >= 0 ? rows[selectedIndex] : undefined
   if (selected?.kind === 'tag') return { kind: 'tag', tag: selected.tag.name }
   if (selected?.kind === 'title') return { kind: 'open', url: selected.entry.url }
-
-  const needle = fold(query.trim())
-  if (needle) {
-    const exactTag = rows.find((row) => row.kind === 'tag' && fold(row.tag.name) === needle)
-    if (exactTag?.kind === 'tag') return { kind: 'tag', tag: exactTag.tag.name }
-  }
-
-  const titles = rows.filter((row): row is Extract<HallRow, { kind: 'title' }> => row.kind === 'title')
-  const soleTitle = titles.length === 1 ? titles[0] : undefined
-  if (soleTitle) return { kind: 'open', url: soleTitle.entry.url }
-  if (rows.length === 0) return { kind: 'shelf', query: '' }
-  return { kind: 'shelf', query }
+  return { kind: 'shelf', query: query.trim() }
 }
 
 export function renderHallList(
@@ -104,6 +92,7 @@ export function renderHallList(
   selectedIndex: number,
   onTag: (tag: string) => void,
   onTitle: (entry: BookmarkEntry) => void,
+  optionPrefix = 'hall-option',
 ): HallRow[] {
   const rows = flattenHallRows(tags, titles)
   if (rows.length === 0) {
@@ -116,7 +105,15 @@ export function renderHallList(
   if (tags.length > 0) {
     fragment.append(hallGroup('标签', () =>
       tags.map((tag, index) =>
-        hallButton('tag', index, selectedIndex, tag.name, String(tag.count), () => onTag(tag.name)),
+        hallButton(
+          'tag',
+          index,
+          selectedIndex,
+          tag.name,
+          String(tag.count),
+          () => onTag(tag.name),
+          optionPrefix,
+        ),
       ),
     ))
   }
@@ -124,7 +121,15 @@ export function renderHallList(
     fragment.append(hallGroup('题名', () =>
       titles.map((entry, index) => {
         const absolute = tags.length + index
-        return hallButton('title', absolute, selectedIndex, entry.title, entry.displayUrl, () => onTitle(entry))
+        return hallButton(
+          'title',
+          absolute,
+          selectedIndex,
+          entry.title,
+          entry.displayUrl,
+          () => onTitle(entry),
+          optionPrefix,
+        )
       }),
     ))
   }
@@ -152,10 +157,11 @@ function hallButton(
   title: string,
   meta: string,
   onClick: () => void,
+  optionPrefix: string,
 ): HTMLButtonElement {
   const button = document.createElement('button')
   button.type = 'button'
-  button.id = hallOptionId(index)
+  button.id = hallOptionId(index, optionPrefix)
   button.role = 'option'
   button.tabIndex = -1
   button.setAttribute('aria-selected', index === selectedIndex ? 'true' : 'false')
@@ -212,8 +218,8 @@ function bookmarkCard(
       const bound = boundTags.includes(tag)
       chip.className = bound ? 'card-tag is-bound' : 'card-tag'
       chip.textContent = tag
-      chip.setAttribute('aria-pressed', bound ? 'true' : 'false')
-      chip.setAttribute('aria-label', bound ? `移除标签 ${tag} 约束` : `用标签 ${tag} 约束货架`)
+      if (bound) chip.setAttribute('aria-current', 'true')
+      chip.setAttribute('aria-label', `进入标签 ${tag}`)
       chip.addEventListener('click', () => onTag(tag))
       tags.append(chip)
     }
@@ -286,13 +292,10 @@ function renderResultTags(
     const bound = boundTags.includes(tag.name)
     const button = document.createElement('button')
     button.type = 'button'
-    button.className = 'chip'
+    button.className = bound ? 'chip is-bound' : 'chip'
     button.textContent = `${tag.name} · ${String(tag.count)}`
-    button.setAttribute('aria-pressed', bound ? 'true' : 'false')
-    button.setAttribute(
-      'aria-label',
-      bound ? `移除标签 ${tag.name} 约束` : `用标签 ${tag.name} 约束货架`,
-    )
+    if (bound) button.setAttribute('aria-current', 'true')
+    button.setAttribute('aria-label', `进入标签 ${tag.name}`)
     button.addEventListener('click', () => onTag(tag.name))
     nav.append(button)
   }
