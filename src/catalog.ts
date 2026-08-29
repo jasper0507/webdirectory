@@ -50,7 +50,6 @@ export type LoadResult =
 
 export type ShelfQuery = {
   raw: string
-  terms: string[]
   tags: string[]
 }
 
@@ -327,13 +326,12 @@ export function parseShelfQuery(raw: string, tagConstraints: string[] = []): She
   const trimmed = raw.trim()
   return {
     raw: trimmed,
-    terms: fold(trimmed).split(/\s+/u).filter(Boolean),
     tags: uniqueTags(tagConstraints),
   }
 }
 
 export function queryIsEmpty(query: ShelfQuery): boolean {
-  return query.terms.length === 0 && query.tags.length === 0
+  return query.raw === '' && query.tags.length === 0
 }
 
 export function searchEntries(entries: BookmarkEntry[], query: ShelfQuery): BookmarkEntry[] {

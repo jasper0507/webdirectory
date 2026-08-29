@@ -4,12 +4,13 @@ coverage
 *.local
 .DS_Store
 .impeccable/review
+.impeccable/config.local.json
+.impeccable/mocks/
 .impeccable/questions/*.state.json
+.impeccable/questions/*.log
 .impeccable/live/**
 !.impeccable/live/config.json
-.playwright-cli/page-*.yml
-.playwright-cli/console-*.log
-.playwright-cli/session*
+.playwright-cli/
 test-results
 playwright-report
 .env

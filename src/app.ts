@@ -305,7 +305,7 @@ function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>)
   if (entries.length === 0) {
     ui.shelfStatus.textContent = '找到 0 个站点'
     const panel = showPanel(ui.results, ui.emptyFilterTemplate)
-    panel.querySelector('[data-clear-filters]')?.addEventListener('click', () => go(shelfPath()))
+    panel.querySelector('[data-show-all]')?.addEventListener('click', () => go(shelfPath()))
     return
   }
 

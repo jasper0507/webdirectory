@@ -1179,14 +1179,9 @@ kbd {
   color: var(--color-cream);
 }
 
-.card-tag.is-bound,
-.card-tag:disabled {
+.card-tag.is-bound {
   color: var(--color-cream);
   opacity: 1;
-}
-
-.card-tag:disabled {
-  cursor: default;
 }
 
 .card-tag.is-bound::after {

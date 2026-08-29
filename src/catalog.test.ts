@@ -8,6 +8,7 @@ import {
   normalizeTitle,
   parsePortalSource,
   parseShelfQuery,
+  queryIsEmpty,
   searchEntries,
   sevenWords,
   standardizeUrl,
@@ -188,6 +189,12 @@ describe('summarizeEntryTags', () => {
 })
 
 describe('searchEntries', () => {
+  it('空白提问视为空，标签仍算有约束', () => {
+    expect(queryIsEmpty(parseShelfQuery('  '))).toBe(true)
+    expect(queryIsEmpty(parseShelfQuery('vite'))).toBe(false)
+    expect(queryIsEmpty(parseShelfQuery('', ['go']))).toBe(false)
+  })
+
   it('在名称、描述、标签上匹配，标签约束仍精确', () => {
     expect(searchEntries(sample, parseShelfQuery('gorm 文档')).map((e) => e.title)).toEqual([
       'GORM 文档',
