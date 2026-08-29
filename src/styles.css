@@ -89,6 +89,10 @@ body::before {
   inset: 0;
 }
 
+body:has(#view-shelf:not([hidden]))::before {
+  background: none;
+}
+
 ::selection {
   color: #1f2328;
   background: #a87b3f38;
@@ -930,7 +934,8 @@ kbd {
 .shelf {
   width: min(72rem, calc(100% - 2rem));
   margin-inline: auto;
-  overflow-x: clip;
+  padding-inline: 0.35rem;
+  background: var(--color-ink);
 }
 
 .shelf-top {
@@ -977,26 +982,13 @@ kbd {
 
 .shelf .site-footer {
   margin-top: auto;
+  padding-inline: 0;
 }
 
 .shelf .site-footer .footer-row,
 .shelf .site-footer .hairline {
   width: auto;
-  margin-inline: -1.25rem;
-}
-
-@media (min-width: 48rem) {
-  .shelf .site-footer .footer-row,
-  .shelf .site-footer .hairline {
-    margin-inline: -3.5rem;
-  }
-}
-
-@media (max-height: 48rem) {
-  .shelf .site-footer .footer-row,
-  .shelf .site-footer .hairline {
-    margin-inline: -1.25rem;
-  }
+  margin-inline: 0;
 }
 
 .result-status {
