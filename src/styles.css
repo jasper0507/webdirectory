@@ -345,53 +345,13 @@ kbd {
   }
 }
 
-.hall.is-asking .overline,
-.hall.is-asking .tagline,
 .hall.is-asking .hints {
   display: none;
 }
 
-.hall.is-asking .site-main {
-  padding-top: 1.25rem;
-}
-
-.hall.is-asking .title {
-  font-size: clamp(1.35rem, 4vw, 1.75rem);
-  margin-top: 0;
-  line-height: 1;
-}
-
-.hall.is-asking .search-block {
-  margin-top: 0.75rem;
-}
-
-@media (min-width: 48rem) {
-  .hall.is-asking .site-main {
-    padding-top: 1.5rem;
-  }
-
-  .hall.is-asking .title {
-    font-size: 1.75rem;
-  }
-}
-
 @media (max-height: 48rem) {
-  .hall:not(.is-asking) .overline,
-  .hall:not(.is-asking) .tagline {
-    display: none;
-  }
-
-  .hall:not(.is-asking) .title {
-    font-size: clamp(1.75rem, 10vh, 2.5rem);
-    margin-top: 0.25rem;
-  }
-
   .site-main {
     padding-top: 1.75rem;
-  }
-
-  .tagline {
-    margin-top: 0.75rem;
   }
 
   .search-block {
@@ -400,14 +360,6 @@ kbd {
 
   .chips {
     margin-top: 1.25rem;
-  }
-
-  .hall.is-asking .site-main {
-    padding-top: 0.5rem;
-  }
-
-  .hall.is-asking .title {
-    font-size: 1.35rem;
   }
 }
 
@@ -451,33 +403,28 @@ kbd {
 }
 
 @media (max-height: 48rem) {
-  .hall:not(.is-asking) .title {
+  .overline,
+  .tagline {
+    display: none;
+  }
+
+  .title {
     font-size: clamp(1.75rem, 10vh, 2.5rem);
+    margin-top: 0.25rem;
   }
 }
 
 @media (max-height: 30rem) {
-  .site-main,
-  .hall.is-asking .site-main {
+  .site-main {
     padding-top: 0.35rem;
   }
 
-  .hall:not(.is-asking) .title {
+  .title {
     font-size: clamp(1.5rem, 9vh, 2rem);
     margin-top: 0.2rem;
   }
 
-  .hall.is-asking .title {
-    font-size: 1.25rem;
-    margin-top: 0;
-  }
-
-  .tagline {
-    margin-top: 0.35rem;
-  }
-
-  .search-block,
-  .hall.is-asking .search-block {
+  .search-block {
     margin-top: 0.55rem;
   }
 
@@ -873,23 +820,6 @@ kbd {
     flex-wrap: wrap;
     margin-top: 0.5rem;
     row-gap: 0;
-  }
-
-  .hall.is-asking .site-header {
-    padding-top: 0.4rem;
-    padding-bottom: 0.35rem;
-  }
-
-  .hall.is-asking .site-footer {
-    display: none;
-  }
-
-  .hall.is-asking .site-main {
-    padding-top: 0.35rem;
-  }
-
-  .hall.is-asking .search-block {
-    margin-top: 0.4rem;
   }
 
   .hall.is-asking .hall-list {
