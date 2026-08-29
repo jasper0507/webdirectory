@@ -57,10 +57,15 @@ describe('resolveHallSubmit', () => {
     expect(resolveHallSubmit(rows, -1, 'vit')).toEqual({ kind: 'shelf', query: 'vit' })
   })
 
-  it('仅标签行未选中时进入货架', () => {
+  it('提问与标签名相同时进入该标签货架，不当成模糊词', () => {
     expect(resolveHallSubmit([tagRow('文档')], -1, '文档')).toEqual({
-      kind: 'shelf',
-      query: '文档',
+      kind: 'tag',
+      tag: '文档',
     })
+  })
+
+  it('提问与标签名相同且旁有题名时仍进该标签货架', () => {
+    const rows = [tagRow('文档'), titleRow('MDN Web Docs', 'https://developer.mozilla.org/')]
+    expect(resolveHallSubmit(rows, -1, '文档')).toEqual({ kind: 'tag', tag: '文档' })
   })
 })

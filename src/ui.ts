@@ -1,4 +1,5 @@
 import {
+  fold,
   type BookmarkEntry,
   type SiteIdentity,
   type TagChunk,
@@ -82,6 +83,12 @@ export function resolveHallSubmit(
   const selected = selectedIndex >= 0 ? rows[selectedIndex] : undefined
   if (selected?.kind === 'tag') return { kind: 'tag', tag: selected.tag.name }
   if (selected?.kind === 'title') return { kind: 'open', url: selected.entry.url }
+
+  const needle = fold(query.trim())
+  if (needle) {
+    const exactTag = rows.find((row) => row.kind === 'tag' && fold(row.tag.name) === needle)
+    if (exactTag?.kind === 'tag') return { kind: 'tag', tag: exactTag.tag.name }
+  }
 
   const titles = rows.filter((row): row is Extract<HallRow, { kind: 'title' }> => row.kind === 'title')
   const soleTitle = titles.length === 1 ? titles[0] : undefined
@@ -271,6 +278,62 @@ function bookmarkCard(
   return card
 }
 
+export const CARD_PAINT_BATCH = 48
+
+type ShelfNode =
+  | { kind: 'label'; text: string }
+  | { kind: 'card'; entry: BookmarkEntry }
+
+const shelfPaints = new WeakMap<HTMLElement, number>()
+
+export function cancelShelfPaint(container: HTMLElement): void {
+  const id = shelfPaints.get(container)
+  if (id !== undefined && typeof cancelAnimationFrame === 'function') {
+    cancelAnimationFrame(id)
+  }
+  shelfPaints.delete(container)
+}
+
+function paintShelf(
+  container: HTMLElement,
+  nodes: ShelfNode[],
+  template: HTMLTemplateElement,
+  onTag: (tag: string) => void,
+  boundTags: string[],
+): void {
+  cancelShelfPaint(container)
+  container.replaceChildren()
+  let index = 0
+  const step = (): void => {
+    const fragment = document.createDocumentFragment()
+    const end = Math.min(index + CARD_PAINT_BATCH, nodes.length)
+    for (; index < end; index += 1) {
+      const node = nodes[index]
+      if (!node) continue
+      if (node.kind === 'label') {
+        const label = document.createElement('p')
+        label.className = 'hall-group-label'
+        label.textContent = node.text
+        fragment.append(label)
+      } else {
+        const card = bookmarkCard(template, node.entry, onTag, boundTags)
+        if (card) fragment.append(card)
+      }
+    }
+    container.append(fragment)
+    if (index < nodes.length) {
+      if (typeof requestAnimationFrame === 'function') {
+        shelfPaints.set(container, requestAnimationFrame(step))
+      } else {
+        step()
+      }
+      return
+    }
+    shelfPaints.delete(container)
+  }
+  step()
+}
+
 export function renderCards(
   container: HTMLElement,
   template: HTMLTemplateElement,
@@ -278,12 +341,13 @@ export function renderCards(
   onTag: (tag: string) => void,
   boundTags: string[] = [],
 ): void {
-  const fragment = document.createDocumentFragment()
-  for (const entry of entries) {
-    const card = bookmarkCard(template, entry, onTag, boundTags)
-    if (card) fragment.append(card)
-  }
-  container.replaceChildren(fragment)
+  paintShelf(
+    container,
+    entries.map((entry) => ({ kind: 'card' as const, entry })),
+    template,
+    onTag,
+    boundTags,
+  )
 }
 
 export function renderGroupedCards(
@@ -293,21 +357,18 @@ export function renderGroupedCards(
   onTag: (tag: string) => void,
   boundTags: string[] = [],
 ): void {
-  const fragment = document.createDocumentFragment()
+  const nodes: ShelfNode[] = []
   for (const chunk of chunks) {
-    const label = document.createElement('p')
-    label.className = 'hall-group-label'
-    label.textContent = `${chunk.name} · ${String(chunk.entries.length)}`
-    fragment.append(label)
+    nodes.push({ kind: 'label', text: `${chunk.name} · ${String(chunk.entries.length)}` })
     for (const entry of chunk.entries) {
-      const card = bookmarkCard(template, entry, onTag, boundTags)
-      if (card) fragment.append(card)
+      nodes.push({ kind: 'card', entry })
     }
   }
-  container.replaceChildren(fragment)
+  paintShelf(container, nodes, template, onTag, boundTags)
 }
 
 export function showPanel(container: HTMLElement, template: HTMLTemplateElement): HTMLElement {
+  cancelShelfPaint(container)
   const node = template.content.firstElementChild
   if (!node) throw new Error('状态模板为空')
   const panel = node.cloneNode(true) as HTMLElement

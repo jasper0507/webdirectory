@@ -17,6 +17,7 @@ import {
   type PaperName,
 } from './theme.ts'
 import {
+  cancelShelfPaint,
   fillIdentity,
   flattenHallRows,
   hallOptionId,
@@ -106,6 +107,8 @@ function setPaperChrome(paper: PaperName, announce: boolean): void {
     button.title = `切换到${next}纸`
   })
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColor(paper))
+  const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
+  if (icon) icon.href = paper === 'night' ? '/favicon-night.svg' : '/favicon.svg'
   document.documentElement.style.colorScheme = paper === 'night' ? 'dark' : 'light'
   if (announce) document.querySelector('#live-note')!.textContent = `已切换到${paperLabel(paper)}纸`
 }
@@ -170,7 +173,15 @@ function setSkip(href: string): void {
   if (skip) skip.setAttribute('href', href)
 }
 
+function clearShelfFailure(ui: AppUi): void {
+  ui.shelf.classList.remove('is-failed')
+  ui.shelfCount.hidden = false
+  ui.shelfForm.hidden = false
+}
+
 function renderHall(ui: AppUi): void {
+  cancelShelfPaint(ui.results)
+  clearShelfFailure(ui)
   ui.hall.hidden = false
   ui.shelf.hidden = true
   setSkip('#q')
@@ -190,11 +201,15 @@ function renderHall(ui: AppUi): void {
 }
 
 function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>): void {
+  clearShelfFailure(ui)
   ui.hall.hidden = true
   ui.shelf.hidden = false
   setSkip('#shelf-q')
   document.getElementById('stars')?.setAttribute('hidden', '')
-  if (!catalog) return
+  if (!catalog) {
+    showLoadError(ui, '读不到配置文件。')
+    return
+  }
   fillIdentity(document, catalog.identity)
   document.title = `${catalog.identity.wordmark} · 货架`
   ui.shelfSearch.value = route.query
@@ -245,15 +260,26 @@ function renderRoute(route: AppRoute): void {
 }
 
 function showLoadError(ui: AppUi, message: string): void {
+  cancelShelfPaint(ui.results)
   ui.hall.hidden = true
   ui.shelf.hidden = false
+  ui.shelf.classList.add('is-failed')
+  ui.shelfCount.hidden = true
+  ui.shelfForm.hidden = true
+  ui.constraints.hidden = true
+  ui.constraints.replaceChildren()
   ui.shelfStatus.textContent = message
   const panel = showPanel(ui.results, ui.loadErrorTemplate)
   const detail = panel.querySelector('[data-error-detail]')
   if (detail) detail.textContent = message
-  panel.querySelector('[data-retry]')?.addEventListener('click', () => {
-    void hydrate(ui)
-  })
+  const retry = panel.querySelector<HTMLButtonElement>('[data-retry]')
+  if (retry) {
+    retry.id = 'load-retry'
+    retry.addEventListener('click', () => {
+      void hydrate(ui)
+    })
+    setSkip('#load-retry')
+  }
 }
 
 async function hydrate(ui: AppUi): Promise<void> {

@@ -26,7 +26,7 @@
     <div id="view-hall" class="page hall">
       <header class="site-header">
         <button class="brand" type="button" data-home aria-label="回到拾光">
-          <img src="/favicon.svg" alt="" width="28" height="28" />
+          <span class="brand-mark" aria-hidden="true"></span>
           <span class="brand-name" data-wordmark>七卷拾光</span>
         </button>
         <div class="nav-meta">
@@ -51,7 +51,7 @@
 让收藏顺流而下。</p>
         </div>
 
-        <form class="search-block" id="search-form" action="/shelf" method="get" autocomplete="off">
+        <form class="search-block" id="search-form" action="/shelf" method="get" role="search" autocomplete="off">
           <div class="search-row">
             <label class="sr-only" for="q">键入书签或站点</label>
             <input
@@ -78,7 +78,7 @@
           </div>
           <div class="hints">
             <span class="hints-keys"><kbd>/</kbd>聚焦检索</span>
-            <span class="hints-keys"><kbd>↵</kbd>打开题名，或进入货架</span>
+            <span class="hints-keys"><kbd>↵</kbd>打开高亮项，或进入货架</span>
             <span class="hints-touch">空提交看全部货架。点标签或键入名字。</span>
           </div>
           <div id="hall-list" class="hall-list" role="listbox" aria-label="题名索引" hidden></div>
@@ -105,7 +105,7 @@
         <h1 class="sr-only">货架</h1>
         <header class="shelf-header">
           <button class="brand" type="button" data-home aria-label="回到拾光">
-            <img src="/favicon.svg" alt="" width="28" height="28" />
+            <span class="brand-mark" aria-hidden="true"></span>
             <span class="brand-name" data-wordmark>七卷拾光</span>
           </button>
           <p class="shelf-count" id="shelf-count">0 个站点</p>

@@ -291,6 +291,16 @@ const SEARCH_FUSE_OPTIONS = {
   minMatchCharLength: 1,
 }
 
+const fuseByEntries = new WeakMap<BookmarkEntry[], Fuse<BookmarkEntry>>()
+
+function fuseFor(entries: BookmarkEntry[]): Fuse<BookmarkEntry> {
+  const cached = fuseByEntries.get(entries)
+  if (cached) return cached
+  const fuse = new Fuse(entries, SEARCH_FUSE_OPTIONS)
+  fuseByEntries.set(entries, fuse)
+  return fuse
+}
+
 export function parseShelfQuery(raw: string, tagConstraints: string[] = []): ShelfQuery {
   const trimmed = raw.trim()
   return {
@@ -311,7 +321,7 @@ export function searchEntries(entries: BookmarkEntry[], query: ShelfQuery): Book
       : entries.filter((entry) => query.tags.every((tag) => entry.tags.includes(tag)))
   if (!query.raw) return tagged
 
-  const fuse = new Fuse(entries, SEARCH_FUSE_OPTIONS)
+  const fuse = fuseFor(entries)
   const scoreByUrl = new Map(
     fuse.search(query.raw).map((result) => [result.item.url, result.score ?? 1]),
   )
