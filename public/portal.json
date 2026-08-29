@@ -18,352 +18,1399 @@
   },
   "bookmarks": [
     {
-      "title": "MDN Web Docs",
-      "url": "https://developer.mozilla.org/",
+      "title": "Claude",
+      "url": "https://claude.ai/new",
       "tags": [
-        "文档"
+        "AI"
       ],
-      "description": "Web 平台的权威参考，覆盖 HTML、CSS、JavaScript 与 Web API。"
+      "description": "Anthropic对话助手"
     },
     {
-      "title": "TypeScript Handbook",
-      "url": "https://www.typescriptlang.org/docs/handbook/intro.html",
+      "title": "Grok",
+      "url": "https://grok.com/",
       "tags": [
-        "文档"
+        "AI"
       ],
-      "description": "TypeScript 官方手册，从基础类型到模块系统。"
+      "description": "xAI的对话助手"
     },
     {
-      "title": "Vite",
-      "url": "https://vite.dev/",
+      "title": "Gemini",
+      "url": "https://gemini.google.com/u/0/app",
       "tags": [
-        "工具"
+        "AI"
       ],
-      "description": "原生 ESM 驱动的前端构建工具。"
+      "description": "Google的AI助手"
     },
     {
-      "title": "Tailwind CSS",
-      "url": "https://tailwindcss.com/docs",
+      "title": "DeepSeek",
+      "url": "https://chat.deepseek.com/",
       "tags": [
-        "前端"
+        "AI"
       ],
-      "description": "实用优先的 CSS 框架。"
+      "description": "深度求索对话助手"
     },
     {
-      "title": "daisyUI",
-      "url": "https://daisyui.com/",
+      "title": "ChatGPT",
+      "url": "https://chatgpt.com/",
       "tags": [
-        "前端"
+        "AI"
       ],
-      "description": "Tailwind CSS 组件类库。"
+      "description": "OpenAI对话助手"
     },
     {
-      "title": "Lucide",
-      "url": "https://lucide.dev/",
-      "tags": [
-        "设计"
-      ],
-      "description": "开源线性图标集，笔画一致、可替换。"
-    },
-    {
-      "title": "GitHub",
-      "url": "https://github.com/",
+      "title": "Claude IP检测",
+      "url": "https://ip.net.coffee/claude/",
       "tags": [
         "工具"
       ],
-      "description": "代码托管与协作。"
+      "description": "检测Claude出口IP"
     },
     {
-      "title": "Can I Use",
-      "url": "https://caniuse.com/",
+      "title": "支付长链生成器",
+      "url": "https://payurl.ark2.cn/",
+      "tags": [
+        "工具"
+      ],
+      "description": "生成支付长链"
+    },
+    {
+      "title": "ai小店",
+      "url": "https://aipluspro.store/",
+      "tags": [
+        "商店",
+        "AI"
+      ],
+      "description": "售AI订阅卡密"
+    },
+    {
+      "title": "数卡寄售",
+      "url": "https://shuka.cc/shop/001",
+      "tags": [
+        "商店"
+      ],
+      "description": "数字卡密寄售"
+    },
+    {
+      "title": "Gemini源头批发",
+      "url": "https://gmail6868.com/",
+      "tags": [
+        "商店",
+        "AI"
+      ],
+      "description": "批发Gemini账号"
+    },
+    {
+      "title": "Go365 Card",
+      "url": "https://go365-card.com/products",
+      "tags": [
+        "商店",
+        "AI"
+      ],
+      "description": "售Plus与Gemini"
+    },
+    {
+      "title": "下麦小店",
+      "url": "https://pay.ldxp.cn/shop/xiamai",
+      "tags": [
+        "商店",
+        "AI"
+      ],
+      "description": "售GPT Plus卡密"
+    },
+    {
+      "title": "智友社",
+      "url": "https://pay.ldxp.cn/shop/282D9KDL",
+      "tags": [
+        "商店",
+        "AI"
+      ],
+      "description": "售主流AI订阅"
+    },
+    {
+      "title": "Web3吃肉",
+      "url": "https://web3chirou.com/",
+      "tags": [
+        "商店",
+        "AI"
+      ],
+      "description": "售跨境AI账号"
+    },
+    {
+      "title": "5SIM",
+      "url": "https://5sim.net/zh",
+      "tags": [
+        "工具"
+      ],
+      "description": "虚拟号收短信"
+    },
+    {
+      "title": "Compiler Explorer",
+      "url": "https://godbolt.org/",
+      "tags": [
+        "工具",
+        "后端"
+      ],
+      "description": "在线看编译结果"
+    },
+    {
+      "title": "getdesign.md",
+      "url": "https://getdesign.md/",
+      "tags": [
+        "设计",
+        "AI"
+      ],
+      "description": "站点设计规范库"
+    },
+    {
+      "title": "MSDN我告诉你",
+      "url": "https://msdn.itellyou.cn/",
+      "tags": [
+        "工具",
+        "参考"
+      ],
+      "description": "微软原版镜像"
+    },
+    {
+      "title": "路过图床",
+      "url": "https://imgchr.com/",
+      "tags": [
+        "图床"
+      ],
+      "description": "免费图片外链"
+    },
+    {
+      "title": "MJJ图床",
+      "url": "https://mjj.today/",
+      "tags": [
+        "图床"
+      ],
+      "description": "免费上传分享图"
+    },
+    {
+      "title": "Remit图床",
+      "url": "https://img.remit.ee/",
+      "tags": [
+        "图床"
+      ],
+      "description": "免费拖拽传图"
+    },
+    {
+      "title": "APKCombo",
+      "url": "https://apkcombo.com/zh/",
+      "tags": [
+        "工具"
+      ],
+      "description": "下载安卓APK"
+    },
+    {
+      "title": "Uptodown",
+      "url": "https://cn.uptodown.com/",
+      "tags": [
+        "工具"
+      ],
+      "description": "安卓应用商店"
+    },
+    {
+      "title": "APKMirror",
+      "url": "https://www.apkmirror.com/",
+      "tags": [
+        "工具"
+      ],
+      "description": "安全APK镜像"
+    },
+    {
+      "title": "ToolKnit",
+      "url": "https://toolknit.com/",
+      "tags": [
+        "工具"
+      ],
+      "description": "浏览器本地工具"
+    },
+    {
+      "title": "Online-Convert",
+      "url": "https://www.online-convert.com/",
+      "tags": [
+        "工具"
+      ],
+      "description": "在线文件转换"
+    },
+    {
+      "title": "幻觉翻译",
+      "url": "https://hjfy.top/",
+      "tags": [
+        "工具",
+        "AI"
+      ],
+      "description": "翻译arXiv论文"
+    },
+    {
+      "title": "GPTZero",
+      "url": "https://gptzero.me/?via=aiagc",
+      "tags": [
+        "AI",
+        "工具"
+      ],
+      "description": "检测AI生成文本"
+    },
+    {
+      "title": "迈从 M HUB",
+      "url": "https://www.mchose.com.cn/#/keyboard?deviceName=MCHOSE+G87+V2+2.4G&isGoUpgradePage=false",
+      "tags": [
+        "工具"
+      ],
+      "description": "迈从键盘官方驱动"
+    },
+    {
+      "title": "Yandex",
+      "url": "https://yandex.com/",
+      "tags": [
+        "工具"
+      ],
+      "description": "俄罗斯搜索引擎"
+    },
+    {
+      "title": "临时邮箱",
+      "url": "https://www.linshi-email.com/",
+      "tags": [
+        "工具",
+        "邮箱"
+      ],
+      "description": "免注册一次性邮箱"
+    },
+    {
+      "title": "CodeTop",
+      "url": "https://codetop.cc/home",
+      "tags": [
+        "实习",
+        "算法"
+      ],
+      "description": "大厂面试题频统计"
+    },
+    {
+      "title": "力扣热题100",
+      "url": "https://leetcode.cn/studyplan/top-100-liked/",
+      "tags": [
+        "实习",
+        "算法"
+      ],
+      "description": "站内最受欢迎百题"
+    },
+    {
+      "title": "Reactive Resume",
+      "url": "https://rxresu.me/",
+      "tags": [
+        "实习",
+        "工具"
+      ],
+      "description": "开源在线简历工具"
+    },
+    {
+      "title": "履历星图",
+      "url": "https://resume.lcode.space/",
+      "tags": [
+        "实习",
+        "工具"
+      ],
+      "description": "在线简历工具"
+    },
+    {
+      "title": "木及简历",
+      "url": "https://www.mujicv.com/",
+      "tags": [
+        "实习",
+        "工具"
+      ],
+      "description": "用Markdown写简历"
+    },
+    {
+      "title": "实习那些事",
+      "url": "https://mirage-thought-d06.notion.site/27f747825dae80dabdbcf47a6186d8be",
+      "tags": [
+        "实习"
+      ],
+      "description": "实习经验笔记"
+    },
+    {
+      "title": "李文周",
+      "url": "https://liwenzhou.com/",
+      "tags": [
+        "博客",
+        "后端"
+      ],
+      "description": "Go与架构实战博客"
+    },
+    {
+      "title": "Golang中文学习文档",
+      "url": "https://golang.halfiisland.com/guide.html",
+      "tags": [
+        "后端",
+        "文档"
+      ],
+      "description": "Go语法入门指南"
+    },
+    {
+      "title": "枫枫知道GORM基础",
+      "url": "https://www.fengfengzhidao.com/special/4/56",
+      "tags": [
+        "后端",
+        "课程"
+      ],
+      "description": "GORM增删改查教程"
+    },
+    {
+      "title": "Go 编程语言",
+      "url": "https://go-lang.org.cn/",
+      "tags": [
+        "后端",
+        "文档"
+      ],
+      "description": "Go中文入门站点"
+    },
+    {
+      "title": "Gin 文档",
+      "url": "https://gin-gonic.com/zh-cn/docs/",
+      "tags": [
+        "后端",
+        "文档"
+      ],
+      "description": "Go高性能Web框架"
+    },
+    {
+      "title": "Go语言圣经",
+      "url": "https://gopl-zh.github.io/",
+      "tags": [
+        "后端",
+        "文档"
+      ],
+      "description": "Go经典书中文版"
+    },
+    {
+      "title": "GORM 文档",
+      "url": "https://gorm.io/zh_CN/docs/",
+      "tags": [
+        "后端",
+        "文档"
+      ],
+      "description": "Go语言ORM库文档"
+    },
+    {
+      "title": "深入理解AI Agent",
+      "url": "https://bojieli.github.io/ai-agent-book/",
+      "tags": [
+        "AI",
+        "文档"
+      ],
+      "description": "Agent原理与实战"
+    },
+    {
+      "title": "AI Agent开发实战",
+      "url": "https://waylandz.com/ai-agent-book/%E5%89%8D%E8%A8%80/",
+      "tags": [
+        "AI",
+        "文档"
+      ],
+      "description": "生产级Agent指南"
+    },
+    {
+      "title": "Gee第一天",
+      "url": "https://geektutu.com/post/gee-day1.html",
+      "tags": [
+        "后端",
+        "课程"
+      ],
+      "description": "从零实现Web框架"
+    },
+    {
+      "title": "Redis Go客户端",
+      "url": "https://redis.io/docs/latest/develop/clients/go/",
+      "tags": [
+        "后端",
+        "文档"
+      ],
+      "description": "go-redis官方指南"
+    },
+    {
+      "title": "MySQL教程",
+      "url": "https://dev.mysql.com/doc/refman/8.4/en/tutorial.html",
+      "tags": [
+        "后端",
+        "文档"
+      ],
+      "description": "官方入门教程"
+    },
+    {
+      "title": "SQL基本查询",
+      "url": "https://liaoxuefeng.com/books/sql/query/basic/index.html",
+      "tags": [
+        "后端",
+        "文档"
+      ],
+      "description": "SELECT入门讲解"
+    },
+    {
+      "title": "Linux 101",
+      "url": "https://101.lug.ustc.edu.cn/",
+      "tags": [
+        "运维",
+        "课程"
+      ],
+      "description": "科大LUG入门讲义"
+    },
+    {
+      "title": "鸟哥的Linux私房菜",
+      "url": "https://wizardforcel.gitbooks.io/vbird-linux-basic-4e/content/index.html",
+      "tags": [
+        "运维",
+        "文档"
+      ],
+      "description": "Linux基础学习篇"
+    },
+    {
+      "title": "计算机缺失的一课",
+      "url": "https://missing-semester-cn.github.io/",
+      "tags": [
+        "课程",
+        "工具"
+      ],
+      "description": "MIT工具课中文版"
+    },
+    {
+      "title": "Docker从入门到实践",
+      "url": "https://yeasy.gitbook.io/docker_practice",
+      "tags": [
+        "运维",
+        "文档"
+      ],
+      "description": "Docker容器实战书"
+    },
+    {
+      "title": "Git创建版本库",
+      "url": "https://liaoxuefeng.com/books/git/create-repo/index.html",
+      "tags": [
+        "工具",
+        "文档"
+      ],
+      "description": "git init入门讲解"
+    },
+    {
+      "title": "Linux基础和WSL",
+      "url": "https://evarle.top/post/2023/10/14/Linux-and-wsl/",
+      "tags": [
+        "运维",
+        "博客"
+      ],
+      "description": "常用命令与WSL安装"
+    },
+    {
+      "title": "代码随想录",
+      "url": "https://programmercarl.com/",
+      "tags": [
+        "算法"
+      ],
+      "description": "算法刷题图文教程"
+    },
+    {
+      "title": "VibeHub",
+      "url": "https://vibe-hub.org/",
+      "tags": [
+        "设计",
+        "AI"
+      ],
+      "description": "Vibe编程提示词"
+    },
+    {
+      "title": "StyleKit",
+      "url": "https://www.stylekit.top/zh",
+      "tags": [
+        "设计",
+        "AI"
+      ],
+      "description": "AI网页风格库"
+    },
+    {
+      "title": "排版的艺术",
+      "url": "https://re.karlbaey.top/articles/typography/#%E7%B3%9F%E7%B3%95%E7%9A%84%E6%8E%92%E7%89%88",
+      "tags": [
+        "设计",
+        "博客"
+      ],
+      "description": "网页排版实践笔记"
+    },
+    {
+      "title": "斯坦福CS课表",
+      "url": "https://www.classcentral.com/report/stanford-on-campus-courses/",
+      "tags": [
+        "课程"
+      ],
+      "description": "校园课线上资源"
+    },
+    {
+      "title": "CMU 15-445",
+      "url": "https://15445.courses.cs.cmu.edu/spring2026/",
+      "tags": [
+        "课程",
+        "后端"
+      ],
+      "description": "数据库系统课程"
+    },
+    {
+      "title": "Coursera",
+      "url": "https://www.coursera.org/",
+      "tags": [
+        "课程"
+      ],
+      "description": "名校在线课程平台"
+    },
+    {
+      "title": "MIT OCW",
+      "url": "https://ocw.mit.edu/",
+      "tags": [
+        "课程"
+      ],
+      "description": "免费公开课资料"
+    },
+    {
+      "title": "操作系统课表",
+      "url": "https://ycnw11in464y.feishu.cn/wiki/YPhkwuQvxihyWAkldJJchodVnKh",
+      "tags": [
+        "课程",
+        "文档"
+      ],
+      "description": "汇编并行实验安排"
+    },
+    {
+      "title": "坚果云大模型",
+      "url": "https://www.jianguoyun.com/p/Ddk4kPQQp5WhChiXwYcGIAA#/files/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E4%B8%8E%E5%A4%A7%E6%A8%A1%E5%9E%8B",
+      "tags": [
+        "云服务",
+        "AI"
+      ],
+      "description": "大模型网盘分享"
+    },
+    {
+      "title": "CS自学工具箱",
+      "url": "https://csdiy.wiki/%E5%BF%85%E5%AD%A6%E5%B7%A5%E5%85%B7/tools/",
+      "tags": [
+        "工具",
+        "参考"
+      ],
+      "description": "自学常用工具清单"
+    },
+    {
+      "title": "计算机保研指南",
+      "url": "https://csbaoyan.top/",
       "tags": [
         "参考"
       ],
-      "description": "浏览器特性支持表。"
+      "description": "保研经验资料汇总"
     },
     {
-      "title": "Playwright",
-      "url": "https://playwright.dev/",
+      "title": "阿秀学习笔记",
+      "url": "https://interviewguide.cn/#/",
       "tags": [
-        "工具"
-      ],
-      "description": "跨浏览器端到端测试与自动化。"
-    },
-    {
-      "title": "WebAIM Contrast Checker",
-      "url": "https://webaim.org/resources/contrastchecker/",
-      "tags": [
-        "设计"
-      ],
-      "description": "检查文本与背景的对比度是否达到 WCAG。"
-    },
-    {
-      "title": "Practical Typography",
-      "url": "https://practicaltypography.com/",
-      "tags": [
-        "设计"
-      ],
-      "description": "Butterick 的排印实务，适合做界面文字决定。"
-    },
-    {
-      "title": "RFC Editor",
-      "url": "https://www.rfc-editor.org/",
-      "tags": [
+        "实习",
         "参考"
       ],
-      "description": "互联网标准文稿索引。"
+      "description": "校招面试自学笔记"
     },
     {
-      "title": "OWASP Cheat Sheet Series",
-      "url": "https://cheatsheetseries.owasp.org/",
+      "title": "Lanerc动漫",
+      "url": "https://dm.lanerc.com/",
       "tags": [
-        "参考"
+        "动漫"
       ],
-      "description": "常见 Web 安全问题的精简对策。"
+      "description": "在线追番懒人站"
     },
     {
-      "title": "Unicode Character Name Index",
-      "url": "https://www.unicode.org/charts/charindex.html",
+      "title": "Omofun动漫",
+      "url": "https://cn.211dm.com/",
       "tags": [
-        "参考"
+        "动漫"
       ],
-      "description": "按名称查找 Unicode 字符。"
+      "description": "免费在线看番"
     },
     {
-      "title": "CSS-Tricks",
-      "url": "https://css-tricks.com/",
+      "title": "樱之空动漫",
+      "url": "https://skr.skr1.cc:666/",
       "tags": [
-        "博客"
+        "动漫"
       ],
-      "description": "CSS 与前端实务文章。"
+      "description": "在线看动漫站点"
     },
     {
-      "title": "Jake Archibald's blog",
-      "url": "https://jakearchibald.com/",
+      "title": "咕咕番",
+      "url": "https://www.gugu3.com/",
       "tags": [
-        "博客"
+        "动漫"
       ],
-      "description": "浏览器、性能与 Service Worker 的一手经验。"
+      "description": "在线日漫追番"
     },
     {
-      "title": "阮一峰的网络日志",
-      "url": "https://www.ruanyifeng.com/blog/",
+      "title": "ØMagnet",
+      "url": "https://0mag.app/!Kq0vJ5",
       "tags": [
-        "博客"
+        "成人"
       ],
-      "description": "技术周刊与前端、后端、工具的中文笔记。"
+      "description": "磁力种子搜索"
     },
     {
-      "title": "Martin Fowler",
-      "url": "https://martinfowler.com/",
+      "title": "Sukebei",
+      "url": "https://sukebei.nyaa.si/",
       "tags": [
-        "博客"
+        "成人"
       ],
-      "description": "软件设计与重构的长期写作。"
+      "description": "成人种子索引"
     },
     {
-      "title": "npm",
-      "url": "https://www.npmjs.com/",
+      "title": "MasterFap",
+      "url": "https://www.masterfap.net/trending/",
       "tags": [
+        "成人"
+      ],
+      "description": "OnlyFans泄漏图"
+    },
+    {
+      "title": "Whos.tv",
+      "url": "https://whos.tv/",
+      "tags": [
+        "成人",
+        "AI"
+      ],
+      "description": "AV以图搜片"
+    },
+    {
+      "title": "Porn Dude",
+      "url": "https://theporndude.com/zh/top-porn-tube-sites",
+      "tags": [
+        "成人"
+      ],
+      "description": "成人站点导航"
+    },
+    {
+      "title": "磁力猫",
+      "url": "http://clm0.cc/",
+      "tags": [
+        "成人"
+      ],
+      "description": "磁力链接搜索"
+    },
+    {
+      "title": "糖心Vlog解析",
+      "url": "https://tx02.top/player",
+      "tags": [
+        "成人"
+      ],
+      "description": "成人视频播放器"
+    },
+    {
+      "title": "Veil图床API",
+      "url": "https://veil.ortlinde.com/#usage",
+      "tags": [
+        "成人",
+        "API"
+      ],
+      "description": "随机写真图接口"
+    },
+    {
+      "title": "每日大赛",
+      "url": "https://mrds.com/archives/166931/",
+      "tags": [
+        "成人"
+      ],
+      "description": "OnlyFans成人片"
+    },
+    {
+      "title": "寻影TV",
+      "url": "https://xunyingtv.com/",
+      "tags": [
+        "影视"
+      ],
+      "description": "免费高清影视"
+    },
+    {
+      "title": "影迷窝",
+      "url": "https://yingmiwo.me/index",
+      "tags": [
+        "影视"
+      ],
+      "description": "免费影视站点"
+    },
+    {
+      "title": "江江TVBox",
+      "url": "https://tv.xn--9swa.com/",
+      "tags": [
+        "影视"
+      ],
+      "description": "影视接口导航"
+    },
+    {
+      "title": "独播库",
+      "url": "https://duboku.info/",
+      "tags": [
+        "影视"
+      ],
+      "description": "海外免费追剧"
+    },
+    {
+      "title": "LIBVIO发布页",
+      "url": "https://libviogroup.github.io/",
+      "tags": [
+        "影视"
+      ],
+      "description": "站点地址发布页"
+    },
+    {
+      "title": "SeedHub",
+      "url": "https://sidhub.cc/",
+      "tags": [
+        "影视"
+      ],
+      "description": "影视动漫分享"
+    },
+    {
+      "title": "白嫖者联盟",
+      "url": "https://baipiaozhe.ai/",
+      "tags": [
+        "影视",
+        "AI"
+      ],
+      "description": "AI搜片追剧"
+    },
+    {
+      "title": "奈飞工厂",
+      "url": "https://www.netflixgc.com/",
+      "tags": [
+        "影视"
+      ],
+      "description": "免费海外影视"
+    },
+    {
+      "title": "无名小站",
+      "url": "https://www.xn--ykq321c.com/?count=1",
+      "tags": [
+        "影视"
+      ],
+      "description": "影视下载播放"
+    },
+    {
+      "title": "播剧网",
+      "url": "https://ysxq.cc/",
+      "tags": [
+        "影视"
+      ],
+      "description": "在线追剧看片"
+    },
+    {
+      "title": "Komiic",
+      "url": "https://komiic.cc/",
+      "tags": [
+        "漫画"
+      ],
+      "description": "在线看漫画"
+    },
+    {
+      "title": "MYCOMIC",
+      "url": "https://mycomic.com/",
+      "tags": [
+        "漫画"
+      ],
+      "description": "漫画资料库"
+    },
+    {
+      "title": "Switch520",
+      "url": "https://www.gamer520.com/",
+      "tags": [
+        "游戏"
+      ],
+      "description": "Switch游戏资源"
+    },
+    {
+      "title": "维咔VikACG",
+      "url": "https://www.vikacg.com/post",
+      "tags": [
+        "论坛",
+        "游戏"
+      ],
+      "description": "ACG资源社区"
+    },
+    {
+      "title": "AnyRouter",
+      "url": "https://anyrouter.top/console",
+      "tags": [
+        "API",
+        "AI"
+      ],
+      "description": "AI接口控制台"
+    },
+    {
+      "title": "有道智云",
+      "url": "https://ai.youdao.com/console/#/account-setting",
+      "tags": [
+        "AI",
+        "API"
+      ],
+      "description": "智云账号设置"
+    },
+    {
+      "title": "黑与白公益站",
+      "url": "https://ai.hybgzs.com/",
+      "tags": [
+        "AI",
+        "API"
+      ],
+      "description": "免费AI接口"
+    },
+    {
+      "title": "黑与白福利站",
+      "url": "https://cdk.hybgzs.com/dashboard",
+      "tags": [
+        "AI",
         "工具"
       ],
-      "description": "JavaScript 包注册表。"
+      "description": "额度签到兑换"
     },
     {
-      "title": "Cloudflare Docs",
-      "url": "https://developers.cloudflare.com/",
+      "title": "LINUX DO Mail",
+      "url": "https://webmail.linux.do/webmail/?_task=mail&_mbox=INBOX",
       "tags": [
+        "邮箱"
+      ],
+      "description": "社区邮箱收件箱"
+    },
+    {
+      "title": "诺亚学院邮箱",
+      "url": "https://mail.noah.edu.gr/inbox",
+      "tags": [
+        "邮箱"
+      ],
+      "description": "教育邮箱收件箱"
+    },
+    {
+      "title": "Outlook",
+      "url": "https://outlook.office.com/mail/",
+      "tags": [
+        "邮箱"
+      ],
+      "description": "微软网页邮箱"
+    },
+    {
+      "title": "Totoro Mail",
+      "url": "https://mail.totoro.im/inbox",
+      "tags": [
+        "邮箱"
+      ],
+      "description": "网页邮箱收件箱"
+    },
+    {
+      "title": "AutoDL",
+      "url": "https://www.autodl.com/home",
+      "tags": [
+        "云服务"
+      ],
+      "description": "GPU云主机"
+    },
+    {
+      "title": "Azure教育门户",
+      "url": "https://portal.azure.com/?Microsoft_Azure_Education_correlationId=07e6d494-56bb-430a-8d32-00f0560f5ca8&Microsoft_Azure_Education_newA4E=true&Microsoft_Azure_Education_asoSubGuid=d31260dc-ca9d-4680-9c1e-1617603cf256#view/Microsoft_Azure_Education/EducationMenuBlade/~/overview",
+      "tags": [
+        "云服务"
+      ],
+      "description": "教育订阅总览"
+    },
+    {
+      "title": "阿里云ECS",
+      "url": "https://ecs.console.aliyun.com/server/region/us-east-1",
+      "tags": [
+        "云服务"
+      ],
+      "description": "美东云服务器"
+    },
+    {
+      "title": "Cloudflare",
+      "url": "https://dash.cloudflare.com/6ecd6940ec27bfd8f3e6dc1b5a4a3bcb/home",
+      "tags": [
+        "云服务"
+      ],
+      "description": "账号主页控制台"
+    },
+    {
+      "title": "DNSHE",
+      "url": "https://my.dnshe.com/index.php?m=domain_hub&view=domains",
+      "tags": [
+        "云服务"
+      ],
+      "description": "免费域名管理"
+    },
+    {
+      "title": "Name.com",
+      "url": "https://www.name.com/zh-cn/",
+      "tags": [
+        "云服务"
+      ],
+      "description": "中文域名注册"
+    },
+    {
+      "title": "Namecheap",
+      "url": "https://ap.www.namecheap.com/domains/list",
+      "tags": [
+        "云服务"
+      ],
+      "description": "已购域名列表"
+    },
+    {
+      "title": "MeowVPS",
+      "url": "https://meowvps.com/",
+      "tags": [
+        "博客",
+        "云服务"
+      ],
+      "description": "VPS测评博客"
+    },
+    {
+      "title": "Netcup RS1000测评",
+      "url": "https://blog.huan666.de/posts/vps-test/netcup-rs1000-double-storage-version-testing-scripts-guide/",
+      "tags": [
+        "博客",
+        "云服务"
+      ],
+      "description": "VPS测评与脚本指南"
+    },
+    {
+      "title": "ArgoSBX命令生成器",
+      "url": "https://yonggekkk.github.io/argosbx/",
+      "tags": [
+        "网络",
+        "工具"
+      ],
+      "description": "自建代理SSH命令生成"
+    },
+    {
+      "title": "TCPTest HTTP测速",
+      "url": "https://www.tcptest.cn/http/https%3A%2F%2Fa-ocnfniawgw.cn-shanghai.fcapp.run",
+      "tags": [
+        "网络",
+        "工具"
+      ],
+      "description": "多节点网站HTTP测速"
+    },
+    {
+      "title": "Fast.com网速测试",
+      "url": "https://fast.com/zh/cn/#",
+      "tags": [
+        "网络",
+        "工具"
+      ],
+      "description": "Netflix出品网速测试"
+    },
+    {
+      "title": "快快测",
+      "url": "https://www.kk.yun/",
+      "tags": [
+        "网络",
+        "工具"
+      ],
+      "description": "多节点Ping与测速"
+    },
+    {
+      "title": "CleanIP",
+      "url": "https://cleanip.io/",
+      "tags": [
+        "网络",
+        "工具"
+      ],
+      "description": "IP纯净度与风控检测"
+    },
+    {
+      "title": "IPPure",
+      "url": "https://ippure.com/",
+      "tags": [
+        "网络",
+        "工具"
+      ],
+      "description": "IP风险与泄露检测"
+    },
+    {
+      "title": "SubBoost",
+      "url": "https://subboost.org/",
+      "tags": [
+        "网络",
+        "工具"
+      ],
+      "description": "Clash订阅转换管理"
+    },
+    {
+      "title": "专线机场推荐评测",
+      "url": "https://jichangtuijian.com/ssr-v2ray%E4%B8%93%E7%BA%BF%E6%9C%BA%E5%9C%BA%E6%8E%A8%E8%8D%90.html",
+      "tags": [
+        "博客",
+        "网络"
+      ],
+      "description": "专线机场评测合集"
+    },
+    {
+      "title": "蓝通机场",
+      "url": "https://ltyun.org/#/dashboard",
+      "tags": [
+        "网络"
+      ],
+      "description": "家宽原生IP代理"
+    },
+    {
+      "title": "GLaDOS控制台",
+      "url": "https://glados.network/console",
+      "tags": [
+        "网络"
+      ],
+      "description": "网络加速服务面板"
+    },
+    {
+      "title": "CloudFox云狐",
+      "url": "https://user.cp193.uk/#/dashboard",
+      "tags": [
+        "网络"
+      ],
+      "description": "家宽与IEPL节点"
+    },
+    {
+      "title": "雪山机场",
+      "url": "https://xueshan.shop/#/dashboard",
+      "tags": [
+        "网络"
+      ],
+      "description": "家宽中转订阅服务"
+    },
+    {
+      "title": "helloProxy",
+      "url": "https://proxy.nihaox.cc.cd/user/dashboard",
+      "tags": [
+        "网络"
+      ],
+      "description": "LinuxDo订阅代理"
+    },
+    {
+      "title": "Arena AI排行榜",
+      "url": "https://arena.ai/leaderboard",
+      "tags": [
+        "资讯",
+        "AI"
+      ],
+      "description": "大模型对战排行榜"
+    },
+    {
+      "title": "GitHub中文热门",
+      "url": "https://www.zdoc.app/zh/trending",
+      "tags": [
+        "资讯",
         "文档"
       ],
-      "description": "DNS、CDN 与 Workers 文档。"
+      "description": "今日热门仓库中文"
     },
     {
-      "title": "Vercel Docs",
-      "url": "https://vercel.com/docs",
+      "title": "AIHOT",
+      "url": "https://aihot.virxact.com/",
       "tags": [
-        "文档"
+        "资讯",
+        "AI"
       ],
-      "description": "当前站点的构建与发布平台文档。"
+      "description": "AI热点与日报聚合"
     },
     {
-      "title": "HTML Living Standard",
-      "url": "https://html.spec.whatwg.org/multipage/",
+      "title": "NewsNow",
+      "url": "https://newsnow.busiyi.world/",
       "tags": [
-        "文档"
+        "资讯"
       ],
-      "description": "WHATWG HTML 现行标准。"
+      "description": "多源热点新闻聚合"
     },
     {
-      "title": "Regex101",
-      "url": "https://regex101.com/",
+      "title": "IDC Flare",
+      "url": "https://idcflare.com/",
+      "tags": [
+        "论坛"
+      ],
+      "description": "主机域名交流社区"
+    },
+    {
+      "title": "LINUX DO",
+      "url": "https://linux.do/",
+      "tags": [
+        "论坛"
+      ],
+      "description": "中文开发者社区"
+    },
+    {
+      "title": "NovaHD",
+      "url": "https://pt.novahd.top/index.php",
+      "tags": [
+        "论坛",
+        "影视"
+      ],
+      "description": "影视综合PT站"
+    },
+    {
+      "title": "V2EX",
+      "url": "https://v2ex.com/",
+      "tags": [
+        "论坛"
+      ],
+      "description": "创意工作者社区"
+    },
+    {
+      "title": "吾爱破解",
+      "url": "https://www.52pojie.cn/",
+      "tags": [
+        "论坛"
+      ],
+      "description": "软件逆向交流论坛"
+    },
+    {
+      "title": "奶昔论坛",
+      "url": "https://forum.naixi.net/index.php",
+      "tags": [
+        "论坛"
+      ],
+      "description": "eSIM与运营商交流"
+    },
+    {
+      "title": "Linux DO导航",
+      "url": "https://nav.linux.do/",
+      "tags": [
+        "论坛"
+      ],
+      "description": "L站服务入口汇总"
+    },
+    {
+      "title": "LD士多",
+      "url": "https://ldcstore.com/",
+      "tags": [
+        "商店"
+      ],
+      "description": "L站积分兑换商城"
+    },
+    {
+      "title": "NodeSeek",
+      "url": "https://www.nodeseek.com/",
+      "tags": [
+        "论坛"
+      ],
+      "description": "VPS主机技术论坛"
+    },
+    {
+      "title": "烧饼论坛",
+      "url": "https://sb.sb/",
+      "tags": [
+        "论坛"
+      ],
+      "description": "海外IT技术社区"
+    },
+    {
+      "title": "FauxID 假名生成器",
+      "url": "https://fauxid.com/fake-name-generator/united-states#google_vignette",
       "tags": [
         "工具"
       ],
-      "description": "正则表达式调试器，支持解释与测试。"
+      "description": "生成美国虚假身份"
     },
     {
-      "title": "Excalidraw",
-      "url": "https://excalidraw.com/",
+      "title": "美国地址生成器",
+      "url": "https://www.meiguodizhi.com/",
       "tags": [
         "工具"
       ],
-      "description": "手绘风格白板，适合快速画结构。"
+      "description": "生成美国地址身份"
     },
     {
-      "title": "jq",
-      "url": "https://jqlang.github.io/jq/",
+      "title": "hello! TCC",
+      "url": "https://hello.tccd.edu/",
       "tags": [
-        "工具"
+        "个人"
       ],
-      "description": "命令行 JSON 处理器。"
+      "description": "成绩单与学籍摘要"
     },
     {
-      "title": "Source Serif 4",
-      "url": "https://github.com/adobe-fonts/source-serif",
+      "title": "TCC 学生自助",
+      "url": "https://selfservice.tccd.edu/Student",
       "tags": [
-        "设计"
+        "个人"
+      ],
+      "description": "TCC学生自助门户"
+    },
+    {
+      "title": "EDU邮箱使用教程",
+      "url": "https://help.liout.com/140.html",
+      "tags": [
+        "邮箱"
+      ],
+      "description": "美国edu邮箱教程"
+    },
+    {
+      "title": "Jasper ImgHub",
+      "url": "https://imgbed.jasper0507.me/",
+      "tags": [
+        "个人",
+        "图床"
+      ],
+      "description": "个人图床文件托管"
+    },
+    {
+      "title": "JaspersList",
+      "url": "https://drive.jasper0507.me/",
+      "tags": [
+        "个人"
+      ],
+      "description": "个人网盘文件列表"
+    },
+    {
+      "title": "中珠美食探店",
+      "url": "https://docs.qq.com/sheet/DSnVrVWhVektNTVdn?tab=yn7cnr",
+      "tags": [
+        "个人"
+      ],
+      "description": "中珠美食探店表"
+    },
+    {
+      "title": "神奇题目",
+      "url": "https://www.yuque.com/nelsoncheung/gqomao/arraogf0orgr09ka?singleDoc=",
+      "tags": [
+        "个人"
       ]
     },
     {
-      "title": "Refero",
-      "url": "https://refero.design/",
-      "tags": [
-        "设计"
-      ],
-      "description": "真实产品界面资料库。"
-    },
-    {
-      "title": "Web.dev",
-      "url": "https://web.dev/",
-      "tags": [
-        "文档"
-      ],
-      "description": "Google 的 Web 质量、性能与基线指南。"
-    },
-    {
-      "title": "Baseline",
-      "url": "https://web-platform-dx.github.io/web-features/",
-      "tags": [
-        "参考"
-      ],
-      "description": "Web 平台特性是否已进入 Baseline 的数据。"
-    },
-    {
-      "title": "Internet Archive",
-      "url": "https://archive.org/",
-      "tags": [
-        "存档"
-      ],
-      "description": "网页、书籍与多媒体的公开存档。"
-    },
-    {
-      "title": "Wikipedia",
-      "url": "https://zh.wikipedia.org/",
-      "tags": [
-        "参考"
-      ]
-    },
-    {
-      "title": "Wayback Machine",
-      "url": "https://web.archive.org/",
-      "tags": [
-        "存档"
-      ],
-      "description": "按时间查看已消失的网页。"
-    },
-    {
-      "title": "GitHub Vite 指南源码",
-      "url": "https://github.com/vitejs/vite/blob/main/docs/guide/index.md?plain=1&utm_source=webdirectory-maintainer-catalog&ref=personal-bookmark-portal-long-url-fixture",
-      "tags": [
-        "前端"
-      ],
-      "description": "用来检查长地址在卡片里如何折行。"
-    },
-    {
-      "title": "Node.js 文档",
-      "url": "https://nodejs.org/docs/latest/api/",
-      "tags": [
-        "文档"
-      ],
-      "description": "Node.js API 手册。"
-    },
-    {
-      "title": "Rust std",
-      "url": "https://doc.rust-lang.org/std/",
-      "tags": [
-        "文档"
-      ],
-      "description": "Rust 标准库文档。"
-    },
-    {
-      "title": "Go Documentation",
-      "url": "https://go.dev/doc/",
-      "tags": [
-        "文档"
-      ]
-    },
-    {
-      "title": "Python 文档",
-      "url": "https://docs.python.org/zh-cn/3/",
-      "tags": [
-        "文档"
-      ],
-      "description": "Python 官方中文文档。"
-    },
-    {
-      "title": "A List Apart",
-      "url": "https://alistapart.com/",
-      "tags": [
-        "博客"
-      ],
-      "description": "内容结构、可访问性与设计写作。"
-    },
-    {
-      "title": "NN/g",
-      "url": "https://www.nngroup.com/articles/",
-      "tags": [
-        "设计"
-      ],
-      "description": "可用性研究与界面启发式。"
-    },
-    {
-      "title": "WCAG 2.2",
-      "url": "https://www.w3.org/TR/WCAG22/",
-      "tags": [
-        "参考"
-      ],
-      "description": "Web 内容无障碍指南。"
-    },
-    {
-      "title": "Fontsource",
-      "url": "https://fontsource.org/",
-      "tags": [
-        "设计"
-      ],
-      "description": "可自托管的开源字体包。"
-    },
-    {
-      "title": "MDN HTTP 概述",
-      "url": "https://developer.mozilla.org/zh-CN/docs/Web/HTTP",
-      "tags": [
-        "文档"
-      ],
-      "description": "HTTP 协议中文概述。"
-    },
-    {
-      "title": "JSON Schema",
-      "url": "https://json-schema.org/",
-      "tags": [
-        "参考"
-      ]
-    },
-    {
-      "title": "esbuild",
-      "url": "https://esbuild.github.io/",
+      "title": "CodeKey Run",
+      "url": "https://ckey.run/",
       "tags": [
         "工具"
       ],
-      "description": "极快的 JS 打包器，常被其他工具内嵌。"
+      "description": "JetBrains一键激活"
+    },
+    {
+      "title": "EDU优惠导航",
+      "url": "https://nav.edumails.cn/",
+      "tags": [
+        "邮箱",
+        "参考"
+      ],
+      "description": "学生优惠资源导航"
+    },
+    {
+      "title": "博客徽章与更新",
+      "url": "https://astro.jacksblog-1j5.pages.dev/posts/badge-and-blog-workflow/",
+      "tags": [
+        "博客"
+      ],
+      "description": "博客访客徽章流程"
+    },
+    {
+      "title": "JacksBlog",
+      "url": "https://jackchou00.com/",
+      "tags": [
+        "博客"
+      ],
+      "description": "色彩科学个人博客"
+    },
+    {
+      "title": "杀毒软件汇总",
+      "url": "https://docs.qq.com/doc/DSU9mbmt5SHp2YmFS",
+      "tags": [
+        "参考"
+      ],
+      "description": "杀毒软件选择汇总"
+    },
+    {
+      "title": "PORTAL BENTO",
+      "url": "https://webdirectory.vercel.app/",
+      "tags": [
+        "个人"
+      ],
+      "description": "便当网格书签导航"
+    },
+    {
+      "title": "每日汇总",
+      "url": "https://app.yinxiang.com/fx/38af3141-13e8-4e1b-9ec6-b3d49b312526",
+      "tags": [
+        "个人"
+      ]
+    },
+    {
+      "title": "城市租房生存指南",
+      "url": "https://zufang.ababtools.com/",
+      "tags": [
+        "参考"
+      ],
+      "description": "租房避坑省钱手册"
+    },
+    {
+      "title": "Evan 的技术笔记",
+      "url": "https://dev.norixel.com/",
+      "tags": [
+        "博客"
+      ],
+      "description": "全栈与运维笔记"
+    },
+    {
+      "title": "独立开发域名指南",
+      "url": "https://jonssonyan.com/blog/indie-dev-domain-guide/",
+      "tags": [
+        "参考"
+      ],
+      "description": "独立开发买域名"
+    },
+    {
+      "title": "RyanVan 最新",
+      "url": "https://ryanvan.com/latest",
+      "tags": [
+        "博客"
+      ],
+      "description": "AI与服务器博客"
+    },
+    {
+      "title": "Typora 安装包",
+      "url": "https://wwaud.lanzoul.com/iYMW6no822j",
+      "tags": [
+        "工具"
+      ],
+      "description": "Typora安装包"
+    },
+    {
+      "title": "Z-Library",
+      "url": "https://z-library.sk/",
+      "tags": [
+        "参考"
+      ],
+      "description": "电子书文献图书馆"
+    },
+    {
+      "title": "林民亨",
+      "url": "https://lmh.loven7.com/#/",
+      "tags": [
+        "个人",
+        "设计"
+      ],
+      "description": "创意开发界面设计"
+    },
+    {
+      "title": "Apple 充值卡兑换",
+      "url": "https://support.apple.com/zh-cn/118242?device-type=windows-pc",
+      "tags": [
+        "参考"
+      ],
+      "description": "Apple充值卡兑换"
+    },
+    {
+      "title": "七影寻光",
+      "url": "https://movie.pearapi.ai/",
+      "tags": [
+        "影视"
+      ],
+      "description": "影视导航"
+    },
+    {
+      "title": "X",
+      "url": "https://x.com/home",
+      "tags": [
+        "资讯"
+      ],
+      "description": "X动态首页"
     }
   ]
 }
