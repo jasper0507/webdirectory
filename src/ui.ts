@@ -5,10 +5,6 @@ import {
   type TagSummary,
 } from './catalog.ts'
 
-export function hallOptionId(index: number, prefix = 'hall-option'): string {
-  return `${prefix}-${String(index)}`
-}
-
 export function fillIdentity(root: ParentNode, identity: SiteIdentity): void {
   root.querySelectorAll('[data-wordmark]').forEach((node) => {
     node.textContent = identity.wordmark
@@ -56,127 +52,6 @@ export function renderSevenWords(
     fragment.append(button)
   }
   container.replaceChildren(fragment)
-}
-
-export type HallRow =
-  | { kind: 'tag'; tag: TagSummary }
-  | { kind: 'title'; entry: BookmarkEntry }
-
-export type HallSubmitAction =
-  | { kind: 'open'; url: string }
-  | { kind: 'shelf'; query: string }
-  | { kind: 'tag'; tag: string }
-
-export function flattenHallRows(tags: TagSummary[], titles: BookmarkEntry[]): HallRow[] {
-  return [
-    ...tags.map((tag) => ({ kind: 'tag' as const, tag })),
-    ...titles.map((entry) => ({ kind: 'title' as const, entry })),
-  ]
-}
-
-export function resolveHallSubmit(
-  rows: HallRow[],
-  selectedIndex: number,
-  query: string,
-): HallSubmitAction {
-  const selected = selectedIndex >= 0 ? rows[selectedIndex] : undefined
-  if (selected?.kind === 'tag') return { kind: 'tag', tag: selected.tag.name }
-  if (selected?.kind === 'title') return { kind: 'open', url: selected.entry.url }
-  return { kind: 'shelf', query: query.trim() }
-}
-
-export function renderHallList(
-  container: HTMLElement,
-  tags: TagSummary[],
-  titles: BookmarkEntry[],
-  selectedIndex: number,
-  onTag: (tag: string) => void,
-  onTitle: (entry: BookmarkEntry) => void,
-  optionPrefix = 'hall-option',
-): HallRow[] {
-  const rows = flattenHallRows(tags, titles)
-  if (rows.length === 0) {
-    container.replaceChildren()
-    container.hidden = true
-    return rows
-  }
-
-  const fragment = document.createDocumentFragment()
-  if (tags.length > 0) {
-    fragment.append(hallGroup('标签', () =>
-      tags.map((tag, index) =>
-        hallButton(
-          'tag',
-          index,
-          selectedIndex,
-          tag.name,
-          String(tag.count),
-          () => onTag(tag.name),
-          optionPrefix,
-        ),
-      ),
-    ))
-  }
-  if (titles.length > 0) {
-    fragment.append(hallGroup('题名', () =>
-      titles.map((entry, index) => {
-        const absolute = tags.length + index
-        return hallButton(
-          'title',
-          absolute,
-          selectedIndex,
-          entry.title,
-          entry.displayUrl,
-          () => onTitle(entry),
-          optionPrefix,
-        )
-      }),
-    ))
-  }
-  container.replaceChildren(fragment)
-  container.hidden = false
-  return rows
-}
-
-function hallGroup(label: string, options: () => HTMLButtonElement[]): HTMLDivElement {
-  const group = document.createElement('div')
-  group.role = 'group'
-  group.setAttribute('aria-label', label)
-  const caption = document.createElement('p')
-  caption.className = 'hall-group-label'
-  caption.textContent = label
-  caption.setAttribute('aria-hidden', 'true')
-  group.append(caption, ...options())
-  return group
-}
-
-function hallButton(
-  kind: string,
-  index: number,
-  selectedIndex: number,
-  title: string,
-  meta: string,
-  onClick: () => void,
-  optionPrefix: string,
-): HTMLButtonElement {
-  const button = document.createElement('button')
-  button.type = 'button'
-  button.id = hallOptionId(index, optionPrefix)
-  button.role = 'option'
-  button.tabIndex = -1
-  button.setAttribute('aria-selected', index === selectedIndex ? 'true' : 'false')
-  button.className = index === selectedIndex ? 'hall-item is-active' : 'hall-item'
-  button.dataset.kind = kind
-  button.dataset.index = String(index)
-  const name = document.createElement('span')
-  name.className = 'hall-item-title'
-  name.textContent = title
-  const aside = document.createElement('span')
-  aside.className = 'hall-item-meta'
-  aside.textContent = meta
-  button.append(name, aside)
-  button.addEventListener('click', onClick)
-  return button
 }
 
 function bookmarkCard(

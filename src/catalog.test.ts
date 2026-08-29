@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   fold,
   groupEntriesByPrimaryTag,
-  hallSuggestions,
   loadPortalSource,
   normalizeTag,
   normalizeTitle,
@@ -238,18 +237,6 @@ describe('searchEntries', () => {
   it('标题精确优先于较弱命中', () => {
     const found = searchEntries(sample, parseShelfQuery('Vite'))
     expect(found[0]?.title).toBe('Vite')
-  })
-})
-
-describe('hallSuggestions', () => {
-  it('空输入不列列表', () => {
-    expect(hallSuggestions(sample, summarizeTags(sample), '  ')).toEqual({ tags: [], titles: [] })
-  })
-
-  it('列出匹配标签和题名', () => {
-    const suggestions = hallSuggestions(sample, summarizeTags(sample), 'go')
-    expect(suggestions.tags.map((tag) => tag.name)).toEqual(['go', 'gorm'])
-    expect(suggestions.titles[0]?.title).toBe('GORM 文档')
   })
 })
 

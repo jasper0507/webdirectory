@@ -55,7 +55,6 @@ export type ShelfQuery = {
 
 const TITLE_COMPARISON = 'NFC'
 export const SEVEN_WORDS_LIMIT = 7
-export const HALL_LIST_LIMIT = 7
 
 export const DEFAULT_IDENTITY: SiteIdentity = {
   wordmark: '七卷拾光',
@@ -348,28 +347,6 @@ export function searchEntries(entries: BookmarkEntry[], query: ShelfQuery): Book
   return tagged
     .filter((entry) => scoreByUrl.has(entry.url))
     .sort((a, b) => (scoreByUrl.get(a.url) ?? 1) - (scoreByUrl.get(b.url) ?? 1))
-}
-
-export function matchingTags(tags: TagSummary[], input: string): TagSummary[] {
-  const needle = fold(input.trim())
-  if (!needle) return []
-  return tags.filter((tag) => fold(tag.name).includes(needle))
-}
-
-export function hallSuggestions(
-  entries: BookmarkEntry[],
-  tags: TagSummary[],
-  input: string,
-): { tags: TagSummary[]; titles: BookmarkEntry[] } {
-  const needle = input.trim()
-  if (!needle) return { tags: [], titles: [] }
-  const query = parseShelfQuery(needle)
-  const tagsFound = matchingTags(tags, needle).slice(0, 3)
-  const titles = searchEntries(entries, query).slice(0, HALL_LIST_LIMIT - tagsFound.length)
-  return {
-    tags: tagsFound,
-    titles,
-  }
 }
 
 export async function loadPortalSource(

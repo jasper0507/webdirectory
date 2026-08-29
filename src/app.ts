@@ -1,6 +1,5 @@
 import {
   groupEntriesByPrimaryTag,
-  hallSuggestions,
   loadPortalSource,
   parseShelfQuery,
   queryIsEmpty,
@@ -8,6 +7,7 @@ import {
   sevenWords,
   type Catalog,
 } from './catalog.ts'
+import { wireQuestion, type QuestionAction } from './question.ts'
 import { hallPath, parseRoute, shelfPath, type AppRoute } from './routes.ts'
 import {
   applyPaper,
@@ -19,14 +19,9 @@ import {
 import {
   cancelShelfPaint,
   fillIdentity,
-  flattenHallRows,
-  hallOptionId,
   renderCards,
-  renderHallList,
   renderSevenWords,
-  resolveHallSubmit,
   showPanel,
-  type HallRow,
 } from './ui.ts'
 
 const SOURCE_URL = '/portal.json'
@@ -36,13 +31,9 @@ type AppUi = {
   shelf: HTMLElement
   searchForm: HTMLFormElement
   search: HTMLInputElement
-  hallList: HTMLElement
-  hallEmpty: HTMLElement
   sevenWords: HTMLElement
   shelfForm: HTMLFormElement
   shelfSearch: HTMLInputElement
-  shelfList: HTMLElement
-  shelfEmpty: HTMLElement
   shelfCount: HTMLElement
   shelfStatus: HTMLElement
   results: HTMLElement
@@ -54,8 +45,8 @@ type AppUi = {
 }
 
 let catalog: Catalog | null = null
-let suggestRows: HallRow[] = []
-let selectedSuggest = -1
+let resetHallQuestion: ReturnType<typeof wireQuestion>
+let resetShelfQuestion: ReturnType<typeof wireQuestion>
 
 function must<T extends Element>(root: ParentNode, selector: string): T {
   const node = root.querySelector(selector)
@@ -69,13 +60,9 @@ function queryUi(): AppUi {
     shelf: must(document, '#view-shelf'),
     searchForm: must(document, '#search-form'),
     search: must(document, '#q'),
-    hallList: must(document, '#hall-list'),
-    hallEmpty: must(document, '#hall-empty'),
     sevenWords: must(document, '#seven-words'),
     shelfForm: must(document, '#shelf-form'),
     shelfSearch: must(document, '#shelf-q'),
-    shelfList: must(document, '#shelf-list'),
-    shelfEmpty: must(document, '#shelf-empty'),
     shelfCount: must(document, '#shelf-count'),
     shelfStatus: must(document, '#shelf-status'),
     results: must(document, '#shelf-results'),
@@ -142,103 +129,16 @@ function openEntry(url: string): void {
   window.open(url, '_blank', 'noopener,noreferrer')
 }
 
-function applySubmit(action: ReturnType<typeof resolveHallSubmit>): void {
+function applySubmit(action: QuestionAction): void {
   if (action.kind === 'open') openEntry(action.url)
   else if (action.kind === 'tag') go(shelfPath('', [action.tag]))
   else go(shelfPath(action.query))
 }
 
-function setCombobox(input: HTMLInputElement, optionPrefix: string): void {
-  const listOpen = suggestRows.length > 0
-  input.setAttribute('aria-expanded', listOpen ? 'true' : 'false')
-  if (listOpen && selectedSuggest >= 0) {
-    input.setAttribute('aria-activedescendant', hallOptionId(selectedSuggest, optionPrefix))
-  } else {
-    input.removeAttribute('aria-activedescendant')
-  }
-}
-
-function hideSuggest(list: HTMLElement, empty: HTMLElement, input: HTMLInputElement): void {
-  suggestRows = []
-  selectedSuggest = -1
-  renderHallList(list, [], [], -1, () => undefined, () => undefined)
-  empty.hidden = true
-  input.setAttribute('aria-expanded', 'false')
-  input.removeAttribute('aria-activedescendant')
-}
-
-function paintSuggest(
-  input: HTMLInputElement,
-  list: HTMLElement,
-  empty: HTMLElement,
-  optionPrefix: string,
-): void {
-  if (!catalog) {
-    hideSuggest(list, empty, input)
-    return
-  }
-  const asking = input.value.trim() !== ''
-  const suggestions = asking
-    ? hallSuggestions(catalog.entries, catalog.tags, input.value)
-    : { tags: [], titles: [] }
-  suggestRows = flattenHallRows(suggestions.tags, suggestions.titles)
-  if (selectedSuggest >= suggestRows.length) selectedSuggest = suggestRows.length - 1
-  renderHallList(
-    list,
-    suggestions.tags,
-    suggestions.titles,
-    selectedSuggest,
-    (tag) => applySubmit({ kind: 'tag', tag }),
-    (entry) => applySubmit({ kind: 'open', url: entry.url }),
-    optionPrefix,
-  )
-  empty.hidden = !(asking && suggestRows.length === 0)
-  setCombobox(input, optionPrefix)
-}
-
-function updateHallList(ui: AppUi): void {
+function updateHallChrome(ui: AppUi): void {
   const asking = ui.search.value.trim() !== ''
   ui.hall.classList.toggle('is-asking', asking)
   ui.sevenWords.hidden = asking
-  paintSuggest(ui.search, ui.hallList, ui.hallEmpty, 'hall-option')
-}
-
-function updateShelfList(ui: AppUi): void {
-  paintSuggest(ui.shelfSearch, ui.shelfList, ui.shelfEmpty, 'shelf-option')
-}
-
-function handleSearchKeys(
-  event: KeyboardEvent,
-  input: HTMLInputElement,
-  refresh: () => void,
-): void {
-  if (event.key === 'Escape') {
-    event.preventDefault()
-    if (selectedSuggest >= 0) {
-      selectedSuggest = -1
-      refresh()
-      return
-    }
-    if (input.value) {
-      input.value = ''
-      refresh()
-    }
-    return
-  }
-  if (event.key === 'ArrowDown' && suggestRows.length > 0) {
-    event.preventDefault()
-    selectedSuggest = Math.min(suggestRows.length - 1, selectedSuggest + 1)
-    refresh()
-  }
-  if (event.key === 'ArrowUp' && suggestRows.length > 0) {
-    event.preventDefault()
-    selectedSuggest = Math.max(0, selectedSuggest - 1)
-    refresh()
-  }
-  if (event.key === 'Enter' && selectedSuggest >= 0) {
-    event.preventDefault()
-    applySubmit(resolveHallSubmit(suggestRows, selectedSuggest, input.value))
-  }
 }
 
 function setSkip(href: string): void {
@@ -259,19 +159,18 @@ function renderHall(ui: AppUi): void {
   ui.shelf.hidden = true
   setSkip('#q')
   document.getElementById('stars')?.removeAttribute('hidden')
-  ui.search.value = ''
-  selectedSuggest = -1
+  resetHallQuestion()
+  resetShelfQuestion()
   ui.search.blur()
-  hideSuggest(ui.shelfList, ui.shelfEmpty, ui.shelfSearch)
   if (!catalog) {
-    updateHallList(ui)
+    updateHallChrome(ui)
     return
   }
   fillIdentity(document, catalog.identity)
   document.title = catalog.identity.wordmark
   ui.search.placeholder = catalog.identity.placeholder
   renderSevenWords(ui.sevenWords, sevenWords(catalog.tags), (tag) => applySubmit({ kind: 'tag', tag }))
-  updateHallList(ui)
+  updateHallChrome(ui)
 }
 
 function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>): void {
@@ -286,10 +185,9 @@ function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>)
   }
   fillIdentity(document, catalog.identity)
   document.title = `${catalog.identity.wordmark} · 货架`
-  ui.shelfSearch.value = route.query
   ui.shelfSearch.placeholder = catalog.identity.placeholder
-  hideSuggest(ui.hallList, ui.hallEmpty, ui.search)
-  hideSuggest(ui.shelfList, ui.shelfEmpty, ui.shelfSearch)
+  resetHallQuestion()
+  resetShelfQuestion(route.query)
 
   const query = parseShelfQuery(route.query, route.tags)
   const entries = searchEntries(catalog.entries, query)
@@ -356,6 +254,9 @@ async function hydrate(ui: AppUi): Promise<void> {
 }
 
 function wire(ui: AppUi): void {
+  resetHallQuestion = wireQuestion(ui.searchForm, () => catalog, applySubmit)
+  resetShelfQuestion = wireQuestion(ui.shelfForm, () => catalog, applySubmit)
+
   const initialPaper = readPaper(storage())
   applyPaper(initialPaper, { document, storage: storage() })
   setPaperChrome(initialPaper, false)
@@ -371,32 +272,8 @@ function wire(ui: AppUi): void {
     button.addEventListener('click', () => go(hallPath()))
   })
 
-  ui.searchForm.addEventListener('submit', (event) => {
-    event.preventDefault()
-    applySubmit(resolveHallSubmit(suggestRows, -1, ui.search.value))
-  })
-
   ui.search.addEventListener('input', () => {
-    selectedSuggest = -1
-    updateHallList(ui)
-  })
-
-  ui.search.addEventListener('keydown', (event) => {
-    handleSearchKeys(event, ui.search, () => updateHallList(ui))
-  })
-
-  ui.shelfForm.addEventListener('submit', (event) => {
-    event.preventDefault()
-    applySubmit(resolveHallSubmit(suggestRows, -1, ui.shelfSearch.value))
-  })
-
-  ui.shelfSearch.addEventListener('input', () => {
-    selectedSuggest = -1
-    updateShelfList(ui)
-  })
-
-  ui.shelfSearch.addEventListener('keydown', (event) => {
-    handleSearchKeys(event, ui.shelfSearch, () => updateShelfList(ui))
+    updateHallChrome(ui)
   })
 
   document.addEventListener('keydown', (event) => {

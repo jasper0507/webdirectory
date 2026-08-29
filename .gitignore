@@ -15,3 +15,8 @@ test-results
 playwright-report
 .env
 .env.*
+
+# Local architecture and accessibility review artifacts
+/tmp/
+/hall.yaml
+/shelf-all.yaml
