@@ -104,20 +104,12 @@ function bookmarkCard(
 
 export const CARD_PAINT_BATCH = 48
 
-const shelfPaints = new WeakMap<HTMLElement, number>()
+let shelfPaintFrame: number | undefined
 
-export function cancelShelfPaint(container: HTMLElement): void {
-  const nodes: HTMLElement[] = [container]
-  container.querySelectorAll('.result-grid').forEach((node) => {
-    if (node instanceof HTMLElement) nodes.push(node)
-  })
-  for (const node of nodes) {
-    const id = shelfPaints.get(node)
-    if (id !== undefined && typeof cancelAnimationFrame === 'function') {
-      cancelAnimationFrame(id)
-    }
-    shelfPaints.delete(node)
-  }
+export function cancelShelfPaint(): void {
+  if (shelfPaintFrame === undefined) return
+  cancelAnimationFrame(shelfPaintFrame)
+  shelfPaintFrame = undefined
 }
 
 function paintShelf(
@@ -127,7 +119,6 @@ function paintShelf(
   onTag: (tag: string) => void,
   boundTags: string[],
 ): void {
-  cancelShelfPaint(container)
   container.replaceChildren()
   let index = 0
   const step = (): void => {
@@ -141,14 +132,10 @@ function paintShelf(
     }
     container.append(fragment)
     if (index < entries.length) {
-      if (typeof requestAnimationFrame === 'function') {
-        shelfPaints.set(container, requestAnimationFrame(step))
-      } else {
-        step()
-      }
+      shelfPaintFrame = requestAnimationFrame(step)
       return
     }
-    shelfPaints.delete(container)
+    shelfPaintFrame = undefined
   }
   step()
 }
@@ -184,7 +171,7 @@ export function renderCards(
   onTag: (tag: string) => void,
   boundTags: string[] = [],
 ): void {
-  cancelShelfPaint(container)
+  cancelShelfPaint()
   container.replaceChildren()
   renderResultTags(container, summarizeEntryTags(entries), boundTags, onTag)
   const grid = document.createElement('div')
@@ -194,7 +181,7 @@ export function renderCards(
 }
 
 export function showPanel(container: HTMLElement, template: HTMLTemplateElement): HTMLElement {
-  cancelShelfPaint(container)
+  cancelShelfPaint()
   const node = template.content.firstElementChild
   if (!node) throw new Error('状态模板为空')
   const panel = node.cloneNode(true) as HTMLElement

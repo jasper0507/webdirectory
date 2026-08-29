@@ -2,9 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   applyPaper,
   isPaperName,
-  nextPaper,
   PAPER_STORAGE_KEY,
-  paperLabel,
   readPaper,
   toggleStoredPaper,
 } from './theme.ts'
@@ -43,8 +41,6 @@ describe('paper', () => {
     }
     expect(toggleStoredPaper({ document, storage })).toBe('night')
     expect(document.documentElement.dataset.paper).toBe('night')
-    expect(nextPaper('night')).toBe('day')
-    expect(paperLabel('night')).toBe('夜间')
     applyPaper('day', { document, storage })
     expect(document.documentElement.style.colorScheme).toBe('light')
   })

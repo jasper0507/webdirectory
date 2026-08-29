@@ -31,17 +31,9 @@ export type Catalog = {
   tags: TagSummary[]
 }
 
-export type ParseSuccess = {
-  ok: true
-  catalog: Catalog
-}
-
-export type ParseFailure = {
-  ok: false
-  issues: PortalSourceIssue[]
-}
-
-export type ParseResult = ParseSuccess | ParseFailure
+export type ParseResult =
+  | { ok: true; catalog: Catalog }
+  | { ok: false; issues: PortalSourceIssue[] }
 
 export type PortalSourceIssue = {
   path: string
@@ -96,13 +88,6 @@ function standardizeUrl(url: string): string | null {
   try {
     const parsed = new URL(url.trim())
     if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null
-    parsed.hostname = parsed.hostname.toLowerCase()
-    if (
-      (parsed.protocol === 'http:' && parsed.port === '80') ||
-      (parsed.protocol === 'https:' && parsed.port === '443')
-    ) {
-      parsed.port = ''
-    }
     if (parsed.pathname.length > 1 && parsed.pathname.endsWith('/')) {
       parsed.pathname = parsed.pathname.replace(/\/+$/, '')
       if (parsed.pathname === '') parsed.pathname = '/'
@@ -115,24 +100,15 @@ function standardizeUrl(url: string): string | null {
 }
 
 function displayUrl(url: string): string {
-  try {
-    const parsed = new URL(url)
-    const host = parsed.hostname
-    const path = parsed.pathname === '/' ? '' : parsed.pathname
-    const search = parsed.search
-    return `${host}${path}${search}`
-  } catch {
-    return url
-  }
+  const parsed = new URL(url)
+  const host = parsed.hostname
+  const path = parsed.pathname === '/' ? '' : parsed.pathname
+  return `${host}${path}${parsed.search}`
 }
 
 function asObjectRecord(value: unknown): Record<string, unknown> | null {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return null
   return value as Record<string, unknown>
-}
-
-function hasOwn(record: Record<string, unknown>, key: string): boolean {
-  return Object.prototype.hasOwnProperty.call(record, key)
 }
 
 function pointer(path: string, part: string): string {
@@ -169,7 +145,7 @@ function readRequiredText(
   normalize: (value: string) => string = (value) => value.trim(),
 ): string | null {
   const fieldPath = pointer(path, key)
-  if (!hasOwn(record, key)) {
+  if (!Object.hasOwn(record, key)) {
     addIssue(issues, fieldPath, 'missing-field', '缺少必填字段。')
     return null
   }
@@ -204,7 +180,7 @@ function readTags(
   issues: PortalSourceIssue[],
 ): string[] | null {
   const tagsPath = pointer(path, 'tags')
-  if (!hasOwn(record, 'tags')) {
+  if (!Object.hasOwn(record, 'tags')) {
     addIssue(issues, tagsPath, 'missing-field', '缺少必填字段。')
     return null
   }
@@ -260,7 +236,7 @@ function parseEntry(
   const tags = readTags(record, path, issues)
 
   let description: string | undefined
-  if (hasOwn(record, 'description')) {
+  if (Object.hasOwn(record, 'description')) {
     if (typeof record.description !== 'string') {
       addIssue(issues, pointer(path, 'description'), 'invalid-type', '必须是字符串。')
     } else {
@@ -279,43 +255,21 @@ function parseEntry(
 }
 
 function summarizeTags(entries: BookmarkEntry[]): TagSummary[] {
-  const order: string[] = []
   const counts = new Map<string, number>()
   for (const entry of entries) {
-    for (const tag of entry.tags) {
-      if (!counts.has(tag)) order.push(tag)
+    for (const tag of new Set(entry.tags)) {
       counts.set(tag, (counts.get(tag) ?? 0) + 1)
     }
   }
-  return order.map((name) => ({ name, count: counts.get(name) ?? 0 }))
+  return [...counts].map(([name, count]) => ({ name, count }))
 }
 
 export function sevenWords(tags: TagSummary[]): TagSummary[] {
-  return [...tags]
-    .sort((a, b) => b.count - a.count || tags.indexOf(a) - tags.indexOf(b))
-    .slice(0, SEVEN_WORDS_LIMIT)
+  return [...tags].sort((a, b) => b.count - a.count).slice(0, SEVEN_WORDS_LIMIT)
 }
 
 export function summarizeEntryTags(entries: BookmarkEntry[]): TagSummary[] {
-  const counts = new Map<string, number>()
-  const order: string[] = []
-  for (const entry of entries) {
-    const seen = new Set<string>()
-    for (const tag of entry.tags) {
-      if (seen.has(tag)) continue
-      seen.add(tag)
-      const prev = counts.get(tag)
-      if (prev === undefined) {
-        order.push(tag)
-        counts.set(tag, 1)
-      } else {
-        counts.set(tag, prev + 1)
-      }
-    }
-  }
-  return order
-    .map((name) => ({ name, count: counts.get(name) ?? 0 }))
-    .sort((a, b) => b.count - a.count || order.indexOf(a.name) - order.indexOf(b.name))
+  return summarizeTags(entries).sort((a, b) => b.count - a.count)
 }
 
 function readPair(
@@ -325,7 +279,7 @@ function readPair(
   issues: PortalSourceIssue[],
 ): [string, string] | null {
   const fieldPath = pointer(path, key)
-  if (!hasOwn(record, key)) {
+  if (!Object.hasOwn(record, key)) {
     addIssue(issues, fieldPath, 'missing-field', '缺少必填字段。')
     return null
   }
@@ -490,7 +444,6 @@ export function parsePortalSource(jsonText: string): ParseResult {
 const SEARCH_FUSE_OPTIONS = {
   keys: ['title', 'description', 'tags'] as Array<'title' | 'description' | 'tags'>,
   threshold: 0.4,
-  includeScore: true,
   minMatchCharLength: 1,
 }
 
@@ -512,24 +465,11 @@ export function parseShelfQuery(raw: string, tagConstraints: string[] = []): She
   }
 }
 
-export function queryIsEmpty(query: ShelfQuery): boolean {
-  return query.raw === '' && query.tags.length === 0
-}
-
 export function searchEntries(entries: BookmarkEntry[], query: ShelfQuery): BookmarkEntry[] {
-  const tagged =
-    query.tags.length === 0
-      ? entries
-      : entries.filter((entry) => query.tags.every((tag) => entry.tags.includes(tag)))
-  if (!query.raw) return tagged
-
-  const fuse = fuseFor(entries)
-  const scoreByUrl = new Map(
-    fuse.search(query.raw).map((result) => [result.item.url, result.score ?? 1]),
-  )
-  return tagged
-    .filter((entry) => scoreByUrl.has(entry.url))
-    .sort((a, b) => (scoreByUrl.get(a.url) ?? 1) - (scoreByUrl.get(b.url) ?? 1))
+  const found = query.raw ? fuseFor(entries).search(query.raw).map(({ item }) => item) : entries
+  return query.tags.length === 0
+    ? found
+    : found.filter((entry) => query.tags.every((tag) => entry.tags.includes(tag)))
 }
 
 export async function loadPortalSource(

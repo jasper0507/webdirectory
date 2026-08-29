@@ -1,12 +1,6 @@
-export type HallRoute = { name: 'hall' }
-
-export type ShelfRoute = {
-  name: 'shelf'
-  query: string
-  tags: string[]
-}
-
-export type AppRoute = HallRoute | ShelfRoute
+export type AppRoute =
+  | { name: 'hall' }
+  | { name: 'shelf'; query: string; tags: string[] }
 
 function firstTag(values: string[]): string[] {
   for (const value of values) {
@@ -27,10 +21,6 @@ export function parseRoute(url: URL): AppRoute {
     }
   }
   return { name: 'hall' }
-}
-
-export function hallPath(): string {
-  return '/'
 }
 
 export function shelfPath(query = '', tags: string[] = []): string {

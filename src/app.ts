@@ -1,16 +1,14 @@
 import {
   loadPortalSource,
   parseShelfQuery,
-  queryIsEmpty,
   searchEntries,
   sevenWords,
   type Catalog,
 } from './catalog.ts'
 import { wireQuestion, type QuestionAction } from './question.ts'
-import { hallPath, parseRoute, shelfPath, type AppRoute } from './routes.ts'
+import { parseRoute, shelfPath, type AppRoute } from './routes.ts'
 import {
   applyPaper,
-  paperLabel,
   readPaper,
   toggleStoredPaper,
   type PaperName,
@@ -81,10 +79,6 @@ function storage(): Storage | null {
   }
 }
 
-function themeColor(paper: PaperName): string {
-  return paper === 'night' ? '#1c1e22' : '#eef0f2'
-}
-
 function setPaperChrome(paper: PaperName, announce: boolean): void {
   document.querySelectorAll<HTMLButtonElement>('[data-paper-toggle]').forEach((button) => {
     const next = paper === 'day' ? '夜间' : '白日'
@@ -92,11 +86,14 @@ function setPaperChrome(paper: PaperName, announce: boolean): void {
     button.setAttribute('aria-label', `切换到${next}纸`)
     button.title = `切换到${next}纸`
   })
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColor(paper))
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute('content', paper === 'night' ? '#1c1e22' : '#eef0f2')
   const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
   if (icon) icon.href = paper === 'night' ? '/favicon-night.svg' : '/favicon.svg'
-  document.documentElement.style.colorScheme = paper === 'night' ? 'dark' : 'light'
-  if (announce) document.querySelector('#live-note')!.textContent = `已切换到${paperLabel(paper)}纸`
+  if (announce) {
+    document.querySelector('#live-note')!.textContent = `已切换到${paper === 'day' ? '白日' : '夜间'}纸`
+  }
 }
 
 function paintStars(): void {
@@ -116,20 +113,14 @@ function paintStars(): void {
 }
 
 function go(path: string): void {
-  if (`${location.pathname}${location.search}` === path) {
-    renderRoute(parseRoute(new URL(path, location.origin)))
-    return
+  if (`${location.pathname}${location.search}` !== path) {
+    history.pushState({}, '', path)
   }
-  history.pushState({}, '', path)
   renderRoute(parseRoute(new URL(path, location.origin)))
 }
 
-function openEntry(url: string): void {
-  window.open(url, '_blank', 'noopener,noreferrer')
-}
-
 function applySubmit(action: QuestionAction): void {
-  if (action.kind === 'open') openEntry(action.url)
+  if (action.kind === 'open') window.open(action.url, '_blank', 'noopener,noreferrer')
   else if (action.kind === 'tag') go(shelfPath('', [action.tag]))
   else go(shelfPath(action.query))
 }
@@ -146,13 +137,12 @@ function setSkip(href: string): void {
 }
 
 function clearShelfFailure(ui: AppUi): void {
-  ui.shelf.classList.remove('is-failed')
   ui.shelfCount.hidden = false
   ui.shelfForm.hidden = false
 }
 
 function renderHall(ui: AppUi): void {
-  cancelShelfPaint(ui.results)
+  cancelShelfPaint()
   clearShelfFailure(ui)
   ui.hall.hidden = false
   ui.shelf.hidden = true
@@ -206,7 +196,10 @@ function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>)
     return
   }
 
-  const label = queryIsEmpty(query) ? '全部站点' : `找到 ${String(entries.length)} 个站点`
+  const label =
+    query.raw === '' && query.tags.length === 0
+      ? '全部站点'
+      : `找到 ${String(entries.length)} 个站点`
   ui.shelfStatus.textContent = label
   renderCards(ui.results, ui.cardTemplate, entries, onTag, query.tags)
 }
@@ -218,10 +211,8 @@ function renderRoute(route: AppRoute): void {
 }
 
 function showLoadError(ui: AppUi, message: string): void {
-  cancelShelfPaint(ui.results)
   ui.hall.hidden = true
   ui.shelf.hidden = false
-  ui.shelf.classList.add('is-failed')
   ui.shelfCount.hidden = true
   ui.shelfForm.hidden = true
   ui.shelfStatus.textContent = message
@@ -265,7 +256,7 @@ function wire(ui: AppUi): void {
   })
 
   document.querySelectorAll('[data-home]').forEach((button) => {
-    button.addEventListener('click', () => go(hallPath()))
+    button.addEventListener('click', () => go('/'))
   })
 
   ui.search.addEventListener('input', () => {

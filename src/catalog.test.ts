@@ -4,7 +4,6 @@ import {
   loadPortalSource,
   parsePortalSource,
   parseShelfQuery,
-  queryIsEmpty,
   searchEntries,
   sevenWords,
   summarizeEntryTags,
@@ -197,10 +196,7 @@ describe('summarizeEntryTags', () => {
 })
 
 describe('searchEntries', () => {
-  it('空白提问视为空，标签仍算有约束', () => {
-    expect(queryIsEmpty(parseShelfQuery('  '))).toBe(true)
-    expect(queryIsEmpty(parseShelfQuery('vite'))).toBe(false)
-    expect(queryIsEmpty(parseShelfQuery('', ['go']))).toBe(false)
+  it('空白提问保持门户源顺序', () => {
     expect(searchEntries(sample, parseShelfQuery(''))).toBe(sample)
   })
 

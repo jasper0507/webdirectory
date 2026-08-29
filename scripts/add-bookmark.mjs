@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { open, readFile, rename, stat, unlink } from 'node:fs/promises'
+import { open, readFile, rename, rm, stat } from 'node:fs/promises'
 import { basename, dirname, resolve } from 'node:path'
 import { stdin, stdout } from 'node:process'
 import { createInterface } from 'node:readline/promises'
@@ -43,11 +43,7 @@ export async function writePortalSource(path, expected, next) {
     await rename(temporary, path)
   } finally {
     await handle?.close()
-    try {
-      await unlink(temporary)
-    } catch (error) {
-      if (error?.code !== 'ENOENT') throw error
-    }
+    await rm(temporary, { force: true })
   }
 }
 

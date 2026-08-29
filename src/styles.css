@@ -25,17 +25,14 @@
   --font-sans: "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", "Archive Sans Fallback", "Noto Sans CJK SC", -apple-system, sans-serif;
   --font-serif: "Songti SC", "STSong", "SimSun", "Archive Serif Fallback", Georgia, "Times New Roman", serif;
   --color-ink: #eef0f2;
-  --color-ink-3: #f6f7f9;
   --color-cream: #1f2328;
   --color-ash: #5d646d;
   --color-ash-deep: #646b74;
   --color-gold: #a87b3f;
   --color-gold-soft: #c99a5b;
-  --color-gold-dim: #b08a52;
   --color-sheet: #f6f7f9;
   --card-line: #d8dbe0;
   --ease-royal: cubic-bezier(.22, 1, .36, 1);
-  --theme-color: #eef0f2;
   --scrollbar-thumb: color-mix(in srgb, var(--color-ash) 34%, var(--color-ink));
   --scrollbar-thumb-hover: color-mix(in srgb, var(--color-ash) 52%, var(--color-ink));
   --card-shadow:
@@ -46,13 +43,11 @@
 [data-paper="night"] {
   color-scheme: dark;
   --color-ink: #1c1e22;
-  --color-ink-3: #24262b;
   --color-cream: #eef0f2;
   --color-ash: #9aa0a8;
   --color-ash-deep: #8a9099;
   --color-sheet: #24262b;
   --card-line: #3a3d44;
-  --theme-color: #1c1e22;
   --scrollbar-thumb: color-mix(in srgb, var(--color-ash) 28%, var(--color-ink));
   --scrollbar-thumb-hover: color-mix(in srgb, var(--color-ash) 42%, var(--color-ink));
   --card-shadow:
@@ -238,10 +233,6 @@ kbd {
   display: none !important;
 }
 
-.page[hidden] {
-  display: none !important;
-}
-
 .hall {
   overflow-x: clip;
 }
@@ -297,7 +288,6 @@ kbd {
   background: none;
   border: 0;
   color: inherit;
-  padding: 0;
 }
 
 .brand-mark {
@@ -557,8 +547,6 @@ kbd {
   flex: 1;
   min-width: 0;
   height: auto;
-  border: 0;
-  background: transparent;
   outline: none;
   font-family: var(--font-serif);
   font-size: 18px;
@@ -779,7 +767,6 @@ kbd {
   font-size: 11px;
   letter-spacing: 0.15em;
   color: var(--color-ash);
-  cursor: pointer;
 }
 
 .chip::after,
@@ -976,18 +963,6 @@ kbd {
   top: 0;
   z-index: 30;
   background: var(--color-ink);
-  padding-bottom: 0;
-  border-bottom: 0;
-}
-
-.shelf.is-failed .shelf-search,
-.shelf.is-failed .shelf-count {
-  display: none;
-}
-
-.shelf.is-failed .shelf-top {
-  border-bottom: 0;
-  padding-bottom: 0;
 }
 
 .shelf-top .shelf-header {
@@ -1018,12 +993,6 @@ kbd {
   padding-inline: 0;
 }
 
-.shelf .site-footer .footer-row,
-.shelf .site-footer .hairline {
-  width: auto;
-  margin-inline: 0;
-}
-
 .result-status {
   margin: 0 0 1rem;
   color: var(--color-ash-deep);
@@ -1046,7 +1015,6 @@ kbd {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.15rem 1.25rem;
-  margin: 0;
 }
 
 .result-tags .chip {
@@ -1143,7 +1111,6 @@ kbd {
 }
 
 .card-title {
-  margin: 0;
   font-family: var(--font-serif);
   font-size: 1.12rem;
   font-weight: 400;
@@ -1156,7 +1123,6 @@ kbd {
 }
 
 .card-desc {
-  margin: 0;
   color: var(--color-ash);
   font-size: 0.9rem;
   line-height: 1.45;
@@ -1194,7 +1160,6 @@ kbd {
   letter-spacing: 0.15em;
   min-height: 0;
   padding: 0.15rem 0.1rem;
-  cursor: pointer;
 }
 
 .card-tag::before {
@@ -1227,10 +1192,6 @@ kbd {
 .card-tag.is-bound {
   color: var(--color-cream);
   opacity: 1;
-}
-
-.card-tag.is-bound::after {
-  transform: scaleX(1);
 }
 
 .state-panel {
@@ -1275,11 +1236,6 @@ kbd {
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.6s var(--ease-royal);
-}
-
-.text-action:hover,
-.text-action:focus-visible {
-  color: var(--color-cream);
 }
 
 .text-action:hover::after,
