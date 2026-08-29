@@ -11,8 +11,13 @@
     <script>
       try {
         var storedPaper = localStorage.getItem('portal-paper')
-        document.documentElement.dataset.paper = storedPaper === 'night' ? 'night' : 'day'
-        document.documentElement.style.colorScheme = storedPaper === 'night' ? 'dark' : 'light'
+        var isNight = storedPaper === 'night'
+        document.documentElement.dataset.paper = isNight ? 'night' : 'day'
+        document.documentElement.style.colorScheme = isNight ? 'dark' : 'light'
+        var theme = document.querySelector('meta[name="theme-color"]')
+        if (theme) theme.setAttribute('content', isNight ? '#1c1e22' : '#eef0f2')
+        var icon = document.querySelector('link[rel="icon"]')
+        if (icon) icon.href = isNight ? '/favicon-night.svg' : '/favicon.svg'
       } catch (error) {
         document.documentElement.dataset.paper = 'day'
       }

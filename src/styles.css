@@ -36,6 +36,11 @@
   --card-line: #d8dbe0;
   --ease-royal: cubic-bezier(.22, 1, .36, 1);
   --theme-color: #eef0f2;
+  --scrollbar-thumb: color-mix(in srgb, var(--color-ash) 34%, var(--color-ink));
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--color-ash) 52%, var(--color-ink));
+  --card-shadow:
+    0 2px 6px color-mix(in srgb, var(--color-cream) 7%, transparent),
+    0 16px 36px color-mix(in srgb, var(--color-cream) 13%, transparent);
 }
 
 [data-paper="night"] {
@@ -48,6 +53,11 @@
   --color-sheet: #24262b;
   --card-line: #3a3d44;
   --theme-color: #1c1e22;
+  --scrollbar-thumb: color-mix(in srgb, var(--color-ash) 28%, var(--color-ink));
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--color-ash) 42%, var(--color-ink));
+  --card-shadow:
+    0 2px 8px color-mix(in srgb, #0c0d11 50%, transparent),
+    0 18px 40px color-mix(in srgb, #0c0d11 72%, transparent);
 }
 
 *,
@@ -58,11 +68,34 @@
   padding: 0;
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
 html {
   font-size: 16px;
   scroll-padding-top: 4.5rem;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-gold-dim) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
 }
 
 html,
@@ -1062,6 +1095,7 @@ kbd {
 }
 
 .bookmark-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
@@ -1072,11 +1106,30 @@ kbd {
   color: inherit;
   border: 1px solid var(--card-line);
   border-radius: 2px;
+  box-shadow: none;
+  transform: translateY(0);
+  transition:
+    border-color 0.45s var(--ease-royal),
+    box-shadow 0.45s var(--ease-royal),
+    transform 0.45s var(--ease-royal);
 }
 
 .bookmark-card:hover,
 .bookmark-card:focus-within {
+  z-index: 1;
   border-color: var(--color-gold);
+  box-shadow: var(--card-shadow);
+}
+
+@media (hover: hover) {
+  .bookmark-card:hover,
+  .bookmark-card:focus-within {
+    transform: translateY(-3px);
+  }
+
+  .bookmark-card:active {
+    transform: translateY(-1px);
+  }
 }
 
 .card-main {
@@ -1259,7 +1312,14 @@ kbd {
   .card-tag::after,
   .hall-item::after,
   .paper-toggle::after,
-  .text-action::after {
+  .text-action::after,
+  .bookmark-card {
     transition: none !important;
+  }
+
+  .bookmark-card:hover,
+  .bookmark-card:focus-within,
+  .bookmark-card:active {
+    transform: none;
   }
 }
