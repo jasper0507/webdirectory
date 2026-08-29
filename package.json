@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "bookmark:add": "node scripts/add-bookmark.mjs",
     "dev": "vite",
     "build": "npm test && tsc --noEmit && vite build",
     "preview": "vite preview",

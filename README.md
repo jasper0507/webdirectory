@@ -1,6 +1,6 @@
 # 七卷拾光
 
-维护者的公开书签目录。打开先进入**搜索厅**：两字碑、一根提问线、最多七个常用标签。提问或点标签之后，**货架**用卡片列出站点。
+用户维护的公开书签目录。打开先进入**搜索厅**：两字碑、一根提问线、最多七个常用标签。提问或点标签之后，**货架**用卡片列出站点。
 
 这不是通用导航站，也没有账号、数据库或后台编辑。收藏和厅面文案都写在仓库里的一份 JSON 里，推送后发布。
 
@@ -31,7 +31,7 @@
 - **建议启动、回车搜索。** 点建议或方向键选亮后再回车，才会打开站点或进入该类。未选亮时回车或点放大镜一律按提问词进货架，唯一命中也不会直接打开。空提交看全部货架。
 - **模糊匹配，不搜网址。** 提问词用 Fuse.js 在标题、描述、标签上整句模糊匹配，按分数排序，不匹配 URL。
 - **七词跟着收藏走。** 搜索厅底部最多七个快捷标签，按被条目引用的次数降序；不够七个就有几个显示几个，不会为凑满而编造。
-- **一份 JSON 就是全部内容。** 改书签或厅面文案只编辑 `public/portal.json`。页面上没有添加面板或编辑模式。
+- **一份 JSON 就是全部内容。** 书签可用终端命令快速收录，也可直接编辑 `public/portal.json`；页面上没有添加面板或编辑模式。
 - **白日纸 / 夜间纸。** 同一套 DOM，用 `data-paper` 换色板。夜间开关在页脚。
 - **没有后端。** 浏览器直接拉取静态 `portal.json`，构建结果可以放到任何静态托管上。
 
@@ -43,7 +43,7 @@
 | 语言 | TypeScript | 原生 DOM，不使用 React / Vue |
 | 搜索 | [Fuse.js](https://www.fusejs.io/) | 标题、描述、标签的模糊匹配 |
 | 界面 | 本项目 CSS | Archive Paper：浅档案纸、金线、衬线碑题 |
-| 测试 | Vitest | `src/**/*.test.ts` |
+| 测试 | Vitest | `src/**/*.test.ts`、`scripts/**/*.test.mjs` |
 | 发布 | Vercel | 跟 `main` 构建；`vercel.json` 把 `/shelf` 回退到 `index.html` |
 
 运行时依赖只有 Fuse.js。没有 UI 框架、没有组件库、没有数据库。
@@ -52,6 +52,8 @@
 
 ```text
 webdirectory/
+├── scripts/
+│   └── add-bookmark.mjs     交互式收录书签
 ├── public/
 │   ├── portal.json          门户源：站点身份 + 书签目录
 │   ├── favicon.svg          白日图标（与圆印同一构图）
@@ -60,6 +62,7 @@ webdirectory/
 ├── src/
 │   ├── main.ts              入口：挂样式并启动
 │   ├── app.ts               厅 / 架切换、键盘、提交规则
+│   ├── capture.ts           收录候选生成与全量校验
 │   ├── catalog.ts           解析门户源、搜索、七词
 │   ├── routes.ts            `/` 与 `/shelf?q=&tag=`
 │   ├── theme.ts             白日 / 夜间纸
@@ -75,29 +78,58 @@ webdirectory/
 └── docs/adr/                技术决策
 ```
 
-改收藏或厅面文案只动 `public/portal.json`。搜索厅和货架的零件在 `src/ui.ts`，不要另起一套 class。
+书签收录命令与手工编辑最终都只改 `public/portal.json`。搜索厅和货架的零件在 `src/ui.ts`，不要另起一套 class。
 
-## 快速开始
+## 用户快速上手
 
-面向想在本机打开这个门户的人：不需要改代码，也不需要账号。
+只想本地预览可以直接克隆本仓库；要维护并发布自己的门户，先 Fork，再把下面的仓库地址换成自己的 Fork。
 
 ### 环境
 
 - Node.js **20.19+** 或 **22.12+**（Vite 8 的要求）
 - npm（仓库带 `package-lock.json`）
 
-### 安装并运行
+### 1. 获取项目
 
 ```bash
 git clone https://github.com/jasper0507/webdirectory.git
 cd webdirectory
 npm install
+```
+
+### 2. 设置站点身份
+
+首次使用时，编辑 `public/portal.json` 的 `identity`。它控制字标、碑题、耳语和页脚文案；字段规则见下方[维护门户源](#维护门户源)。
+
+### 3. 收录书签
+
+```bash
+npm run bookmark:add
+```
+
+命令依次询问 URL、标题、已有或新标签以及可选描述，可以连续收录多条。全部条目通过校验并经确认后，才会更新 `public/portal.json`；提交与推送仍由用户决定。
+
+### 4. 本地查看
+
+```bash
 npm run dev
 ```
 
 终端里会出现本地地址，默认是 [http://127.0.0.1:5173/](http://127.0.0.1:5173/)。用浏览器打开即可。
 
-### 怎么用
+### 5. 验证并发布
+
+```bash
+npm run build
+git diff -- public/portal.json
+git add public/portal.json
+git commit -m "data: 更新书签目录"
+git push origin main
+```
+
+`npm run build` 会依次运行测试、类型检查和生产构建。配置好 Vercel 后，推送 `main` 即会发布；其他平台见下方[部署方式](#部署方式)。
+
+## 浏览和搜索
 
 1. 打开后是搜索厅。空厅不自动聚焦提问框，避免一进来就挡住碑题。
 2. 按 `/`，或点提问线，开始输入。输入时下方出现题名索引，七词收起。
@@ -110,9 +142,9 @@ npm run dev
 货架上可以继续提问，规则与厅相同：打字出建议，卡片不会边打边变；回车才全站重搜。
 
 ```bash
-npm test          # 跑测试
-npm run build     # 类型检查 + 打包到 dist/
-npm run preview   # 本地预览打包结果
+npm test          # 只跑测试
+npm run typecheck # 只做类型检查
+npm run preview   # 预览 dist/ 中的生产包
 ```
 
 ## 部署方式
@@ -131,7 +163,7 @@ npm run preview   # 本地预览打包结果
 2. 框架预设用 Vite；构建命令 `npm run build`，输出目录 `dist`。
 3. 绑定自定义域名（可选）。
 
-改书签：编辑 `public/portal.json` → 提交并推送 `main` → 等构建完成。
+改书签：运行 `npm run bookmark:add` 或编辑 `public/portal.json` → 提交并推送 `main` → 等构建完成。
 
 ### 其他静态托管
 
