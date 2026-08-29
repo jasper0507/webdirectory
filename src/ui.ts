@@ -196,11 +196,11 @@ function bookmarkCard(
   }
   const description = card.querySelector<HTMLElement>('.card-desc')
   if (description) {
+    description.textContent = entry.description ?? ''
     if (entry.description) {
-      description.textContent = entry.description
-      description.hidden = false
+      description.removeAttribute('aria-hidden')
     } else {
-      description.remove()
+      description.setAttribute('aria-hidden', 'true')
     }
   }
   const tags = card.querySelector('.card-tags')
