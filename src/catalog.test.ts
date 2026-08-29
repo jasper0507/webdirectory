@@ -1,20 +1,31 @@
+import { readFile } from 'node:fs/promises'
 import { describe, expect, it, vi } from 'vitest'
 import {
-  fold,
-  groupEntriesByPrimaryTag,
   loadPortalSource,
-  normalizeTag,
-  normalizeTitle,
   parsePortalSource,
   parseShelfQuery,
   queryIsEmpty,
   searchEntries,
   sevenWords,
-  standardizeUrl,
   summarizeEntryTags,
-  summarizeTags,
   type BookmarkEntry,
 } from './catalog.ts'
+
+const identity = {
+  wordmark: '试厅',
+  monument: ['甲', '乙'],
+  eyebrow: 'BIBLIOTHECA',
+  stampEn: 'SEVEN SHELVES',
+  convergence: '七卷同归',
+  whisper: ['第一行', '第二行'],
+  placeholder: '键入书签或站点...',
+  colophonLeft: 'LEFT',
+  colophonRight: 'RIGHT',
+}
+
+function portalSource(bookmarks: unknown[], siteIdentity: unknown = identity): string {
+  return JSON.stringify({ identity: siteIdentity, bookmarks })
+}
 
 const sample: BookmarkEntry[] = [
   {
@@ -40,82 +51,108 @@ const sample: BookmarkEntry[] = [
   },
 ]
 
-describe('normalizeTitle', () => {
-  it('去掉首尾空格并做 Unicode 标准化', () => {
-    expect(normalizeTitle('  Café  ')).toBe('Café')
-    expect(normalizeTitle('Cafe\u0301')).toBe('Café')
-  })
-})
-
-describe('normalizeTag', () => {
-  it('空字符串视为空值，保留大小写', () => {
-    expect(normalizeTag('')).toBeUndefined()
-    expect(normalizeTag('   ')).toBeUndefined()
-    expect(normalizeTag(' Go ')).toBe('Go')
-    expect(normalizeTag('go')).toBe('go')
-  })
-})
-
-describe('standardizeUrl', () => {
-  it('拒绝非 http(s) 地址', () => {
-    expect(standardizeUrl('ftp://example.com/file')).toBeNull()
-    expect(standardizeUrl('javascript:alert(1)')).toBeNull()
-  })
-
-  it('小写主机名、去掉默认端口和尾斜杠', () => {
-    expect(standardizeUrl('HTTPS://Example.COM:443/path/')).toBe('https://example.com/path')
-  })
-})
-
 describe('parsePortalSource', () => {
-  it('读取身份和书签', () => {
-    const parsed = parsePortalSource({
-      identity: { wordmark: '试厅', monument: ['甲', '乙'] },
-      bookmarks: [{ title: 'MDN', url: 'https://developer.mozilla.org/', tags: ['文档'] }],
-    })
+  it('通过 interface 规范化身份和书签', () => {
+    const parsed = parsePortalSource(
+      portalSource(
+        [
+          {
+            title: '  Cafe\u0301  ',
+            url: 'HTTPS://Example.COM:443/path/#section',
+            tags: [' 文档 ', '文档'],
+            description: '  示例说明  ',
+          },
+        ],
+        { ...identity, wordmark: '  试厅  ' },
+      ),
+    )
     expect(parsed.ok).toBe(true)
     if (!parsed.ok) return
     expect(parsed.catalog.identity.wordmark).toBe('试厅')
     expect(parsed.catalog.identity.monument).toEqual(['甲', '乙'])
-    expect(parsed.catalog.entries).toHaveLength(1)
+    expect(parsed.catalog.entries[0]).toEqual({
+      title: 'Café',
+      url: 'https://example.com/path',
+      displayUrl: 'example.com/path',
+      tags: ['文档'],
+      description: '示例说明',
+    })
     expect(parsed.catalog.tags).toEqual([{ name: '文档', count: 1 }])
   })
 
-  it('旧 category 写成标签；无标签则丢弃', () => {
-    const parsed = parsePortalSource([
-      { title: '旧', url: 'https://old.example/', category: '工具' },
-      { title: '空', url: 'https://empty.example/' },
-    ])
-    expect(parsed.ok).toBe(true)
-    if (!parsed.ok) return
-    expect(parsed.catalog.entries.map((entry) => entry.title)).toEqual(['旧'])
-    expect(parsed.catalog.entries[0]?.tags).toEqual(['工具'])
+  it.each([
+    ['根数组', JSON.stringify([{ title: '旧', url: 'https://old.example/', tags: ['工具'] }])],
+    ['entries', JSON.stringify({ identity, entries: [] })],
+    [
+      '字符串 tags',
+      portalSource([{ title: '旧', url: 'https://old.example/', tags: '工具' }]),
+    ],
+    [
+      'category',
+      portalSource([{ title: '旧', url: 'https://old.example/', category: '工具' }]),
+    ],
+  ])('拒绝旧输入形状：%s', (_name, jsonText) => {
+    expect(parsePortalSource(jsonText).ok).toBe(false)
   })
 
-  it('同一条目内标签去重，并丢弃重复标题', () => {
-    const parsed = parsePortalSource([
-      { title: 'GitHub', url: 'https://github.com/', tags: ['工具', '工具', ''] },
-      { title: 'GitHub', url: 'https://other.example/', tags: ['镜像'] },
+  it('一次返回身份、未知字段和重复条目的全部问题', () => {
+    const parsed = parsePortalSource(
+      portalSource(
+        [
+          { title: 'MDN', url: 'https://developer.mozilla.org/', tags: ['文档'] },
+          {
+            title: ' MDN ',
+            url: 'https://developer.mozilla.org:443/#top',
+            tags: ['参考'],
+            extra: true,
+          },
+          { title: 'FTP', url: 'ftp://files.example/', tags: ['工具'] },
+        ],
+        { ...identity, monument: ['AB', '乙'], extra: true },
+      ),
+    )
+    expect(parsed.ok).toBe(false)
+    if (parsed.ok) return
+    expect(parsed.issues.map(({ path, code }) => ({ path, code }))).toEqual([
+      { path: '/identity/extra', code: 'unknown-field' },
+      { path: '/identity/monument/0', code: 'invalid-value' },
+      { path: '/bookmarks/1/extra', code: 'unknown-field' },
+      { path: '/bookmarks/1/title', code: 'duplicate-title' },
+      { path: '/bookmarks/1/url', code: 'duplicate-url' },
+      { path: '/bookmarks/2/url', code: 'invalid-value' },
     ])
+  })
+
+  it('非法 JSON 返回结构化问题', () => {
+    expect(parsePortalSource('{').ok).toBe(false)
+    const parsed = parsePortalSource('{')
+    if (parsed.ok) return
+    expect(parsed.issues).toEqual([
+      { path: '', code: 'invalid-json', message: '不是合法 JSON。' },
+    ])
+  })
+
+  it('真实门户源满足 canonical interface', async () => {
+    const jsonText = await readFile(new URL('../public/portal.json', import.meta.url), 'utf8')
+    const parsed = parsePortalSource(jsonText)
     expect(parsed.ok).toBe(true)
     if (!parsed.ok) return
-    expect(parsed.catalog.entries).toHaveLength(1)
-    expect(parsed.catalog.entries[0]?.tags).toEqual(['工具'])
+    expect(parsed.catalog.entries.length).toBeGreaterThan(0)
   })
 })
 
 describe('sevenWords', () => {
   it('按引用次数降序最多七个，次数相同保持先出现', () => {
-    const tags = summarizeTags([
-      { title: 'A', url: 'https://a.example/', displayUrl: 'a.example', tags: ['文档', '工具'] },
-      { title: 'B', url: 'https://b.example/', displayUrl: 'b.example', tags: ['文档'] },
-      { title: 'C', url: 'https://c.example/', displayUrl: 'c.example', tags: ['设计'] },
-      { title: 'D', url: 'https://d.example/', displayUrl: 'd.example', tags: ['参考'] },
-      { title: 'E', url: 'https://e.example/', displayUrl: 'e.example', tags: ['博客'] },
-      { title: 'F', url: 'https://f.example/', displayUrl: 'f.example', tags: ['前端'] },
-      { title: 'G', url: 'https://g.example/', displayUrl: 'g.example', tags: ['未分类'] },
-      { title: 'H', url: 'https://h.example/', displayUrl: 'h.example', tags: ['冷门'] },
-    ])
+    const tags = [
+      { name: '文档', count: 2 },
+      { name: '工具', count: 1 },
+      { name: '设计', count: 1 },
+      { name: '参考', count: 1 },
+      { name: '博客', count: 1 },
+      { name: '前端', count: 1 },
+      { name: '未分类', count: 1 },
+      { name: '冷门', count: 1 },
+    ]
     expect(sevenWords(tags).map((tag) => tag.name)).toEqual([
       '文档',
       '工具',
@@ -129,34 +166,6 @@ describe('sevenWords', () => {
 
   it('不足七个则全数返回', () => {
     expect(sevenWords([{ name: '文档', count: 2 }])).toEqual([{ name: '文档', count: 2 }])
-  })
-})
-
-describe('groupEntriesByPrimaryTag', () => {
-  it('按首个标签分块，大块在前，块内保持目录顺序', () => {
-    const entries: BookmarkEntry[] = [
-      { title: 'A', url: 'https://a.example/', displayUrl: 'a.example', tags: ['设计'] },
-      { title: 'B', url: 'https://b.example/', displayUrl: 'b.example', tags: ['文档', '工具'] },
-      { title: 'C', url: 'https://c.example/', displayUrl: 'c.example', tags: ['文档'] },
-      { title: 'D', url: 'https://d.example/', displayUrl: 'd.example', tags: ['工具'] },
-    ]
-    const chunks = groupEntriesByPrimaryTag(entries)
-    expect(chunks.map((chunk) => chunk.name)).toEqual(['文档', '设计', '工具'])
-    expect(chunks[0]?.entries.map((entry) => entry.title)).toEqual(['B', 'C'])
-    expect(chunks[1]?.entries.map((entry) => entry.title)).toEqual(['A'])
-    expect(chunks[2]?.entries.map((entry) => entry.title)).toEqual(['D'])
-  })
-
-  it('多标签条目只出现在首个标签的块里', () => {
-    const chunks = groupEntriesByPrimaryTag([
-      { title: 'A', url: 'https://a.example/', displayUrl: 'a.example', tags: ['文档', '工具'] },
-    ])
-    expect(chunks).toHaveLength(1)
-    expect(chunks[0]?.name).toBe('文档')
-  })
-
-  it('空目录得到空分块', () => {
-    expect(groupEntriesByPrimaryTag([])).toEqual([])
   })
 })
 
@@ -192,6 +201,7 @@ describe('searchEntries', () => {
     expect(queryIsEmpty(parseShelfQuery('  '))).toBe(true)
     expect(queryIsEmpty(parseShelfQuery('vite'))).toBe(false)
     expect(queryIsEmpty(parseShelfQuery('', ['go']))).toBe(false)
+    expect(searchEntries(sample, parseShelfQuery(''))).toBe(sample)
   })
 
   it('在名称、描述、标签上匹配，标签约束仍精确', () => {
@@ -246,23 +256,38 @@ describe('loadPortalSource', () => {
     expect(result.status).toBe('load-failed')
   })
 
+  it('HTTP 失败时返回 load-failed', async () => {
+    const result = await loadPortalSource(
+      '/portal.json',
+      vi.fn().mockResolvedValue(new Response('', { status: 404 })),
+    )
+    expect(result.status).toBe('load-failed')
+  })
+
+  it('错误页消息只包含第一项和剩余数量', async () => {
+    const result = await loadPortalSource(
+      '/portal.json',
+      vi.fn().mockResolvedValue(new Response(JSON.stringify({ entries: [] }), { status: 200 })),
+    )
+    expect(result).toEqual({
+      status: 'invalid-source',
+      message: '门户源无效：/entries 字段未定义；另有 2 项问题。',
+    })
+  })
+
   it('合法门户源返回目录', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ bookmarks: [{ title: 'MDN', url: 'https://developer.mozilla.org/', tags: ['文档'] }] }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }),
+      new Response(
+        portalSource([
+          { title: 'MDN', url: 'https://developer.mozilla.org/', tags: ['文档'] },
+        ]),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      ),
     )
     const result = await loadPortalSource('/portal.json', fetchImpl)
     expect(result.status).toBe('ok')
     if (result.status !== 'ok') return
     expect(result.catalog.entries).toHaveLength(1)
-    expect(result.catalog.identity.wordmark).toBe('七卷拾光')
-  })
-})
-
-describe('fold', () => {
-  it('用于搜索比较', () => {
-    expect(fold('  Go ')).toBe('  go ')
+    expect(result.catalog.identity.wordmark).toBe('试厅')
   })
 })

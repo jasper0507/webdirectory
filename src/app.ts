@@ -1,5 +1,4 @@
 import {
-  groupEntriesByPrimaryTag,
   loadPortalSource,
   parseShelfQuery,
   queryIsEmpty,
@@ -209,10 +208,7 @@ function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>)
 
   const label = queryIsEmpty(query) ? '全部站点' : `找到 ${String(entries.length)} 个站点`
   ui.shelfStatus.textContent = label
-  const ordered = queryIsEmpty(query)
-    ? groupEntriesByPrimaryTag(entries).flatMap((chunk) => chunk.entries)
-    : entries
-  renderCards(ui.results, ui.cardTemplate, ordered, onTag, query.tags)
+  renderCards(ui.results, ui.cardTemplate, entries, onTag, query.tags)
 }
 
 function renderRoute(route: AppRoute): void {

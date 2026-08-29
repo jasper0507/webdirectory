@@ -38,10 +38,23 @@ export type ParseSuccess = {
 
 export type ParseFailure = {
   ok: false
-  error: string
+  issues: PortalSourceIssue[]
 }
 
 export type ParseResult = ParseSuccess | ParseFailure
+
+export type PortalSourceIssue = {
+  path: string
+  code:
+    | 'invalid-json'
+    | 'invalid-type'
+    | 'missing-field'
+    | 'unknown-field'
+    | 'invalid-value'
+    | 'duplicate-title'
+    | 'duplicate-url'
+  message: string
+}
 
 export type LoadResult =
   | { status: 'ok'; catalog: Catalog }
@@ -54,34 +67,32 @@ export type ShelfQuery = {
 }
 
 const TITLE_COMPARISON = 'NFC'
-export const SEVEN_WORDS_LIMIT = 7
+const SEVEN_WORDS_LIMIT = 7
+const HAN_CHARACTER = /^\p{Script=Han}$/u
+const ROOT_FIELDS = new Set(['identity', 'bookmarks'])
+const IDENTITY_FIELDS = new Set([
+  'wordmark',
+  'monument',
+  'eyebrow',
+  'stampEn',
+  'convergence',
+  'whisper',
+  'placeholder',
+  'colophonLeft',
+  'colophonRight',
+])
+const BOOKMARK_FIELDS = new Set(['title', 'url', 'tags', 'description'])
 
-export const DEFAULT_IDENTITY: SiteIdentity = {
-  wordmark: '七卷拾光',
-  monument: ['拾', '光'],
-  eyebrow: 'BIBLIOTHECA',
-  stampEn: 'SEVEN SHELVES',
-  convergence: '七卷同归',
-  whisper: ['在七座私人书架之间，键入一个名字，', '让收藏顺流而下。'],
-  placeholder: '键入书签或站点...',
-  colophonLeft: 'SHELVED FROM SEVEN ARCHIVES',
-  colophonRight: 'SEVEN SHELVES · ONE STREAM',
-}
-
-export function normalizeTitle(title: string): string {
+function normalizeTitle(title: string): string {
   return title.trim().normalize(TITLE_COMPARISON)
 }
 
-export function normalizeTag(value: string): string | undefined {
+function normalizeTag(value: string): string | undefined {
   const normalized = value.trim().normalize(TITLE_COMPARISON)
   return normalized === '' ? undefined : normalized
 }
 
-export function fold(value: string): string {
-  return value.normalize(TITLE_COMPARISON).toLowerCase()
-}
-
-export function standardizeUrl(url: string): string | null {
+function standardizeUrl(url: string): string | null {
   try {
     const parsed = new URL(url.trim())
     if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null
@@ -120,17 +131,59 @@ function asObjectRecord(value: unknown): Record<string, unknown> | null {
   return value as Record<string, unknown>
 }
 
-function readString(value: unknown): string | undefined {
-  return typeof value === 'string' ? value : undefined
+function hasOwn(record: Record<string, unknown>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(record, key)
 }
 
-function readBookmarkList(raw: unknown): unknown[] | null {
-  if (Array.isArray(raw)) return raw
-  const record = asObjectRecord(raw)
-  if (!record) return null
-  if (Array.isArray(record.bookmarks)) return record.bookmarks
-  if (Array.isArray(record.entries)) return record.entries
-  return null
+function pointer(path: string, part: string): string {
+  return `${path}/${part.replace(/~/g, '~0').replace(/\//g, '~1')}`
+}
+
+function addIssue(
+  issues: PortalSourceIssue[],
+  path: string,
+  code: PortalSourceIssue['code'],
+  message: string,
+): void {
+  issues.push({ path, code, message })
+}
+
+function rejectUnknownFields(
+  record: Record<string, unknown>,
+  allowed: Set<string>,
+  path: string,
+  issues: PortalSourceIssue[],
+): void {
+  for (const key of Object.keys(record)) {
+    if (!allowed.has(key)) {
+      addIssue(issues, pointer(path, key), 'unknown-field', '字段未定义。')
+    }
+  }
+}
+
+function readRequiredText(
+  record: Record<string, unknown>,
+  key: string,
+  path: string,
+  issues: PortalSourceIssue[],
+  normalize: (value: string) => string = (value) => value.trim(),
+): string | null {
+  const fieldPath = pointer(path, key)
+  if (!hasOwn(record, key)) {
+    addIssue(issues, fieldPath, 'missing-field', '缺少必填字段。')
+    return null
+  }
+  const value = record[key]
+  if (typeof value !== 'string') {
+    addIssue(issues, fieldPath, 'invalid-type', '必须是字符串。')
+    return null
+  }
+  const normalized = normalize(value)
+  if (!normalized) {
+    addIssue(issues, fieldPath, 'invalid-value', '不能为空。')
+    return null
+  }
+  return normalized
 }
 
 function uniqueTags(values: string[]): string[] {
@@ -145,33 +198,77 @@ function uniqueTags(values: string[]): string[] {
   return tags
 }
 
-function readTags(record: Record<string, unknown>): string[] {
-  const collected: string[] = []
-  if (Array.isArray(record.tags)) {
-    for (const item of record.tags) {
-      if (typeof item === 'string') collected.push(item)
-    }
-  } else if (typeof record.tags === 'string') {
-    collected.push(record.tags)
+function readTags(
+  record: Record<string, unknown>,
+  path: string,
+  issues: PortalSourceIssue[],
+): string[] | null {
+  const tagsPath = pointer(path, 'tags')
+  if (!hasOwn(record, 'tags')) {
+    addIssue(issues, tagsPath, 'missing-field', '缺少必填字段。')
+    return null
   }
-  if (typeof record.category === 'string') collected.push(record.category)
-  return uniqueTags(collected)
+  if (!Array.isArray(record.tags)) {
+    addIssue(issues, tagsPath, 'invalid-type', '必须是字符串数组。')
+    return null
+  }
+
+  const tags: string[] = []
+  const seen = new Set<string>()
+  for (const [index, value] of record.tags.entries()) {
+    const tagPath = pointer(tagsPath, String(index))
+    if (typeof value !== 'string') {
+      addIssue(issues, tagPath, 'invalid-type', '必须是字符串。')
+      continue
+    }
+    const tag = normalizeTag(value)
+    if (!tag) {
+      addIssue(issues, tagPath, 'invalid-value', '标签不能为空。')
+      continue
+    }
+    if (seen.has(tag)) continue
+    seen.add(tag)
+    tags.push(tag)
+  }
+
+  if (tags.length === 0) {
+    addIssue(issues, tagsPath, 'invalid-value', '必须至少包含一个有效标签。')
+    return null
+  }
+  return tags
 }
 
-function parseEntry(value: unknown): BookmarkEntry | null {
+function parseEntry(
+  value: unknown,
+  index: number,
+  issues: PortalSourceIssue[],
+): BookmarkEntry | null {
+  const path = `/bookmarks/${String(index)}`
   const record = asObjectRecord(value)
-  if (!record) return null
-  if (typeof record.title !== 'string' || typeof record.url !== 'string') return null
-  const title = normalizeTitle(record.title)
-  const url = standardizeUrl(record.url)
-  const tags = readTags(record)
-  if (!title || !url || tags.length === 0) return null
-  const description =
-    typeof record.description === 'string'
-      ? record.description.trim() === ''
-        ? undefined
-        : record.description.trim()
-      : undefined
+  if (!record) {
+    addIssue(issues, path, 'invalid-type', '必须是对象。')
+    return null
+  }
+  rejectUnknownFields(record, BOOKMARK_FIELDS, path, issues)
+
+  const title = readRequiredText(record, 'title', path, issues, normalizeTitle)
+  const rawUrl = readRequiredText(record, 'url', path, issues)
+  const url = rawUrl ? standardizeUrl(rawUrl) : null
+  if (rawUrl && !url) {
+    addIssue(issues, pointer(path, 'url'), 'invalid-value', '必须是 http(s) 地址。')
+  }
+  const tags = readTags(record, path, issues)
+
+  let description: string | undefined
+  if (hasOwn(record, 'description')) {
+    if (typeof record.description !== 'string') {
+      addIssue(issues, pointer(path, 'description'), 'invalid-type', '必须是字符串。')
+    } else {
+      description = record.description.trim() || undefined
+    }
+  }
+
+  if (!title || !url || !tags) return null
   return {
     title,
     url,
@@ -181,7 +278,7 @@ function parseEntry(value: unknown): BookmarkEntry | null {
   }
 }
 
-export function summarizeTags(entries: BookmarkEntry[]): TagSummary[] {
+function summarizeTags(entries: BookmarkEntry[]): TagSummary[] {
   const order: string[] = []
   const counts = new Map<string, number>()
   for (const entry of entries) {
@@ -197,33 +294,6 @@ export function sevenWords(tags: TagSummary[]): TagSummary[] {
   return [...tags]
     .sort((a, b) => b.count - a.count || tags.indexOf(a) - tags.indexOf(b))
     .slice(0, SEVEN_WORDS_LIMIT)
-}
-
-export type TagChunk = {
-  name: string
-  entries: BookmarkEntry[]
-}
-
-export function groupEntriesByPrimaryTag(entries: BookmarkEntry[]): TagChunk[] {
-  const order: string[] = []
-  const grouped = new Map<string, BookmarkEntry[]>()
-  for (const entry of entries) {
-    const primary = entry.tags[0]
-    if (!primary) continue
-    const bucket = grouped.get(primary)
-    if (bucket) {
-      bucket.push(entry)
-    } else {
-      order.push(primary)
-      grouped.set(primary, [entry])
-    }
-  }
-  return order
-    .map((name) => {
-      const chunk = grouped.get(name) ?? []
-      return { name, entries: chunk }
-    })
-    .sort((a, b) => b.entries.length - a.entries.length || order.indexOf(a.name) - order.indexOf(b.name))
 }
 
 export function summarizeEntryTags(entries: BookmarkEntry[]): TagSummary[] {
@@ -248,51 +318,164 @@ export function summarizeEntryTags(entries: BookmarkEntry[]): TagSummary[] {
     .sort((a, b) => b.count - a.count || order.indexOf(a.name) - order.indexOf(b.name))
 }
 
-function readPair(value: unknown, fallback: [string, string]): [string, string] {
-  if (!Array.isArray(value) || value.length < 2) return fallback
-  const first = typeof value[0] === 'string' ? value[0].trim() : ''
-  const second = typeof value[1] === 'string' ? value[1].trim() : ''
-  if (!first || !second) return fallback
-  return [first, second]
+function readPair(
+  record: Record<string, unknown>,
+  key: 'monument' | 'whisper',
+  path: string,
+  issues: PortalSourceIssue[],
+): [string, string] | null {
+  const fieldPath = pointer(path, key)
+  if (!hasOwn(record, key)) {
+    addIssue(issues, fieldPath, 'missing-field', '缺少必填字段。')
+    return null
+  }
+  const value = record[key]
+  if (!Array.isArray(value) || value.length !== 2) {
+    addIssue(issues, fieldPath, 'invalid-value', '必须是恰好包含两项的数组。')
+    return null
+  }
+
+  const pair: string[] = []
+  for (const [index, item] of value.entries()) {
+    const itemPath = pointer(fieldPath, String(index))
+    if (typeof item !== 'string') {
+      addIssue(issues, itemPath, 'invalid-type', '必须是字符串。')
+      continue
+    }
+    const normalized = item.trim()
+    if (!normalized) {
+      addIssue(issues, itemPath, 'invalid-value', '不能为空。')
+      continue
+    }
+    if (key === 'monument' && !HAN_CHARACTER.test(normalized)) {
+      addIssue(issues, itemPath, 'invalid-value', '必须是单个汉字。')
+      continue
+    }
+    pair.push(normalized)
+  }
+  return pair.length === 2 ? [pair[0]!, pair[1]!] : null
 }
 
-export function parseIdentity(raw: unknown): SiteIdentity {
+function parseIdentity(raw: unknown, issues: PortalSourceIssue[]): SiteIdentity | null {
+  const path = '/identity'
   const record = asObjectRecord(raw)
-  if (!record) return { ...DEFAULT_IDENTITY, monument: [...DEFAULT_IDENTITY.monument], whisper: [...DEFAULT_IDENTITY.whisper] }
-  const monument = readPair(record.monument, [...DEFAULT_IDENTITY.monument])
-  const whisper = readPair(record.whisper, [...DEFAULT_IDENTITY.whisper])
+  if (!record) {
+    addIssue(
+      issues,
+      path,
+      raw === undefined ? 'missing-field' : 'invalid-type',
+      raw === undefined ? '缺少必填字段。' : '必须是对象。',
+    )
+    return null
+  }
+  rejectUnknownFields(record, IDENTITY_FIELDS, path, issues)
+
+  const wordmark = readRequiredText(record, 'wordmark', path, issues, normalizeTitle)
+  const monument = readPair(record, 'monument', path, issues)
+  const eyebrow = readRequiredText(record, 'eyebrow', path, issues)
+  const stampEn = readRequiredText(record, 'stampEn', path, issues)
+  const convergence = readRequiredText(record, 'convergence', path, issues)
+  const whisper = readPair(record, 'whisper', path, issues)
+  const placeholder = readRequiredText(record, 'placeholder', path, issues)
+  const colophonLeft = readRequiredText(record, 'colophonLeft', path, issues)
+  const colophonRight = readRequiredText(record, 'colophonRight', path, issues)
+
+  if (
+    !wordmark ||
+    !monument ||
+    !eyebrow ||
+    !stampEn ||
+    !convergence ||
+    !whisper ||
+    !placeholder ||
+    !colophonLeft ||
+    !colophonRight
+  ) {
+    return null
+  }
   return {
-    wordmark: normalizeTitle(readString(record.wordmark) ?? '') || DEFAULT_IDENTITY.wordmark,
+    wordmark,
     monument,
-    eyebrow: (readString(record.eyebrow) ?? '').trim() || DEFAULT_IDENTITY.eyebrow,
-    stampEn: (readString(record.stampEn) ?? '').trim() || DEFAULT_IDENTITY.stampEn,
-    convergence: (readString(record.convergence) ?? '').trim() || DEFAULT_IDENTITY.convergence,
+    eyebrow,
+    stampEn,
+    convergence,
     whisper,
-    placeholder: (readString(record.placeholder) ?? '').trim() || DEFAULT_IDENTITY.placeholder,
-    colophonLeft: (readString(record.colophonLeft) ?? '').trim() || DEFAULT_IDENTITY.colophonLeft,
-    colophonRight: (readString(record.colophonRight) ?? '').trim() || DEFAULT_IDENTITY.colophonRight,
+    placeholder,
+    colophonLeft,
+    colophonRight,
   }
 }
 
-export function parsePortalSource(raw: unknown): ParseResult {
-  const list = readBookmarkList(raw)
-  if (!list) {
-    return { ok: false, error: '门户源必须带 bookmarks 数组，或本身就是数组。' }
+function parseBookmarks(raw: unknown, issues: PortalSourceIssue[]): BookmarkEntry[] | null {
+  const path = '/bookmarks'
+  if (!Array.isArray(raw)) {
+    addIssue(
+      issues,
+      path,
+      raw === undefined ? 'missing-field' : 'invalid-type',
+      raw === undefined ? '缺少必填字段。' : '必须是数组。',
+    )
+    return null
   }
 
-  const identity = parseIdentity(asObjectRecord(raw)?.identity)
   const entries: BookmarkEntry[] = []
-  const seenTitles = new Set<string>()
-  const seenUrls = new Set<string>()
+  const titleIndexes = new Map<string, number>()
+  const urlIndexes = new Map<string, number>()
 
-  for (const item of list) {
-    const entry = parseEntry(item)
+  for (const [index, item] of raw.entries()) {
+    const entry = parseEntry(item, index, issues)
     if (!entry) continue
-    if (seenTitles.has(entry.title) || seenUrls.has(entry.url)) continue
-    seenTitles.add(entry.title)
-    seenUrls.add(entry.url)
+    const titleIndex = titleIndexes.get(entry.title)
+    if (titleIndex !== undefined) {
+      addIssue(
+        issues,
+        `/bookmarks/${String(index)}/title`,
+        'duplicate-title',
+        `与 /bookmarks/${String(titleIndex)}/title 重复。`,
+      )
+    } else {
+      titleIndexes.set(entry.title, index)
+    }
+    const urlIndex = urlIndexes.get(entry.url)
+    if (urlIndex !== undefined) {
+      addIssue(
+        issues,
+        `/bookmarks/${String(index)}/url`,
+        'duplicate-url',
+        `与 /bookmarks/${String(urlIndex)}/url 重复。`,
+      )
+    } else {
+      urlIndexes.set(entry.url, index)
+    }
     entries.push(entry)
   }
+  return entries
+}
+
+export function parsePortalSource(jsonText: string): ParseResult {
+  let raw: unknown
+  try {
+    raw = JSON.parse(jsonText) as unknown
+  } catch {
+    return {
+      ok: false,
+      issues: [{ path: '', code: 'invalid-json', message: '不是合法 JSON。' }],
+    }
+  }
+
+  const record = asObjectRecord(raw)
+  if (!record) {
+    return {
+      ok: false,
+      issues: [{ path: '', code: 'invalid-type', message: '必须是包含 identity 与 bookmarks 的对象。' }],
+    }
+  }
+
+  const issues: PortalSourceIssue[] = []
+  rejectUnknownFields(record, ROOT_FIELDS, '', issues)
+  const identity = parseIdentity(record.identity, issues)
+  const entries = parseBookmarks(record.bookmarks, issues)
+  if (!identity || !entries || issues.length > 0) return { ok: false, issues }
 
   return {
     ok: true,
@@ -364,14 +547,24 @@ export async function loadPortalSource(
     return { status: 'load-failed', message: `门户源返回 ${String(response.status)}。` }
   }
 
-  let raw: unknown
+  let jsonText: string
   try {
-    raw = await response.json()
+    jsonText = await response.text()
   } catch {
-    return { status: 'invalid-source', message: '门户源不是合法 JSON。' }
+    return { status: 'load-failed', message: '无法读取门户源内容。' }
   }
 
-  const parsed = parsePortalSource(raw)
-  if (!parsed.ok) return { status: 'invalid-source', message: parsed.error }
+  const parsed = parsePortalSource(jsonText)
+  if (!parsed.ok) {
+    const first = parsed.issues[0]
+    const location = first?.path ? `${first.path} ` : ''
+    const detail = first ? `${location}${first.message}` : '存在未知问题。'
+    const remaining = parsed.issues.length - 1
+    const summary =
+      remaining > 0
+        ? `${detail.replace(/。$/, '')}；另有 ${String(remaining)} 项问题。`
+        : detail
+    return { status: 'invalid-source', message: `门户源无效：${summary}` }
+  }
   return { status: 'ok', catalog: parsed.catalog }
 }

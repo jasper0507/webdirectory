@@ -1,5 +1,4 @@
 import {
-  fold,
   parseShelfQuery,
   searchEntries,
   type BookmarkEntry,
@@ -7,6 +6,10 @@ import {
 } from './catalog.ts'
 
 const QUESTION_LIST_LIMIT = 7
+
+function fold(value: string): string {
+  return value.normalize('NFC').toLowerCase()
+}
 
 type QuestionCatalog = {
   entries: BookmarkEntry[]

@@ -183,12 +183,13 @@ npm run preview
 }
 ```
 
-规则（解析时会跳过不合法或重复的条目，不会整份失败）：
+规则（解析时会规范化可修正的文本；任一无效或重复条目都会让整份门户源失败）：
 
-- `monument` 必须是两个汉字；`whisper` 必须是两行。缺了会回落到默认文案。
+- `identity` 中的所有字段都必填；`monument` 必须恰好包含两个汉字，`whisper` 必须恰好包含两行。
 - 每条书签必须有 `title`、`http(s)` 的 `url`、至少一个标签。
 - 标题去重（去首尾空格 + Unicode NFC，大小写敏感）；URL 按标准化去重（小写主机名、去掉默认端口和尾斜杠、去掉 hash）。
-- 不要写 `category`。旧分类应写进 `tags`。
+- 标签完全平级，数组位置不表达优先级；无约束货架保持门户源顺序。
+- 只接受示例中的 canonical 字段；`category` 等旧字段或未知字段会被拒绝。
 - 七词不必写入身份；运行时按标签引用次数生成。
 
 更细的槽位说明见 [`docs/agents/portal-source.md`](docs/agents/portal-source.md)。视觉与交互规格见 [`DESIGN.md`](DESIGN.md)。
