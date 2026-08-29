@@ -228,6 +228,28 @@ export function groupEntriesByPrimaryTag(entries: BookmarkEntry[]): TagChunk[] {
     .sort((a, b) => b.entries.length - a.entries.length || order.indexOf(a.name) - order.indexOf(b.name))
 }
 
+export function summarizeEntryTags(entries: BookmarkEntry[]): TagSummary[] {
+  const counts = new Map<string, number>()
+  const order: string[] = []
+  for (const entry of entries) {
+    const seen = new Set<string>()
+    for (const tag of entry.tags) {
+      if (seen.has(tag)) continue
+      seen.add(tag)
+      const prev = counts.get(tag)
+      if (prev === undefined) {
+        order.push(tag)
+        counts.set(tag, 1)
+      } else {
+        counts.set(tag, prev + 1)
+      }
+    }
+  }
+  return order
+    .map((name) => ({ name, count: counts.get(name) ?? 0 }))
+    .sort((a, b) => b.count - a.count || order.indexOf(a.name) - order.indexOf(b.name))
+}
+
 function readPair(value: unknown, fallback: [string, string]): [string, string] {
   if (!Array.isArray(value) || value.length < 2) return fallback
   const first = typeof value[0] === 'string' ? value[0].trim() : ''

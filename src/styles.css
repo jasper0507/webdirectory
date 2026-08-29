@@ -265,6 +265,8 @@ kbd {
 
 .brand-mark {
   position: relative;
+  display: grid;
+  place-items: center;
   width: 1.75rem;
   height: 1.75rem;
   flex-shrink: 0;
@@ -274,14 +276,12 @@ kbd {
   transition: transform 0.5s var(--ease-royal);
 }
 
-.brand-mark::after {
-  content: "";
-  position: absolute;
-  right: 0.28rem;
-  bottom: 0.28rem;
-  width: 0.4rem;
-  height: 0.4rem;
-  background: var(--color-cream);
+.brand-mark svg {
+  display: block;
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--color-cream);
+  pointer-events: none;
 }
 
 .brand:hover .brand-mark {
@@ -485,7 +485,7 @@ kbd {
   content: "";
   position: absolute;
   left: 0;
-  right: 0;
+  right: calc(2.75rem + 0.75rem);
   bottom: 0;
   height: 1px;
   background: var(--color-ash-deep);
@@ -502,7 +502,7 @@ kbd {
 .search-row .grow-line {
   position: absolute;
   left: 0;
-  right: 0;
+  right: calc(2.75rem + 0.75rem);
   bottom: 0;
   height: 2px;
   background: linear-gradient(90deg, var(--color-gold), var(--color-gold), var(--color-gold-soft));
@@ -730,8 +730,7 @@ kbd {
   }
 }
 
-.chip,
-.constraint-chip {
+.chip {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -939,12 +938,11 @@ kbd {
   top: 0;
   z-index: 30;
   background: var(--color-ink);
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--color-gold) 28%, transparent);
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 
 .shelf.is-failed .shelf-search,
-.shelf.is-failed .constraints,
 .shelf.is-failed .shelf-count {
   display: none;
 }
@@ -957,6 +955,7 @@ kbd {
 .shelf-top .shelf-header {
   position: static;
   padding-top: max(1rem, env(safe-area-inset-top));
+  padding-inline: 0;
 }
 
 @media (min-width: 48rem) {
@@ -968,62 +967,31 @@ kbd {
 .shelf-search {
   width: 100%;
   max-width: none;
-  margin: 0 0 1rem;
+  margin: 0 0 0.75rem;
 }
 
 .shelf .site-footer {
   margin-top: auto;
 }
 
-.constraints {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem;
-  margin-bottom: 0.75rem;
+.shelf .site-footer .footer-row,
+.shelf .site-footer .hairline {
+  width: auto;
+  margin-inline: -1.25rem;
 }
 
-.constraints .hall-group-label {
-  flex: 1 0 100%;
-  padding: 0;
+@media (min-width: 48rem) {
+  .shelf .site-footer .footer-row,
+  .shelf .site-footer .hairline {
+    margin-inline: -3.5rem;
+  }
 }
 
-.constraint-chip {
-  border: 0;
-  color: var(--color-cream);
-  padding-inline-end: 0.35rem;
-}
-
-.constraint-remove {
-  display: inline-flex;
-  position: relative;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  margin-inline-start: 0.15rem;
-  color: transparent;
-  font-size: 0;
-  line-height: 1;
-}
-
-.constraint-remove::before,
-.constraint-remove::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 0.7rem;
-  height: 1px;
-  background: var(--color-gold);
-}
-
-.constraint-remove::before {
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-
-.constraint-remove::after {
-  transform: translate(-50%, -50%) rotate(-45deg);
+@media (max-height: 48rem) {
+  .shelf .site-footer .footer-row,
+  .shelf .site-footer .hairline {
+    margin-inline: -1.25rem;
+  }
 }
 
 .result-status {
@@ -1037,6 +1005,46 @@ kbd {
 }
 
 .results {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  align-items: stretch;
+}
+
+.result-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 1.25rem;
+  margin: 0;
+}
+
+.result-tags .chip {
+  min-height: 0;
+  padding: 0.2rem 0;
+  letter-spacing: 0.2em;
+}
+
+.result-tags .chip::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100%, 44px);
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+
+.result-tags .chip[aria-pressed="true"] {
+  color: var(--color-cream);
+}
+
+.result-tags .chip[aria-pressed="true"]::after {
+  transform: scaleX(1);
+  opacity: 1;
+}
+
+.result-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
@@ -1044,23 +1052,14 @@ kbd {
   align-content: start;
 }
 
-.results > .hall-group-label {
-  grid-column: 1 / -1;
-  padding-top: 1.25rem;
-}
-
-.results > .hall-group-label:first-child {
-  padding-top: 0.15rem;
-}
-
 @media (min-width: 768px) {
-  .results {
+  .result-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1024px) {
-  .results {
+  .result-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

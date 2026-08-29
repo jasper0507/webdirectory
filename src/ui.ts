@@ -1,8 +1,8 @@
 import {
   fold,
+  summarizeEntryTags,
   type BookmarkEntry,
   type SiteIdentity,
-  type TagChunk,
   type TagSummary,
 } from './catalog.ts'
 
@@ -173,62 +173,6 @@ function hallButton(
   return button
 }
 
-export function renderConstraints(
-  container: HTMLElement,
-  query: string,
-  tags: string[],
-  onRemoveQuery: () => void,
-  onRemoveTag: (tag: string) => void,
-): void {
-  const fragment = document.createDocumentFragment()
-  const trimmed = query.trim()
-  if (trimmed) {
-    fragment.append(constraintChip('query', trimmed, onRemoveQuery))
-  }
-  for (const tag of tags) {
-    fragment.append(constraintChip('tag', tag, () => onRemoveTag(tag)))
-  }
-  const empty = fragment.childNodes.length === 0
-  if (empty) {
-    container.replaceChildren()
-    container.hidden = true
-    container.removeAttribute('aria-label')
-    return
-  }
-  container.replaceChildren(shelfCaption('已约束'), fragment)
-  container.hidden = false
-  container.setAttribute('role', 'group')
-  container.setAttribute('aria-label', '已约束')
-}
-
-function shelfCaption(label: string): HTMLParagraphElement {
-  const caption = document.createElement('p')
-  caption.className = 'hall-group-label'
-  caption.textContent = label
-  caption.setAttribute('aria-hidden', 'true')
-  return caption
-}
-
-function constraintChip(
-  kind: 'query' | 'tag',
-  value: string,
-  onRemove: () => void,
-): HTMLButtonElement {
-  const button = document.createElement('button')
-  button.type = 'button'
-  button.className = 'constraint-chip'
-  button.setAttribute('aria-label', kind === 'query' ? `移除提问 ${value}` : `移除标签 ${value}`)
-  const text = document.createElement('span')
-  text.textContent = kind === 'query' ? `提问 · ${value}` : value
-  const mark = document.createElement('span')
-  mark.className = 'constraint-remove'
-  mark.textContent = '×'
-  mark.ariaHidden = 'true'
-  button.append(text, mark)
-  button.addEventListener('click', onRemove)
-  return button
-}
-
 function bookmarkCard(
   template: HTMLTemplateElement,
   entry: BookmarkEntry,
@@ -269,9 +213,8 @@ function bookmarkCard(
       chip.className = bound ? 'card-tag is-bound' : 'card-tag'
       chip.textContent = tag
       chip.setAttribute('aria-pressed', bound ? 'true' : 'false')
-      chip.setAttribute('aria-label', bound ? `已用标签 ${tag} 约束货架` : `用标签 ${tag} 约束货架`)
-      if (bound) chip.disabled = true
-      else chip.addEventListener('click', () => onTag(tag))
+      chip.setAttribute('aria-label', bound ? `移除标签 ${tag} 约束` : `用标签 ${tag} 约束货架`)
+      chip.addEventListener('click', () => onTag(tag))
       tags.append(chip)
     }
   }
@@ -280,23 +223,25 @@ function bookmarkCard(
 
 export const CARD_PAINT_BATCH = 48
 
-type ShelfNode =
-  | { kind: 'label'; text: string }
-  | { kind: 'card'; entry: BookmarkEntry }
-
 const shelfPaints = new WeakMap<HTMLElement, number>()
 
 export function cancelShelfPaint(container: HTMLElement): void {
-  const id = shelfPaints.get(container)
-  if (id !== undefined && typeof cancelAnimationFrame === 'function') {
-    cancelAnimationFrame(id)
+  const nodes: HTMLElement[] = [container]
+  container.querySelectorAll('.result-grid').forEach((node) => {
+    if (node instanceof HTMLElement) nodes.push(node)
+  })
+  for (const node of nodes) {
+    const id = shelfPaints.get(node)
+    if (id !== undefined && typeof cancelAnimationFrame === 'function') {
+      cancelAnimationFrame(id)
+    }
+    shelfPaints.delete(node)
   }
-  shelfPaints.delete(container)
 }
 
 function paintShelf(
   container: HTMLElement,
-  nodes: ShelfNode[],
+  entries: BookmarkEntry[],
   template: HTMLTemplateElement,
   onTag: (tag: string) => void,
   boundTags: string[],
@@ -306,22 +251,15 @@ function paintShelf(
   let index = 0
   const step = (): void => {
     const fragment = document.createDocumentFragment()
-    const end = Math.min(index + CARD_PAINT_BATCH, nodes.length)
+    const end = Math.min(index + CARD_PAINT_BATCH, entries.length)
     for (; index < end; index += 1) {
-      const node = nodes[index]
-      if (!node) continue
-      if (node.kind === 'label') {
-        const label = document.createElement('p')
-        label.className = 'hall-group-label'
-        label.textContent = node.text
-        fragment.append(label)
-      } else {
-        const card = bookmarkCard(template, node.entry, onTag, boundTags)
-        if (card) fragment.append(card)
-      }
+      const entry = entries[index]
+      if (!entry) continue
+      const card = bookmarkCard(template, entry, onTag, boundTags)
+      if (card) fragment.append(card)
     }
     container.append(fragment)
-    if (index < nodes.length) {
+    if (index < entries.length) {
       if (typeof requestAnimationFrame === 'function') {
         shelfPaints.set(container, requestAnimationFrame(step))
       } else {
@@ -334,6 +272,33 @@ function paintShelf(
   step()
 }
 
+function renderResultTags(
+  container: HTMLElement,
+  tags: TagSummary[],
+  boundTags: string[],
+  onTag: (tag: string) => void,
+): void {
+  if (tags.length === 0) return
+  const nav = document.createElement('nav')
+  nav.className = 'result-tags'
+  nav.setAttribute('aria-label', '本次结果标签')
+  for (const tag of tags) {
+    const bound = boundTags.includes(tag.name)
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'chip'
+    button.textContent = `${tag.name} · ${String(tag.count)}`
+    button.setAttribute('aria-pressed', bound ? 'true' : 'false')
+    button.setAttribute(
+      'aria-label',
+      bound ? `移除标签 ${tag.name} 约束` : `用标签 ${tag.name} 约束货架`,
+    )
+    button.addEventListener('click', () => onTag(tag.name))
+    nav.append(button)
+  }
+  container.append(nav)
+}
+
 export function renderCards(
   container: HTMLElement,
   template: HTMLTemplateElement,
@@ -341,30 +306,13 @@ export function renderCards(
   onTag: (tag: string) => void,
   boundTags: string[] = [],
 ): void {
-  paintShelf(
-    container,
-    entries.map((entry) => ({ kind: 'card' as const, entry })),
-    template,
-    onTag,
-    boundTags,
-  )
-}
-
-export function renderGroupedCards(
-  container: HTMLElement,
-  template: HTMLTemplateElement,
-  chunks: TagChunk[],
-  onTag: (tag: string) => void,
-  boundTags: string[] = [],
-): void {
-  const nodes: ShelfNode[] = []
-  for (const chunk of chunks) {
-    nodes.push({ kind: 'label', text: `${chunk.name} · ${String(chunk.entries.length)}` })
-    for (const entry of chunk.entries) {
-      nodes.push({ kind: 'card', entry })
-    }
-  }
-  paintShelf(container, nodes, template, onTag, boundTags)
+  cancelShelfPaint(container)
+  container.replaceChildren()
+  renderResultTags(container, summarizeEntryTags(entries), boundTags, onTag)
+  const grid = document.createElement('div')
+  grid.className = 'result-grid'
+  container.append(grid)
+  paintShelf(grid, entries, template, onTag, boundTags)
 }
 
 export function showPanel(container: HTMLElement, template: HTMLTemplateElement): HTMLElement {

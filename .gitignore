@@ -5,6 +5,8 @@ coverage
 .DS_Store
 .impeccable/review
 .impeccable/questions/*.state.json
+.impeccable/live/**
+!.impeccable/live/config.json
 .playwright-cli/page-*.yml
 .playwright-cli/console-*.log
 .playwright-cli/session*

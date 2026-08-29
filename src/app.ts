@@ -22,8 +22,6 @@ import {
   flattenHallRows,
   hallOptionId,
   renderCards,
-  renderConstraints,
-  renderGroupedCards,
   renderHallList,
   renderSevenWords,
   resolveHallSubmit,
@@ -43,7 +41,6 @@ type AppUi = {
   sevenWords: HTMLElement
   shelfForm: HTMLFormElement
   shelfSearch: HTMLInputElement
-  constraints: HTMLElement
   shelfCount: HTMLElement
   shelfStatus: HTMLElement
   results: HTMLElement
@@ -75,7 +72,6 @@ function queryUi(): AppUi {
     sevenWords: must(document, '#seven-words'),
     shelfForm: must(document, '#shelf-form'),
     shelfSearch: must(document, '#shelf-q'),
-    constraints: must(document, '#constraints'),
     shelfCount: must(document, '#shelf-count'),
     shelfStatus: must(document, '#shelf-status'),
     results: must(document, '#shelf-results'),
@@ -219,14 +215,6 @@ function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>)
   const entries = searchEntries(catalog.entries, query)
   ui.shelfCount.textContent = `${String(entries.length)} 个站点`
 
-  renderConstraints(
-    ui.constraints,
-    route.query,
-    query.tags,
-    () => go(shelfPath('', query.tags)),
-    (tag) => go(shelfPath(route.query, query.tags.filter((item) => item !== tag))),
-  )
-
   if (catalog.entries.length === 0) {
     ui.shelfStatus.textContent = '书签目录为空'
     showPanel(ui.results, ui.emptyCatalogTemplate)
@@ -243,14 +231,15 @@ function renderShelfView(ui: AppUi, route: Extract<AppRoute, { name: 'shelf' }>)
   const label = queryIsEmpty(query) ? '全部站点' : `找到 ${String(entries.length)} 个站点`
   ui.shelfStatus.textContent = label
   const onTag = (tag: string) => {
-    if (query.tags.includes(tag)) return
-    go(shelfPath(route.query, [...query.tags, tag]))
+    const next = query.tags.includes(tag)
+      ? query.tags.filter((item) => item !== tag)
+      : [...query.tags, tag]
+    go(shelfPath(route.query, next))
   }
-  if (queryIsEmpty(query)) {
-    renderGroupedCards(ui.results, ui.cardTemplate, groupEntriesByPrimaryTag(entries), onTag, query.tags)
-  } else {
-    renderCards(ui.results, ui.cardTemplate, entries, onTag, query.tags)
-  }
+  const ordered = queryIsEmpty(query)
+    ? groupEntriesByPrimaryTag(entries).flatMap((chunk) => chunk.entries)
+    : entries
+  renderCards(ui.results, ui.cardTemplate, ordered, onTag, query.tags)
 }
 
 function renderRoute(route: AppRoute): void {
@@ -266,8 +255,6 @@ function showLoadError(ui: AppUi, message: string): void {
   ui.shelf.classList.add('is-failed')
   ui.shelfCount.hidden = true
   ui.shelfForm.hidden = true
-  ui.constraints.hidden = true
-  ui.constraints.replaceChildren()
   ui.shelfStatus.textContent = message
   const panel = showPanel(ui.results, ui.loadErrorTemplate)
   const detail = panel.querySelector('[data-error-detail]')

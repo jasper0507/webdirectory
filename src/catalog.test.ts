@@ -11,6 +11,7 @@ import {
   searchEntries,
   sevenWords,
   standardizeUrl,
+  summarizeEntryTags,
   summarizeTags,
   type BookmarkEntry,
 } from './catalog.ts'
@@ -156,6 +157,33 @@ describe('groupEntriesByPrimaryTag', () => {
 
   it('空目录得到空分块', () => {
     expect(groupEntriesByPrimaryTag([])).toEqual([])
+  })
+})
+
+describe('summarizeEntryTags', () => {
+  it('按当前条目汇总标签，同一条目同一标签只计一次', () => {
+    const entries: BookmarkEntry[] = [
+      { title: 'A', url: 'https://a.example/', displayUrl: 'a.example', tags: ['文档', '工具'] },
+      { title: 'B', url: 'https://b.example/', displayUrl: 'b.example', tags: ['文档'] },
+      { title: 'C', url: 'https://c.example/', displayUrl: 'c.example', tags: ['工具', '工具'] },
+    ]
+    expect(summarizeEntryTags(entries)).toEqual([
+      { name: '文档', count: 2 },
+      { name: '工具', count: 2 },
+    ])
+  })
+
+  it('次数多的在前，同次数保持首次出现顺序', () => {
+    const entries: BookmarkEntry[] = [
+      { title: 'A', url: 'https://a.example/', displayUrl: 'a.example', tags: ['设计'] },
+      { title: 'B', url: 'https://b.example/', displayUrl: 'b.example', tags: ['文档'] },
+      { title: 'C', url: 'https://c.example/', displayUrl: 'c.example', tags: ['文档'] },
+    ]
+    expect(summarizeEntryTags(entries).map((tag) => tag.name)).toEqual(['文档', '设计'])
+  })
+
+  it('空集合得到空汇总', () => {
+    expect(summarizeEntryTags([])).toEqual([])
   })
 })
 
