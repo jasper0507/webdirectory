@@ -71,11 +71,7 @@ webdirectory/
 │   └── *.test.ts
 ├── index.html               厅、架两套页面骨架
 ├── vite.config.ts
-├── vercel.json              `/shelf` 回退到首页
-├── CONTEXT.md               领域术语
-├── PRODUCT.md               产品约束
-├── DESIGN.md                视觉与交互规格
-└── docs/adr/                技术决策
+└── vercel.json              `/shelf` 回退到首页
 ```
 
 书签收录命令与手工编辑最终都只改 `public/portal.json`。搜索厅和货架的零件在 `src/ui.ts`，不要另起一套 class。
@@ -223,14 +219,3 @@ npm run preview
 - 标签完全平级，数组位置不表达优先级；无约束货架保持门户源顺序。
 - 只接受示例中的 canonical 字段；`category` 等旧字段或未知字段会被拒绝。
 - 七词不必写入身份；运行时按标签引用次数生成。
-
-更细的槽位说明见 [`docs/agents/portal-source.md`](docs/agents/portal-source.md)。视觉与交互规格见 [`DESIGN.md`](DESIGN.md)。
-
-## 相关文档
-
-| 文件 | 内容 |
-| --- | --- |
-| [`CONTEXT.md`](CONTEXT.md) | 搜索厅、货架、门户源、七词等术语 |
-| [`PRODUCT.md`](PRODUCT.md) | 产品定位与能力边界 |
-| [`DESIGN.md`](DESIGN.md) | Archive Paper 色板、字体、厅架规则 |
-| [`docs/adr/`](docs/adr/) | 静态发布、原生前端、标签-only、Fuse 匹配等决策 |
