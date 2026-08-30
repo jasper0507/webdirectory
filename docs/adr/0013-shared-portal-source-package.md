@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: superseded by ADR-0015
 ---
 
 # 门户源规则抽成共享包

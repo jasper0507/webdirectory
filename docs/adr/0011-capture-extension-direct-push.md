@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: superseded by ADR-0015
 ---
 
 # 收录扩展直接提交到默认分支
