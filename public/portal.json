@@ -1311,6 +1311,31 @@
         "资料"
       ],
       "description": "Apple充值卡兑换官方教程"
+    },
+    {
+      "title": "订阅转换",
+      "url": "https://sub-web.pages.dev/",
+      "tags": [
+        "工具",
+        "网络"
+      ],
+      "description": "支持订阅或ss/vmess链接转换到clash等格式"
+    },
+    {
+      "title": "appleid美区共享",
+      "url": "https://appleid-share.bitmusthk.com/",
+      "tags": [
+        "网络"
+      ],
+      "description": "免费共享 Apple ID，仅限 App Store 下载 shadowrocket小火箭 使用"
+    },
+    {
+      "title": "轻书架",
+      "url": "https://www.lightnovel.app/home",
+      "tags": [
+        "漫画"
+      ],
+      "description": "免费看日本漫画、小说"
     }
   ]
 }
