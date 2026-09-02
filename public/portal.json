@@ -1336,6 +1336,14 @@
         "漫画"
       ],
       "description": "免费看日本漫画、小说"
+    },
+    {
+      "title": "DGN Cloud",
+      "url": "https://app.dgnlinks.com/console/vm/d378b8d7-dd61-460a-bd69-b1fbf60679c2",
+      "tags": [
+        "基础设施"
+      ],
+      "description": "香港vps"
     }
   ]
 }
